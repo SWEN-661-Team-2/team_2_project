@@ -8,9 +8,9 @@ CareConnect is a cross-platform user interface project focused on designing work
 
 ## Team Members
 
-- One One  
-- Two Two  
-- Three Three  
+- Corey Bayliss  
+- James Stevens
+-  
 
 ---
 
