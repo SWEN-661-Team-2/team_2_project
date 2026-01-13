@@ -85,49 +85,7 @@ Note: Only UI and workflow layers are part of project scope.
 
 These instructions will evolve as stacks are initialized.
 
-### 1. Clone the repository
 
-```bash
-git clone https://github.com/SWEN-661-Team-2/CareConnect.git
-cd CareConnect
-```
-
-### 2. Create initial folders (if needed)
-
-```bash
-mkdir -p apps/flutter apps/react-native apps/electron apps/react
-mkdir -p docs
-```
-
-### 3. Running each implementation (pending initialization)
-
-React (Web):
-```bash
-cd apps/react
-# npm install
-# npm start
-```
-
-React Native (Mobile):
-```bash
-cd apps/react-native
-# npm install
-# npx react-native start
-```
-
-Electron (Desktop):
-```bash
-cd apps/electron
-# npm install
-# npm run electron-dev
-```
-
-Flutter (Mobile):
-```bash
-cd apps/flutter
-# flutter pub get
-# flutter run
-```
 
 ---
 
