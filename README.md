@@ -53,15 +53,25 @@ Out of Scope:
 This repository supports multiple UI technology stacks:
 
 ```
-.
+CareConnect/
 ├── apps/
-│   ├── flutter/         # Flutter implementation (mobile)
-│   ├── react-native/    # React Native implementation (mobile)
-│   ├── electron/        # Electron implementation (desktop)
-│   └── react/           # React (web) implementation
-├── docs/                # Team charter, research docs, etc.
-├── .gitignore           # Common ignores for all stacks
+│   ├── flutter/
+│   │   ├── .gitignore
+│   │   └── README.md
+│   ├── react-native/
+│   │   ├── .gitignore
+│   │   └── README.md
+│   ├── electron/
+│   │   ├── .gitignore
+│   │   └── README.md
+│   └── react/
+│       ├── .gitignore
+│       └── README.md
+├── docs/
+│   └── TEAM-CHARTER.md
+├── .gitignore (optional root one)
 └── README.md
+
 ```
 
 Each folder under `apps/` will eventually contain a functioning prototype representing the CareConnect concept.
