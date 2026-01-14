@@ -103,7 +103,7 @@ CareConnect/
 │   └── research/
 ├── .gitignore
 └── README.md
-
+```
 
 Each folder under `apps/` will eventually contain a functioning prototype representing the CareConnect concept.
 
