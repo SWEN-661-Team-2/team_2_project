@@ -105,11 +105,6 @@ CareConnect/
 └── README.md
 ```
 
-Each folder under `apps/` will eventually contain a functioning prototype representing the CareConnect concept.
-
----
-
-
 Each prototype folder under `apps/` will eventually represent a platform-specific UI based on the CareConnect concept.
 
 ---
