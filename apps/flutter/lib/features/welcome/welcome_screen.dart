@@ -37,6 +37,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     super.initState();
     _pageController = PageController();
 
+    // Random start per load
     _index = Random().nextInt(_carouselImages.length);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -44,6 +45,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       _pageController.jumpToPage(_index);
     });
 
+    // Auto-rotate (no user interaction)
     _timer = Timer.periodic(const Duration(seconds: 4), (_) {
       if (!mounted) return;
       final next = (_index + 1) % _carouselImages.length;
@@ -72,7 +74,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(AppSpacing.lg),
+            // Mobile-first: reduce vertical padding so logo/title sit higher
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: Column(
               children: [
                 Align(
@@ -84,30 +87,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     },
                   ),
                 ),
-                const SizedBox(height: AppSpacing.lg),
+                const SizedBox(height: AppSpacing.sm),
 
-                Container(
-                  width: 140,
-                  height: 140,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        blurRadius: 24,
-                        offset: const Offset(0, 10),
-                        color: Colors.black.withValues(alpha: 0.08),
-                      ),
-                    ],
-                  ),
-                  child: const Center(child: AppLogo(size: 72)),
-                ),
+                // Logo (no background circle) — larger
+                const AppLogo(size: 220),
+                const SizedBox(height: AppSpacing.sm),
 
-                const SizedBox(height: AppSpacing.lg),
-
+                // Title — larger
                 Text(
                   'CareConnect',
-                  style: text.displaySmall?.copyWith(
+                  style: text.displayLarge?.copyWith(
                     fontWeight: FontWeight.w800,
                     color: const Color(0xFF0A7A8A),
                   ),
@@ -115,6 +104,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
                 const SizedBox(height: AppSpacing.lg),
 
+                // Carousel image card
                 ClipRRect(
                   borderRadius: BorderRadius.circular(28),
                   child: AspectRatio(
@@ -139,6 +129,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
                 const SizedBox(height: AppSpacing.xl),
 
+                // Gradient headline
                 ShaderMask(
                   shaderCallback: (rect) => const LinearGradient(
                     colors: [
@@ -175,6 +166,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   height: 58,
                   child: ElevatedButton(
                     onPressed: () {
+                      // Keep your current behavior; swap to Routes.home later if desired
                       Navigator.of(context).pushNamed(Routes.settings);
                     },
                     style: ElevatedButton.styleFrom(
