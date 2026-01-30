@@ -35,3 +35,20 @@ From the Flutter app directory:
 ```bash
 ./scripts/run_mobile.sh
 
+---
+
+## Simulator Scrolling Notes (Team Convention)
+
+Scrolling behavior differs slightly between platforms and hardware.
+
+### Android Emulator
+- Mouse wheel scrolling works as expected.
+- Click-and-drag scrolling also works.
+
+### iOS Simulator (macOS)
+- Scrolling **works**, but input method may vary by hardware.
+- If mouse wheel or trackpad scrolling does not respond:
+  - Use **click + drag (grab and move)** inside the simulator window.
+- This is a known iOS Simulator input behavior and not an application bug.
+
+Developers should verify scrollability using **drag gestures** on iOS Simulator.
