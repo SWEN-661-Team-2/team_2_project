@@ -19,7 +19,9 @@ class ProfileScreen extends StatelessWidget {
           const SizedBox(height: 12),
 
           const Text('Title / Role'),
-          const TextField(decoration: InputDecoration(hintText: 'RN, Caregiver, Admin, etc.')),
+          const TextField(
+            decoration: InputDecoration(hintText: 'RN, Caregiver, Admin, etc.'),
+          ),
           const SizedBox(height: 12),
 
           const Text('Position / Organization'),

@@ -65,7 +65,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             ),
           ),
           const SizedBox(height: 12),
-
           TextField(
             controller: _newController,
             obscureText: !_showNew,
@@ -78,7 +77,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             ),
           ),
           const SizedBox(height: 12),
-
           TextField(
             controller: _confirmController,
             obscureText: !_showConfirm,
@@ -91,9 +89,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               ),
             ),
           ),
-
           const SizedBox(height: 20),
-
           SizedBox(
             height: 52,
             child: FilledButton(
