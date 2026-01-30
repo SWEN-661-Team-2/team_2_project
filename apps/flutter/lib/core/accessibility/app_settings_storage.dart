@@ -4,6 +4,7 @@ import 'handedness.dart';
 class AppSettingsStorage {
   static const _keyHandedness = 'handedness_mode';
   static const _keyA11yOverlay = 'a11y_overlay';
+  static const _kNotificationsEnabled = 'notifications_enabled';
 
   Future<HandednessMode> loadHandednessMode() async {
     final prefs = await SharedPreferences.getInstance();
@@ -27,5 +28,15 @@ class AppSettingsStorage {
   Future<void> saveA11yOverlay(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keyA11yOverlay, enabled);
+  }
+
+  Future<bool> loadNotificationsEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_kNotificationsEnabled) ?? true;
+  }
+
+  Future<void> saveNotificationsEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kNotificationsEnabled, enabled);
   }
 }
