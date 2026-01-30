@@ -34,9 +34,20 @@ class SettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
 
-          _HandednessRadioTile(mode: HandednessMode.left),
-          _HandednessRadioTile(mode: HandednessMode.right),
-          _HandednessRadioTile(mode: HandednessMode.toggle),
+          RadioGroup<HandednessMode>(
+            groupValue: controller.handednessMode,
+            onChanged: (mode) {
+              if (mode != null) controller.setHandednessMode(mode);
+            },
+            child: Column(
+              children: HandednessMode.values.map((mode) {
+                return RadioListTile<HandednessMode>(
+                  value: mode,
+                  title: Text(mode.label),
+                );
+              }).toList(),
+            ),
+          ),
 
           const SizedBox(height: AppSpacing.lg),
           const Divider(),
@@ -53,26 +64,6 @@ class SettingsScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _HandednessRadioTile extends StatelessWidget {
-  final HandednessMode mode;
-
-  const _HandednessRadioTile({required this.mode});
-
-  @override
-  Widget build(BuildContext context) {
-    final controller = AppScope.of(context);
-
-    return RadioListTile<HandednessMode>(
-      value: mode,
-      groupValue: controller.handednessMode,
-      onChanged: (v) {
-        if (v != null) controller.setHandednessMode(v);
-      },
-      title: Text(mode.label),
     );
   }
 }
