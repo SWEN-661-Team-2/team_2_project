@@ -48,3 +48,8 @@ app.*.map.json
 ios/Runner.xcodeproj/project.pbxproj
 ios/Runner.xcworkspace/contents.xcworkspacedata
 
+
+# Xcode workspace/project files (generated; do not commit)
+ios/Runner.xcodeproj/project.pbxproj
+ios/Runner.xcworkspace/contents.xcworkspacedata
+

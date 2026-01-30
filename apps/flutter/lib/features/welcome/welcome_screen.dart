@@ -6,7 +6,6 @@ import '../../core/tokens/spacing.dart';
 import '../../widgets/app_logo.dart';
 import '../../app/routes.dart';
 
-
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
@@ -97,7 +96,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       BoxShadow(
                         blurRadius: 24,
                         offset: const Offset(0, 10),
-                        color: Colors.black.withOpacity(0.08),
+                        color: Colors.black.withValues(alpha: 0.08),
                       ),
                     ],
                   ),
@@ -184,7 +183,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         borderRadius: BorderRadius.circular(32),
                       ),
                       elevation: 10,
-                      shadowColor: Colors.black.withOpacity(0.18),
+                      shadowColor: Colors.black.withValues(alpha: 0.18),
                     ),
                     child: const Text(
                       'Continue',
@@ -242,10 +241,10 @@ class _CircleIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: Colors.white.withOpacity(0.9),
+      color: Colors.white.withValues(alpha: 0.9),
       shape: const CircleBorder(),
       elevation: 6,
-      shadowColor: Colors.black.withOpacity(0.12),
+      shadowColor: Colors.black.withValues(alpha: 0.12),
       child: InkWell(
         customBorder: const CircleBorder(),
         onTap: onTap,
