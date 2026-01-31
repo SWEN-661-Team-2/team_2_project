@@ -32,7 +32,10 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     if (!_emailError && !_passwordError) {
-      Navigator.of(context).pushReplacementNamed(Routes.home);
+      Navigator.of(context).pushNamedAndRemoveUntil(
+        Routes.app,
+        (route) => false,
+      );
     }
   }
 

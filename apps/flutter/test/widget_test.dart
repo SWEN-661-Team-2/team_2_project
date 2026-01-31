@@ -7,7 +7,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('App builds smoke test', (WidgetTester tester) async {
-    // ✅ Mock SharedPreferences for widget tests
+    // Mock SharedPreferences for widget tests
     SharedPreferences.setMockInitialValues(<String, Object>{});
 
     // Run your real app main() which loads settings then calls runApp()
