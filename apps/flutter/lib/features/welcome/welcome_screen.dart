@@ -83,7 +83,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   child: _CircleIconButton(
                     icon: Icons.settings,
                     onTap: () {
-                      Navigator.of(context).pushNamed(Routes.settings);
+                      Navigator.of(context).pushReplacementNamed(Routes.login);
                     },
                   ),
                 ),
@@ -166,7 +166,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   height: 58,
                   child: ElevatedButton(
                     onPressed: () {
-                      // Keep your current behavior; swap to Routes.home later if desired
                       Navigator.of(context).pushNamed(Routes.login);
                     },
                     style: ElevatedButton.styleFrom(

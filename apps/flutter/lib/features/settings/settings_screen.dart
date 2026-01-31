@@ -217,11 +217,16 @@ class SettingsScreen extends StatelessWidget {
             ),
             leading: const Icon(Icons.logout, color: Colors.red),
             onTap: () {
-              // TODO: real auth logout later
+              // Optional placeholder feedback
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Logged out (placeholder)')),
+                const SnackBar(content: Text('Logged out')),
               );
-              Navigator.of(context).popUntil((r) => r.isFirst);
+
+              // Clear navigation stack and return to Login
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                Routes.login,
+                (route) => false,
+              );
             },
           ),
 
