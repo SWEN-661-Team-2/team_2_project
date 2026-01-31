@@ -1,37 +1,30 @@
 import 'package:flutter/material.dart';
 
-import '../../app/routes.dart';
 import '../../widgets/app_logo.dart';
+import '../../app/app_shell.dart';
+import '../patients/patients_list_screen.dart';
+import '../../core/patients/patient.dart';
+import '../../core/patients/patients_repository.dart';
+import '../../core/utils/dt_format.dart';
+import '../../core/messages/messages_repository.dart';
 
 class CaregiverDashboardScreen extends StatelessWidget {
   const CaregiverDashboardScreen({super.key});
 
-  @override
-  Widget build(BuildContext context) {
+@override
+Widget build(BuildContext context) {
+  final repo = PatientsRepository.instance;
+  final msgRepo = MessagesRepository.instance; // 👈 ADD THIS
+
+  final needingTop3 = repo.topNeedingAttention(3);
+  final upcomingTop3 = repo.topUpcomingVisits(3);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFB),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        type: BottomNavigationBarType.fixed,
-        onTap: (i) {
-          if (i == 4) {
-            Navigator.of(context).pushNamed(Routes.settings);
-          }
-          // Later: route Patients/Tasks/Messages by index.
-        },
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.check_circle_outline), label: 'Tasks'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Messages'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
-        ],
-      ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
           children: [
-            // Header
             Row(
               children: [
                 const AppLogo(size: 22),
@@ -44,10 +37,8 @@ class CaregiverDashboardScreen extends StatelessWidget {
                 IconButton(icon: const Icon(Icons.info_outline), onPressed: () {}),
               ],
             ),
-
             const SizedBox(height: 16),
 
-            // KPI Grid (NO OVERFLOW)
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -59,11 +50,32 @@ class CaregiverDashboardScreen extends StatelessWidget {
               ),
               itemCount: 4,
               itemBuilder: (context, index) {
-                const cards = [
-                  _StatCard(icon: Icons.people, value: '24', label: 'Active Patients'),
-                  _StatCard(icon: Icons.schedule, value: '8', label: 'Upcoming Visits'),
-                  _StatCard(icon: Icons.warning_amber, value: '3', label: 'Patients Needing Attention'),
-                  _StatCard(icon: Icons.chat_bubble_outline, value: '12', label: 'Messages'),
+                final cards = [
+                  _StatCard(
+                    icon: Icons.people,
+                    value: '${repo.allPatients().length}',
+                    label: 'Active Patients',
+                    onTap: () => AppShell.of(context)?.openPatients(PatientsViewMode.all),
+                  ),
+                  _StatCard(
+                    icon: Icons.schedule,
+                    value: '${repo.upcomingVisitsSorted().length}',
+                    label: 'Upcoming Visits',
+                    onTap: () => AppShell.of(context)?.openPatients(PatientsViewMode.upcomingVisits),
+                  ),
+                  _StatCard(
+                    icon: Icons.warning_amber,
+                    value: '${repo.needingAttentionSorted().length}',
+                    label: 'Patients Needing Attention',
+                    onTap: () =>
+                        AppShell.of(context)?.openPatients(PatientsViewMode.needingAttention),
+                  ),
+                  _StatCard(
+                    icon: Icons.chat_bubble_outline,
+                    value: '${msgRepo.unreadCount()}',
+                    label: 'Messages / Unread',
+                    onTap: () => AppShell.of(context)?.setTab(3),
+                  ),
                 ];
                 return cards[index];
               },
@@ -72,48 +84,120 @@ class CaregiverDashboardScreen extends StatelessWidget {
             const SizedBox(height: 24),
             const _SectionHeader(title: 'Patients Needing Attention'),
 
-            const _PatientRow(
-              name: 'Sarah Johnson',
-              subtitle: 'Medication missed - Morning insulin',
-              tag: 'CRITICAL',
-              color: Colors.red,
-            ),
-            const _PatientRow(
-              name: 'Michael Chen',
-              subtitle: 'New symptom reported - Chest pain',
-              tag: 'CRITICAL',
-              color: Colors.red,
-            ),
-            const _PatientRow(
-              name: 'Emma Williams',
-              subtitle: 'Elevated blood pressure reading',
-              tag: 'HIGH',
-              color: Colors.orange,
-            ),
+            for (final p in needingTop3)
+              _PatientRow(
+                name: p.fullName,
+                subtitle: 'Priority: ${_critText(p.criticality)}',
+                tag: _critTag(p.criticality),
+                color: _critColor(p.criticality),
+              ),
 
-            TextButton(onPressed: () {}, child: const Text('View All')),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton(
+                onPressed: () =>
+                    AppShell.of(context)?.openPatients(PatientsViewMode.needingAttention),
+                child: const Text('View All'),
+              ),
+            ),
 
             const SizedBox(height: 24),
             const _SectionHeader(title: 'Upcoming Visits'),
 
-            const _PatientRow(
-              name: 'Anna Lopez',
-              subtitle: 'Home health check – 2:30 PM',
-              tag: '2:30 PM',
-              color: Colors.blue,
-            ),
-            const _PatientRow(
-              name: 'Mark Lee',
-              subtitle: 'Physical therapy – 4:00 PM',
-              tag: '4:00 PM',
-              color: Colors.blue,
-            ),
+            // In Upcoming Visits: still show Visit date/time; show criticality pill ONLY if present
+            for (final p in upcomingTop3)
+              _PatientRow(
+                name: p.fullName,
+                subtitle: p.nextVisit == null
+                    ? 'No visit scheduled'
+                    : 'Visit: ${formatDtYmdHmm(p.nextVisit!.toLocal())}',
+                tag: _critTagOrBlank(p.criticality),
+                color: _critColorOrTransparent(p.criticality),
+              ),
 
-            TextButton(onPressed: () {}, child: const Text('View All')),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton(
+                onPressed: () =>
+                    AppShell.of(context)?.openPatients(PatientsViewMode.upcomingVisits),
+                child: const Text('View All'),
+              ),
+            ),
           ],
         ),
       ),
     );
+  }
+}
+
+String _critText(PatientCriticality? c) {
+  if (c == null) return '—';
+  switch (c) {
+    case PatientCriticality.critical:
+      return 'Critical';
+    case PatientCriticality.high:
+      return 'High';
+    case PatientCriticality.medium:
+      return 'Medium';
+    case PatientCriticality.low:
+      return 'Low';
+  }
+}
+
+String _critTag(PatientCriticality? c) {
+  if (c == null) return '—';
+  switch (c) {
+    case PatientCriticality.critical:
+      return 'CRITICAL';
+    case PatientCriticality.high:
+      return 'HIGH';
+    case PatientCriticality.medium:
+      return 'MED';
+    case PatientCriticality.low:
+      return 'LOW';
+  }
+}
+
+Color _critColor(PatientCriticality? c) {
+  if (c == null) return Colors.grey;
+  switch (c) {
+    case PatientCriticality.critical:
+      return Colors.red;
+    case PatientCriticality.high:
+      return Colors.orange;
+    case PatientCriticality.medium:
+      return Colors.blueGrey;
+    case PatientCriticality.low:
+      return Colors.green;
+  }
+}
+
+// Upcoming Visits helpers: blank pill if no criticality
+String _critTagOrBlank(PatientCriticality? c) {
+  if (c == null) return '';
+  switch (c) {
+    case PatientCriticality.critical:
+      return 'CRITICAL';
+    case PatientCriticality.high:
+      return 'HIGH';
+    case PatientCriticality.medium:
+      return 'MED';
+    case PatientCriticality.low:
+      return 'LOW';
+  }
+}
+
+Color _critColorOrTransparent(PatientCriticality? c) {
+  if (c == null) return Colors.transparent;
+  switch (c) {
+    case PatientCriticality.critical:
+      return Colors.red;
+    case PatientCriticality.high:
+      return Colors.orange;
+    case PatientCriticality.medium:
+      return Colors.blueGrey;
+    case PatientCriticality.low:
+      return Colors.green;
   }
 }
 
@@ -134,55 +218,54 @@ class _StatCard extends StatelessWidget {
   final IconData icon;
   final String value;
   final String label;
+  final VoidCallback? onTap;
 
   const _StatCard({
     required this.icon,
     required this.value,
     required this.label,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Icon(icon, color: Colors.blue, size: 22),
-
-            const SizedBox(height: 10),
-
-            // Make the bottom part flexible so it can never overflow
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Value: scale down if needed
-                  FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      value,
-                      style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(icon, color: Colors.blue, size: 22),
+              const SizedBox(height: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        value,
+                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                      ),
                     ),
-                  ),
-
-                  const SizedBox(height: 6),
-
-                  // Label: allow up to 2 lines and ellipsis
-                  Text(
-                    label,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                ],
+                    const SizedBox(height: 6),
+                    Text(
+                      label,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -214,31 +297,31 @@ class _PatientRow extends StatelessWidget {
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
-        subtitle: Text(
-          subtitle,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 110),
-          child: Align(
-            alignment: Alignment.centerRight,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  tag,
-                  style: TextStyle(color: color, fontWeight: FontWeight.bold),
+        subtitle: Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis),
+
+        // CHANGE: If tag is blank, remove the pill entirely
+        trailing: (tag.trim().isEmpty)
+            ? null
+            : ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 110),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        tag,
+                        style: TextStyle(color: color, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-        ),
       ),
     );
   }
