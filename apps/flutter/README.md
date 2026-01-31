@@ -52,3 +52,6 @@ Scrolling behavior differs slightly between platforms and hardware.
 - This is a known iOS Simulator input behavior and not an application bug.
 
 Developers should verify scrollability using **drag gestures** on iOS Simulator.
+
+## Task Checklist
+See: `docs/TASKS.md` (generated from GitHub Issues + milestones)
