@@ -34,7 +34,7 @@ From the Flutter app directory:
 
 ```bash
 ./scripts/run_mobile.sh
-
+```
 ---
 
 ## Simulator Scrolling Notes (Team Convention)
