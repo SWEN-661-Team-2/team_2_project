@@ -1,0 +1,21 @@
+# CMake generation dependency list for this directory.
+C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/apps/flutter/windows/CMakeLists.txt
+C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/apps/flutter/windows/flutter/generated_plugins.cmake
+C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/build/CMakeFiles/3.26.4/CMakeCXXCompiler.cmake
+C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/build/CMakeFiles/3.26.4/CMakeRCCompiler.cmake
+C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/build/CMakeFiles/3.26.4/CMakeSystem.cmake
+C:/mingw-w64/mingw64/share/cmake-3.26/Modules/CMakeCXXInformation.cmake
+C:/mingw-w64/mingw64/share/cmake-3.26/Modules/CMakeCommonLanguageInclude.cmake
+C:/mingw-w64/mingw64/share/cmake-3.26/Modules/CMakeGenericSystem.cmake
+C:/mingw-w64/mingw64/share/cmake-3.26/Modules/CMakeInitializeConfigs.cmake
+C:/mingw-w64/mingw64/share/cmake-3.26/Modules/CMakeLanguageInformation.cmake
+C:/mingw-w64/mingw64/share/cmake-3.26/Modules/CMakeRCInformation.cmake
+C:/mingw-w64/mingw64/share/cmake-3.26/Modules/CMakeSystemSpecificInformation.cmake
+C:/mingw-w64/mingw64/share/cmake-3.26/Modules/CMakeSystemSpecificInitialize.cmake
+C:/mingw-w64/mingw64/share/cmake-3.26/Modules/Compiler/CMakeCommonCompilerMacros.cmake
+C:/mingw-w64/mingw64/share/cmake-3.26/Modules/Compiler/MSVC-CXX.cmake
+C:/mingw-w64/mingw64/share/cmake-3.26/Modules/Compiler/MSVC.cmake
+C:/mingw-w64/mingw64/share/cmake-3.26/Modules/Platform/Windows-MSVC-CXX.cmake
+C:/mingw-w64/mingw64/share/cmake-3.26/Modules/Platform/Windows-MSVC.cmake
+C:/mingw-w64/mingw64/share/cmake-3.26/Modules/Platform/Windows.cmake
+C:/mingw-w64/mingw64/share/cmake-3.26/Modules/Platform/WindowsPaths.cmake
