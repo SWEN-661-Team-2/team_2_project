@@ -167,7 +167,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   child: ElevatedButton(
                     onPressed: () {
                       // Keep your current behavior; swap to Routes.home later if desired
-                      Navigator.of(context).pushNamed(Routes.settings);
+                      Navigator.of(context).pushNamed(Routes.login);
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF0A8F84),
