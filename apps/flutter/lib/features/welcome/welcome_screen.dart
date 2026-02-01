@@ -81,6 +81,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 Align(
                   alignment: Alignment.topRight,
                   child: _CircleIconButton(
+                    key: const Key('welcome_settings'),
                     icon: Icons.settings,
                     onTap: () {
                       Navigator.of(context).pushReplacementNamed(Routes.login);
@@ -165,9 +166,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   width: double.infinity,
                   height: 58,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pushNamed(Routes.login);
-                    },
+                      key: const Key('welcome_continue'),
+                      onPressed: () {
+                        Navigator.of(context).pushNamed(Routes.login);
+                      },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF0A8F84),
                       shape: RoundedRectangleBorder(
@@ -227,7 +229,7 @@ class _CircleIconButton extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
 
-  const _CircleIconButton({required this.icon, required this.onTap});
+  const _CircleIconButton({super.key, required this.icon, required this.onTap});
 
   @override
   Widget build(BuildContext context) {

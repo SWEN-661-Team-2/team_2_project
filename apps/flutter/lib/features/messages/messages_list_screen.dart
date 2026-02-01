@@ -14,6 +14,7 @@ class MessagesListScreen extends StatelessWidget {
       backgroundColor: const Color(0xFFF7FAFB),
       appBar: AppBar(title: const Text('Messages')),
       body: ListView.separated(
+        key: const Key('messages_list'),
         padding: const EdgeInsets.all(16),
         itemCount: items.length,
         separatorBuilder: (context, index) => const SizedBox(height: 12),
@@ -22,6 +23,7 @@ class MessagesListScreen extends StatelessWidget {
 
           return Card(
             child: ListTile(
+              key: Key('message_$i'),
               title: Text(
                 m.sender,
                 style: TextStyle(

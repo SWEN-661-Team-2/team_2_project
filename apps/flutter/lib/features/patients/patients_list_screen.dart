@@ -52,6 +52,7 @@ class PatientsListScreen extends StatelessWidget {
         ),
       ),
       body: ListView.separated(
+        key: const Key('patients_list'),
         padding: const EdgeInsets.all(16),
         itemCount: items.length,
         separatorBuilder: (context, index) => const SizedBox(height: 12),
@@ -59,12 +60,16 @@ class PatientsListScreen extends StatelessWidget {
           final p = items[i];
           return Card(
             child: ListTile(
+              key: Key('patient_$i'),
               title: Text(
                 p.fullName,
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               subtitle: Text(_subtitleForMode(p)),
-              trailing: _tagForPatient(p),
+              trailing: p.criticality == null ? null : Container(
+                key: Key('patient_tag_$i'),
+                child: _tagForPatient(p),
+              ),
             ),
           );
         },
