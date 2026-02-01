@@ -54,6 +54,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           TextField(
+            key: const Key('change_old'),
             controller: _oldController,
             obscureText: !_showOld,
             decoration: InputDecoration(
@@ -66,6 +67,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           ),
           const SizedBox(height: 12),
           TextField(
+            key: const Key('change_new'),
             controller: _newController,
             obscureText: !_showNew,
             decoration: InputDecoration(
@@ -78,6 +80,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           ),
           const SizedBox(height: 12),
           TextField(
+            key: const Key('change_confirm'),
             controller: _confirmController,
             obscureText: !_showConfirm,
             decoration: InputDecoration(
@@ -93,6 +96,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           SizedBox(
             height: 52,
             child: FilledButton(
+              key: const Key('change_save'),
               onPressed: _save,
               child: const Text('Save'),
             ),

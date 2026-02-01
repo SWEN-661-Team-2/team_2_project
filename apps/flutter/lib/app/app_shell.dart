@@ -65,11 +65,11 @@ class AppShellState extends State<AppShell> {
         type: BottomNavigationBarType.fixed,
         onTap: setTab,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.check_circle_outline), label: 'Tasks'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline), label: 'Messages'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+          BottomNavigationBarItem(icon: Icon(Icons.home, key: Key('bn_home')), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.people, key: Key('bn_people')), label: 'Patients'),
+          BottomNavigationBarItem(icon: Icon(Icons.check_circle_outline, key: Key('bn_tasks')), label: 'Tasks'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline, key: Key('bn_messages')), label: 'Messages'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings, key: Key('bn_settings')), label: 'Settings'),
         ],
       ),
     );
