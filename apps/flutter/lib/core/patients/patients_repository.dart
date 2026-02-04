@@ -164,6 +164,68 @@ class PatientsRepository {
   List<Patient> topNeedingAttention(int n) => needingAttentionSorted().take(n).toList();
   List<Patient> topUpcomingVisits(int n) => upcomingVisitsSorted().take(n).toList();
 
+  /// Sort all patients by last name
+  /// [ascending] = true: A-Z, false: Z-A
+  List<Patient> sortedByLastName({bool ascending = true}) {
+    final items = List<Patient>.from(_patients);
+    items.sort((a, b) {
+      final cmp = a.lastName.toLowerCase().compareTo(b.lastName.toLowerCase());
+      if (cmp != 0) return ascending ? cmp : -cmp;
+      // Secondary sort by first name
+      final fn = a.firstName.toLowerCase().compareTo(b.firstName.toLowerCase());
+      return ascending ? fn : -fn;
+    });
+    return items;
+  }
+
+  /// Sort all patients by criticality
+  /// [ascending] = true: Critical→Low (high priority first)
+  /// [ascending] = false: Low→Critical (low priority first)
+  /// Patients without criticality appear at the end
+  List<Patient> sortedByCriticality({bool ascending = true}) {
+    final items = List<Patient>.from(_patients);
+    items.sort((a, b) {
+      final ca = a.criticality;
+      final cb = b.criticality;
+      
+      // Null criticality goes to end
+      if (ca == null && cb == null) {
+        return a.lastName.compareTo(b.lastName);
+      }
+      if (ca == null) return 1;
+      if (cb == null) return -1;
+
+      final cmp = _critRank(ca).compareTo(_critRank(cb));
+      if (cmp != 0) return ascending ? cmp : -cmp;
+      
+      // Secondary sort by last name
+      return a.lastName.compareTo(b.lastName);
+    });
+    return items;
+  }
+
+  /// Sort all patients by upcoming visit (soonest first)
+  /// Patients without a visit appear at the end
+  List<Patient> allPatientsSortedByVisit() {
+    final items = List<Patient>.from(_patients);
+    items.sort((a, b) {
+      final va = a.nextVisit;
+      final vb = b.nextVisit;
+      
+      // Null visits go to end
+      if (va == null && vb == null) {
+        return a.lastName.compareTo(b.lastName);
+      }
+      if (va == null) return 1;
+      if (vb == null) return -1;
+
+      final cmp = va.compareTo(vb);
+      if (cmp != 0) return cmp;
+      return a.lastName.compareTo(b.lastName);
+    });
+    return items;
+  }
+
   // Lower number = higher priority for sort()
   int _critRank(PatientCriticality c) {
     switch (c) {

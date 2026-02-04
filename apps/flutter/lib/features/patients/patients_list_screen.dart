@@ -6,7 +6,16 @@ import '../../core/utils/dt_format.dart';
 
 enum PatientsViewMode { all, upcomingVisits, needingAttention }
 
-class PatientsListScreen extends StatelessWidget {
+/// Sort options for the patient list
+enum PatientSortOption {
+  lastNameAsc,
+  lastNameDesc,
+  criticalityHighToLow,
+  criticalityLowToHigh,
+  upcomingVisits,
+}
+
+class PatientsListScreen extends StatefulWidget {
   final PatientsViewMode mode;
 
   const PatientsListScreen({
@@ -14,25 +23,63 @@ class PatientsListScreen extends StatelessWidget {
     this.mode = PatientsViewMode.all,
   });
 
+  @override
+  State<PatientsListScreen> createState() => _PatientsListScreenState();
+}
+
+class _PatientsListScreenState extends State<PatientsListScreen> {
+  PatientSortOption _sortOption = PatientSortOption.lastNameAsc;
+
   String get _title {
-    switch (mode) {
+    switch (widget.mode) {
       case PatientsViewMode.needingAttention:
         return 'Patients Needing Attention';
       case PatientsViewMode.upcomingVisits:
         return 'Upcoming Visits';
       case PatientsViewMode.all:
-        return 'Patients';
+        return 'Active Patients';
+    }
+  }
+
+  String _sortOptionLabel(PatientSortOption option) {
+    switch (option) {
+      case PatientSortOption.lastNameAsc:
+        return 'Last Name (A-Z)';
+      case PatientSortOption.lastNameDesc:
+        return 'Last Name (Z-A)';
+      case PatientSortOption.criticalityHighToLow:
+        return 'Criticality (High → Low)';
+      case PatientSortOption.criticalityLowToHigh:
+        return 'Criticality (Low → High)';
+      case PatientSortOption.upcomingVisits:
+        return 'Upcoming Visits';
     }
   }
 
   List<Patient> _items(PatientsRepository repo) {
-    switch (mode) {
+    switch (widget.mode) {
       case PatientsViewMode.needingAttention:
         return repo.needingAttentionSorted();
       case PatientsViewMode.upcomingVisits:
         return repo.upcomingVisitsSorted();
       case PatientsViewMode.all:
-        return repo.allPatients();
+        return _sortedItems(repo);
+    }
+  }
+
+  /// Apply user-selected sorting for "all patients" mode
+  List<Patient> _sortedItems(PatientsRepository repo) {
+    switch (_sortOption) {
+      case PatientSortOption.lastNameAsc:
+        return repo.sortedByLastName(ascending: true);
+      case PatientSortOption.lastNameDesc:
+        return repo.sortedByLastName(ascending: false);
+      case PatientSortOption.criticalityHighToLow:
+        return repo.sortedByCriticality(ascending: true);
+      case PatientSortOption.criticalityLowToHigh:
+        return repo.sortedByCriticality(ascending: false);
+      case PatientSortOption.upcomingVisits:
+        return repo.allPatientsSortedByVisit();
     }
   }
 
@@ -40,6 +87,9 @@ class PatientsListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final repo = PatientsRepository.instance;
     final items = _items(repo);
+
+    // Show sort dropdown only for "all patients" mode
+    final showSortDropdown = widget.mode == PatientsViewMode.all;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFB),
@@ -50,6 +100,42 @@ class PatientsListScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => AppShell.of(context)?.setTab(0), // back to dashboard tab
         ),
+        actions: showSortDropdown
+            ? [
+                Semantics(
+                  label: 'Sort patients',
+                  hint: 'Select sorting option',
+                  child: PopupMenuButton<PatientSortOption>(
+                    key: const Key('sort_dropdown'),
+                    icon: const Icon(Icons.sort),
+                    tooltip: 'Sort patients',
+                    onSelected: (option) {
+                      setState(() {
+                        _sortOption = option;
+                      });
+                    },
+                    itemBuilder: (context) => PatientSortOption.values
+                        .map(
+                          (option) => PopupMenuItem<PatientSortOption>(
+                            key: Key('sort_option_${option.name}'),
+                            value: option,
+                            child: Row(
+                              children: [
+                                if (option == _sortOption)
+                                  const Icon(Icons.check, size: 18, color: Colors.blue)
+                                else
+                                  const SizedBox(width: 18),
+                                const SizedBox(width: 8),
+                                Text(_sortOptionLabel(option)),
+                              ],
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+              ]
+            : null,
       ),
       body: ListView.separated(
         key: const Key('patients_list'),
@@ -78,7 +164,7 @@ class PatientsListScreen extends StatelessWidget {
   }
 
   String _subtitleForMode(Patient p) {
-    switch (mode) {
+    switch (widget.mode) {
       case PatientsViewMode.upcomingVisits: {
         final dt = p.nextVisit;
         return dt == null ? 'No visit scheduled' : 'Visit: ${formatDtYmdHmm(dt.toLocal())}';
