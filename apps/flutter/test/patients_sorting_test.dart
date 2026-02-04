@@ -8,7 +8,7 @@ import 'test_harness.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  group('Patient List Sorting Tests', () {
+  group('Patient List Sorting Tests - Global Consistency', () {
     testWidgets('Sort dropdown renders in Active Patients mode', (tester) async {
       await pumpWidgetWithApp(tester, const PatientsListScreen(mode: PatientsViewMode.all));
       
@@ -16,16 +16,20 @@ void main() {
       expect(find.text('Active Patients'), findsOneWidget);
     });
 
-    testWidgets('Sort dropdown does not show in needingAttention mode', (tester) async {
+    testWidgets('Sort dropdown renders in needingAttention mode (consistent behavior)', (tester) async {
       await pumpWidgetWithApp(tester, const PatientsListScreen(mode: PatientsViewMode.needingAttention));
       
-      expect(find.byKey(const Key('sort_dropdown')), findsNothing);
+      // Sort dropdown should now be visible in ALL modes
+      expect(find.byKey(const Key('sort_dropdown')), findsOneWidget);
+      expect(find.text('Patients Needing Attention'), findsOneWidget);
     });
 
-    testWidgets('Sort dropdown does not show in upcomingVisits mode', (tester) async {
+    testWidgets('Sort dropdown renders in upcomingVisits mode (consistent behavior)', (tester) async {
       await pumpWidgetWithApp(tester, const PatientsListScreen(mode: PatientsViewMode.upcomingVisits));
       
-      expect(find.byKey(const Key('sort_dropdown')), findsNothing);
+      // Sort dropdown should now be visible in ALL modes
+      expect(find.byKey(const Key('sort_dropdown')), findsOneWidget);
+      expect(find.text('Upcoming Visits'), findsOneWidget);
     });
 
     testWidgets('Sort dropdown shows all 5 sorting options', (tester) async {
@@ -47,7 +51,6 @@ void main() {
       await pumpWidgetWithApp(tester, const PatientsListScreen(mode: PatientsViewMode.all));
       
       final repo = PatientsRepository.instance;
-      final allPatients = repo.allPatients();
       
       // Get first patient before sorting
       final firstPatientBefore = find.byKey(const Key('patient_0'));
@@ -65,6 +68,32 @@ void main() {
       // Verify patients are sorted descending by last name
       final sortedDesc = repo.sortedByLastName(ascending: false);
       expect(sortedDesc.isNotEmpty, true);
+    });
+
+    testWidgets('Sorting works on Needing Attention view', (tester) async {
+      await pumpWidgetWithApp(tester, const PatientsListScreen(mode: PatientsViewMode.needingAttention));
+      
+      // Open dropdown and select A-Z sort
+      await tester.tap(find.byKey(const Key('sort_dropdown')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('sort_option_lastNameAsc')));
+      await tester.pumpAndSettle();
+
+      // Verify list still renders
+      expect(find.byKey(const Key('patients_list')), findsOneWidget);
+    });
+
+    testWidgets('Sorting works on Upcoming Visits view', (tester) async {
+      await pumpWidgetWithApp(tester, const PatientsListScreen(mode: PatientsViewMode.upcomingVisits));
+      
+      // Open dropdown and select criticality sort
+      await tester.tap(find.byKey(const Key('sort_dropdown')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('sort_option_criticalityHighToLow')));
+      await tester.pumpAndSettle();
+
+      // Verify list still renders
+      expect(find.byKey(const Key('patients_list')), findsOneWidget);
     });
   });
 
