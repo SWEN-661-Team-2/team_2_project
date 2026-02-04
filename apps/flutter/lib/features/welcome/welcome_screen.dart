@@ -83,6 +83,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   child: _CircleIconButton(
                     key: const Key('welcome_settings'),
                     icon: Icons.settings,
+                    label: 'Settings',
                     onTap: () {
                       Navigator.of(context).pushReplacementNamed(Routes.login);
                     },
@@ -227,24 +228,37 @@ class _Dots extends StatelessWidget {
 
 class _CircleIconButton extends StatelessWidget {
   final IconData icon;
+  final String label;
   final VoidCallback onTap;
 
-  const _CircleIconButton({super.key, required this.icon, required this.onTap});
+  const _CircleIconButton({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white.withValues(alpha: 0.9),
-      shape: const CircleBorder(),
-      elevation: 6,
-      shadowColor: Colors.black.withValues(alpha: 0.12),
-      child: InkWell(
-        customBorder: const CircleBorder(),
-        onTap: onTap,
-        child: SizedBox(
-          width: 52,
-          height: 52,
-          child: Icon(icon, color: const Color(0xFF374151)),
+    return Semantics(
+      button: true,
+      label: label,
+      child: Tooltip(
+        message: label,
+        child: Material(
+          color: Colors.white.withValues(alpha: 0.9),
+          shape: const CircleBorder(),
+          elevation: 6,
+          shadowColor: Colors.black.withValues(alpha: 0.12),
+          child: InkWell(
+            customBorder: const CircleBorder(),
+            onTap: onTap,
+            child: SizedBox(
+              width: 52,
+              height: 52,
+              child: Icon(icon, color: const Color(0xFF374151)),
+            ),
+          ),
         ),
       ),
     );

@@ -22,25 +22,21 @@ class CaregiverDashboardScreen extends StatelessWidget {
     final upcomingTop3 = repo.topUpcomingVisits(3);
 
     Widget header() => Row(
-          children: [
-            const AppLogo(size: 22),
-            const SizedBox(width: 10),
-            const Text(
-              'CareConnect',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-            ),
-            const Spacer(),
-            Semantics(
-              button: true,
-              label: 'App information',
-              child: IconButton(
-                tooltip: 'App information',
-                icon: const Icon(Icons.info_outline),
-                onPressed: () {},
-              ),
-            ),
-          ],
-        );
+      children: [
+        const AppLogo(size: 22),
+        const SizedBox(width: 10),
+        const Text(
+          'CareConnect',
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+        ),
+        const Spacer(),
+        IconButton(
+          tooltip: 'App information',
+          icon: const Icon(Icons.info_outline),
+          onPressed: () {},
+        ),
+      ]
+    );
 
     Widget kpiGrid({required int crossAxisCount, required double mainAxisExtent}) =>
         GridView.builder(
@@ -316,50 +312,67 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(16),
-      onTap: onTap,
-      child: Card(
-        elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(icon, color: Colors.blue, size: 22),
-              const SizedBox(height: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        value,
-                        maxLines: 1,
-                        overflow: TextOverflow.clip,
-                        style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Expanded(
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        child: Text(
-                          label,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(color: Colors.grey),
+    final enabled = onTap != null;
+
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      label: label,
+      value: value,
+      hint: enabled ? 'Double tap to open' : null,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onTap,
+          child: Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(icon, color: Colors.blue, size: 22),
+                  const SizedBox(height: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            value,
+                            maxLines: 1,
+                            overflow: TextOverflow.clip,
+                            style: const TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 4),
+                        Expanded(
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            child: Text(
+                              label,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
