@@ -199,12 +199,8 @@ No parts of this project are intended for real clinical deployment.
 
 ---
 
-**End of README**
-
-
-
-
 ## Running the Flutter App
+
 ### Prerequisites
 - Flutter SDK (stable channel)
 - Dart SDK (bundled with Flutter)
@@ -214,6 +210,7 @@ Verify Flutter installation:
 ```bash
 flutter doctor
 ```
+
 ### Run the App
 From the repository root:
 ```bash
@@ -225,7 +222,9 @@ Supported targets include:
 - Android emulator
 - iOS simulator
 - Chrome (web)
+  
 ---
+
 ## Running Tests
 All automated tests are written using Flutter’s `flutter_test` framework.
 
@@ -235,7 +234,9 @@ cd apps/flutter
 flutter test
 ```
 All tests must pass before submission.
+
 ---
+
 ## Test Coverage
 Test coverage is generated using Flutter’s built-in coverage tooling.
 Generate coverage:
@@ -249,7 +250,9 @@ apps/flutter/coverage/lcov.info
 ```
 This file is produced locally and uploaded as a CI build artifact via GitHub Actions.
 > **Note:** Coverage visualization tools (e.g., LCOV HTML reports) were not required for this assignment.
+
 ---
+
 ## Security & Quality Checks
 The project includes static analysis and security validation:
 - `flutter analyze` — static analysis
@@ -259,12 +262,15 @@ The project includes static analysis and security validation:
 Security checks were run locally and in CI prior to submission.
 
 ---
+
 ## Known Issues / Limitations
 - This is a UI-only academic prototype; no backend or persistent storage
 - Accessibility focuses on handedness and interaction ergonomics, not full WCAG AAA compliance
 - Photo upload is limited to mobile platforms (Android/iOS)
 - Web and desktop support are functional but not production-hardened
+  
 ## Team Contributions (This Week)
+
 ### James Stevens
 - Flutter UI implementation  
 - Accessibility improvements (Semantics, labels, tooltips)  
@@ -273,12 +279,14 @@ Security checks were run locally and in CI prior to submission.
 - CI/CD configuration and build artifacts  
 - Visual design guidance  
 - Layout consistency review  
-- Documentation updates  
+- Documentation updates
+  
 ### Corey Bayliss
 - UX research and usability considerations  
 - Design review and feedback  
 - Accessibility rationale contributions  
-- UX feedback and iteration support  
+- UX feedback and iteration support
+  
 ---
 
 ## AI Usage Summary
@@ -290,7 +298,13 @@ AI contributions included:
 - CI/CD workflow guidance
 - Documentation drafting and refinement
 All design decisions, code integration, and final validation were performed by the team.
+
 ---
+
 ## Final Notes
 This project was developed for **SWEN 661 — User Interface Implementation**  
 and is intended solely for academic evaluation.
+
+---
+
+**End of README**
