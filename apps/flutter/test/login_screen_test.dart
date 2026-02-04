@@ -4,9 +4,10 @@ import 'package:flutter_app/features/auth/login_screen.dart';
 import 'package:flutter_app/app/routes.dart';
 import 'package:flutter_app/app/app_shell.dart';
 
+import 'package:provider/provider.dart';
+import 'package:flutter_app/app/providers.dart';
+
 import 'test_harness.dart';
-import 'package:flutter_app/app/app_scope.dart';
-import 'package:flutter_app/core/accessibility/app_settings_controller.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -31,13 +32,11 @@ void main() {
     final pwdFinder = find.byKey(const Key('login_password'));
     expect(pwdFinder, findsOneWidget);
 
-    // The suffix icon is present; tap it to toggle show/hide
     final suffix = find.descendant(of: pwdFinder, matching: find.byType(IconButton));
     expect(suffix, findsOneWidget);
     await tester.tap(suffix);
     await tester.pumpAndSettle();
 
-    // Tapping should not throw and will toggle obscureText state
     expect(pwdFinder, findsOneWidget);
   });
 
@@ -52,7 +51,6 @@ void main() {
 
     expect(find.text('Incorrect email address'), findsOneWidget);
 
-    // Type into email field to clear error
     await tester.enterText(find.byKey(const Key('login_email')), 'caregiver@careconnect.com');
     await tester.pumpAndSettle();
     expect(find.text('Incorrect email address'), findsNothing);
@@ -73,6 +71,9 @@ void main() {
   testWidgets('Login shows password error for wrong password', (tester) async {
     await pumpWidgetWithApp(tester, const LoginScreen());
 
+    expect(find.byKey(const Key('login_email')), findsOneWidget);
+    expect(find.byKey(const Key('login_password')), findsOneWidget);
+
     await tester.enterText(find.byKey(const Key('login_email')), 'caregiver@careconnect.com');
     await tester.enterText(find.byKey(const Key('login_password')), 'wrong');
     await tester.ensureVisible(find.byKey(const Key('login_submit')));
@@ -84,9 +85,12 @@ void main() {
 
   testWidgets('Login navigates to app on success', (tester) async {
     await tester.pumpWidget(
-      AppScope(
-        controller: AppSettingsController(),
-        child: MaterialApp(routes: Routes.map, initialRoute: Routes.login),
+      MultiProvider(
+        providers: AppProviders.build(),
+        child: MaterialApp(
+          routes: Routes.map,
+          initialRoute: Routes.login,
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -97,7 +101,6 @@ void main() {
     await tester.tap(find.byKey(const Key('login_submit')));
     await tester.pumpAndSettle();
 
-    // AppShell should be pushed
     expect(find.byType(AppShell), findsOneWidget);
   });
 }

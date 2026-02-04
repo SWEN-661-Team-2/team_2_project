@@ -8,6 +8,8 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../core/profile/caregiver_profile.dart';
 import '../../core/profile/caregiver_profile_controller.dart';
+import 'package:provider/provider.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -17,7 +19,6 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final _controller = CaregiverProfileController();
   final _picker = ImagePicker();
 
   bool _editing = false;
@@ -29,10 +30,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _email = TextEditingController();
   final _phone = TextEditingController();
 
+  late final CaregiverProfileController _controller;
+
   @override
   void initState() {
     super.initState();
-    _load();
+
+    Future.microtask(() => _load());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Cache provider reference while context is valid.
+    _controller = context.read<CaregiverProfileController>();
   }
 
   Future<void> _load() async {
@@ -142,7 +153,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   void dispose() {
-    _controller.dispose();
     _name.dispose();
     _titleRole.dispose();
     _position.dispose();

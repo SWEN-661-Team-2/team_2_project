@@ -35,9 +35,18 @@ jobs:
       - name: Static analysis
         run: flutter analyze
 
-      - name: Run tests
-        run: flutter test
+      - name: Run tests + coverage
+        working-directory: apps/flutter
+        run: |
+          flutter test --coverage
+          test -f coverage/lcov.info
 
+      - name: Upload coverage report (lcov)
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-lcov
+          path: apps/flutter/coverage/lcov.info
+          if-no-files-found: error     
       - name: Build Android APK (release)
         run: flutter build apk --release
 

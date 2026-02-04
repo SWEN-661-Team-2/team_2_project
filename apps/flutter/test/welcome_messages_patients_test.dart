@@ -5,7 +5,6 @@ import 'package:flutter_app/features/welcome/welcome_screen.dart';
 import 'package:flutter_app/features/messages/messages_list_screen.dart';
 import 'package:flutter_app/features/patients/patients_list_screen.dart';
 import 'package:flutter_app/core/messages/messages_repository.dart';
-import 'package:flutter_app/core/patients/patients_repository.dart';
 
 import 'test_harness.dart';
 
@@ -50,6 +49,7 @@ void main() {
     await pumpWidgetWithApp(tester, const MessagesListScreen());
 
     final all = MessagesRepository.instance.all();
+    expect(all, isNotEmpty);
     expect(find.byKey(const Key('messages_list')), findsOneWidget);
     // Ensure first item exists by key
     expect(find.byKey(const Key('message_0')), findsOneWidget);

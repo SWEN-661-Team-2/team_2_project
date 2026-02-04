@@ -1,17 +1,18 @@
-import 'package:flutter/material.dart';
-import '../../app/app_scope.dart';
 import '../../core/accessibility/handedness.dart';
 import '../../core/tokens/spacing.dart';
 import '../../widgets/app_logo.dart';
 import '../../widgets/reach_scaffold.dart';
 import '../../app/routes.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_app/core/accessibility/app_settings_controller.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = AppScope.of(context);
+    final controller = context.watch<AppSettingsController>();
     final text = Theme.of(context).textTheme;
 
     return ReachScaffold(

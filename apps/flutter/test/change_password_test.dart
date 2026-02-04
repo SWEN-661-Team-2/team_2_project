@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_app/features/auth/change_password_screen.dart';
 
+import 'package:provider/provider.dart';
+import 'package:flutter_app/app/providers.dart';
+
 import 'test_harness.dart';
-import 'package:flutter_app/app/app_scope.dart';
-import 'package:flutter_app/core/accessibility/app_settings_controller.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -30,13 +31,12 @@ void main() {
   });
 
   testWidgets('Matching new/confirm triggers save and pop', (tester) async {
-    // Use a NavigatorObserver to detect pop
     final pops = <Route<dynamic>>[];
     final observer = _RecorderObserver(onPop: (r) => pops.add(r));
 
     await tester.pumpWidget(
-      AppScope(
-        controller: AppSettingsController(),
+      MultiProvider(
+        providers: AppProviders.build(),
         child: MaterialApp(
           home: const ChangePasswordScreen(),
           navigatorObservers: [observer],

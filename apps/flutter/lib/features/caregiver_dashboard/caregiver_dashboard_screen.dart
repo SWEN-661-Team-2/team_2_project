@@ -11,79 +11,84 @@ import '../../core/messages/messages_repository.dart';
 class CaregiverDashboardScreen extends StatelessWidget {
   const CaregiverDashboardScreen({super.key});
 
-@override
-Widget build(BuildContext context) {
-  final repo = PatientsRepository.instance;
-  final msgRepo = MessagesRepository.instance; // 👈 ADD THIS
+  static const double _tabletBreakpoint = 600;
 
-  final needingTop3 = repo.topNeedingAttention(3);
-  final upcomingTop3 = repo.topUpcomingVisits(3);
+  @override
+  Widget build(BuildContext context) {
+    final repo = PatientsRepository.instance;
+    final msgRepo = MessagesRepository.instance;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFB),
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+    final needingTop3 = repo.topNeedingAttention(3);
+    final upcomingTop3 = repo.topUpcomingVisits(3);
+
+    Widget header() => Row(
           children: [
-            Row(
-              children: [
-                const AppLogo(size: 22),
-                const SizedBox(width: 10),
-                const Text(
-                  'CareConnect',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-                ),
-                const Spacer(),
-                IconButton(icon: const Icon(Icons.info_outline), onPressed: () {}),
-              ],
+            const AppLogo(size: 22),
+            const SizedBox(width: 10),
+            const Text(
+              'CareConnect',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
             ),
-            const SizedBox(height: 16),
-
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                mainAxisExtent: 166,
+            const Spacer(),
+            Semantics(
+              button: true,
+              label: 'App information',
+              child: IconButton(
+                tooltip: 'App information',
+                icon: const Icon(Icons.info_outline),
+                onPressed: () {},
               ),
-              itemCount: 4,
-              itemBuilder: (context, index) {
-                final cards = [
-                  _StatCard(
-                    icon: Icons.people,
-                    value: '${repo.allPatients().length}',
-                    label: 'Active Patients',
-                    onTap: () => AppShell.of(context)?.openPatients(PatientsViewMode.all),
-                  ),
-                  _StatCard(
-                    icon: Icons.schedule,
-                    value: '${repo.upcomingVisitsSorted().length}',
-                    label: 'Upcoming Visits',
-                    onTap: () => AppShell.of(context)?.openPatients(PatientsViewMode.upcomingVisits),
-                  ),
-                  _StatCard(
-                    icon: Icons.warning_amber,
-                    value: '${repo.needingAttentionSorted().length}',
-                    label: 'Patients Needing Attention',
-                    onTap: () =>
-                        AppShell.of(context)?.openPatients(PatientsViewMode.needingAttention),
-                  ),
-                  _StatCard(
-                    icon: Icons.chat_bubble_outline,
-                    value: '${msgRepo.unreadCount()}',
-                    label: 'Messages / Unread',
-                    onTap: () => AppShell.of(context)?.setTab(3),
-                  ),
-                ];
-                return cards[index];
-              },
             ),
+          ],
+        );
 
-            const SizedBox(height: 24),
+    Widget kpiGrid({required int crossAxisCount, required double mainAxisExtent}) =>
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            mainAxisExtent: mainAxisExtent,
+          ),
+          itemCount: 4,
+          itemBuilder: (context, index) {
+            final cards = [
+              _StatCard(
+                icon: Icons.people,
+                value: '${repo.allPatients().length}',
+                label: 'Active Patients',
+                onTap: () => AppShell.of(context)?.openPatients(PatientsViewMode.all),
+              ),
+              _StatCard(
+                icon: Icons.schedule,
+                value: '${repo.upcomingVisitsSorted().length}',
+                label: 'Upcoming Visits',
+                onTap: () => AppShell.of(context)?.openPatients(PatientsViewMode.upcomingVisits),
+              ),
+              _StatCard(
+                icon: Icons.warning_amber,
+                value: '${repo.needingAttentionSorted().length}',
+                label: 'Patients Needing Attention',
+                onTap: () =>
+                    AppShell.of(context)?.openPatients(PatientsViewMode.needingAttention),
+              ),
+              _StatCard(
+                icon: Icons.chat_bubble_outline,
+                value: '${msgRepo.unreadCount()}',
+                label: 'Messages / Unread',
+                onTap: () => AppShell.of(context)?.setTab(3),
+              ),
+            ];
+            return cards[index];
+          },
+        );
+
+    Widget needingSection() => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             const _SectionHeader(title: 'Patients Needing Attention'),
-
             for (final p in needingTop3)
               _PatientRow(
                 name: p.fullName,
@@ -94,17 +99,23 @@ Widget build(BuildContext context) {
 
             Align(
               alignment: Alignment.centerLeft,
-              child: TextButton(
-                onPressed: () =>
-                    AppShell.of(context)?.openPatients(PatientsViewMode.needingAttention),
-                child: const Text('View All'),
+              child: Semantics(
+                button: true,
+                label: 'View all patients needing attention',
+                child: TextButton(
+                  onPressed: () =>
+                      AppShell.of(context)?.openPatients(PatientsViewMode.needingAttention),
+                  child: const Text('View All'),
+                ),
               ),
             ),
+          ],
+        );
 
-            const SizedBox(height: 24),
+    Widget upcomingSection() => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             const _SectionHeader(title: 'Upcoming Visits'),
-
-            // In Upcoming Visits: still show Visit date/time; show criticality pill ONLY if present
             for (final p in upcomingTop3)
               _PatientRow(
                 name: p.fullName,
@@ -117,15 +128,92 @@ Widget build(BuildContext context) {
 
             Align(
               alignment: Alignment.centerLeft,
-              child: TextButton(
-                onPressed: () =>
-                    AppShell.of(context)?.openPatients(PatientsViewMode.upcomingVisits),
-                child: const Text('View All'),
+              child: Semantics(
+                button: true,
+                label: 'View all upcoming visits',
+                child: TextButton(
+                  onPressed: () =>
+                      AppShell.of(context)?.openPatients(PatientsViewMode.upcomingVisits),
+                  child: const Text('View All'),
+                ),
               ),
-            ),
+            ),      
           ],
-        ),
-      ),
+        );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isTablet = constraints.maxWidth >= _tabletBreakpoint;
+
+        return Scaffold(
+          backgroundColor: const Color(0xFFF7FAFB),
+          body: SafeArea(
+            child: isTablet
+                ? Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1100),
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            header(),
+                            const SizedBox(height: 16),
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                final w = constraints.maxWidth;
+
+                                // Simple responsive rule:
+                                // phone: 2, small tablet: 3, tablet/desktop: 4
+                                final cols = w >= 900 ? 4 : (w >= 600 ? 3 : 2);
+
+                                return kpiGrid(
+                                  crossAxisCount: cols,
+                                  mainAxisExtent: 140,
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 24),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(child: needingSection()),
+                                const SizedBox(width: 16),
+                                Expanded(child: upcomingSection()),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                : ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
+                    children: [
+                      header(),
+                      const SizedBox(height: 16),
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final w = constraints.maxWidth;
+
+                          // Simple responsive rule:
+                          // phone: 2, small tablet: 3, tablet/desktop: 4
+                          final cols = w >= 900 ? 4 : (w >= 600 ? 3 : 2);
+
+                          return kpiGrid(
+                            crossAxisCount: cols,
+                            mainAxisExtent: 140,
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                      needingSection(),
+                      const SizedBox(height: 24),
+                      upcomingSection(),
+                    ],
+                  ),
+          ),
+        );
+      },
     );
   }
 }
@@ -172,7 +260,6 @@ Color _critColor(PatientCriticality? c) {
   }
 }
 
-// Upcoming Visits helpers: blank pill if no criticality
 String _critTagOrBlank(PatientCriticality? c) {
   if (c == null) return '';
   switch (c) {
@@ -241,25 +328,33 @@ class _StatCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(icon, color: Colors.blue, size: 22),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
                       child: Text(
                         value,
-                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                        maxLines: 1,
+                        overflow: TextOverflow.clip,
+                        style: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      label,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(color: Colors.grey),
+                    const SizedBox(height: 4),
+                    Expanded(
+                      child: Align(
+                        alignment: Alignment.topLeft,
+                        child: Text(
+                          label,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -298,8 +393,6 @@ class _PatientRow extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
         ),
         subtitle: Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis),
-
-        // CHANGE: If tag is blank, remove the pill entirely
         trailing: (tag.trim().isEmpty)
             ? null
             : ConstrainedBox(
