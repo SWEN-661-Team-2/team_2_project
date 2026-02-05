@@ -19,16 +19,13 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _emailError = false;
   bool _passwordError = false;
 
-  static const _validEmail = 'caregiver@careconnect.com';
-  static const _validPassword = 'password';
-
   void _login() {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
     setState(() {
-      _emailError = email != _validEmail;
-      _passwordError = password != _validPassword;
+      _emailError = email.isEmpty;
+      _passwordError = password.isEmpty;
     });
 
     if (!_emailError && !_passwordError) {
@@ -88,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                 },
                 decoration: InputDecoration(
-                  hintText: 'caregiver@careconnect.com',
+                  hintText: 'Enter your email',
                   errorText: _emailError ? 'Incorrect email address' : null,
                 ),
               ),
@@ -108,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                 },
                 decoration: InputDecoration(
-                  hintText: 'password',
+                  hintText: 'Enter your password',
                   errorText: _passwordError ? 'Incorrect password' : null,
                   suffixIcon: IconButton(
                     icon: Icon(
