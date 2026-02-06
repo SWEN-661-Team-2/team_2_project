@@ -19,6 +19,13 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _emailError = false;
   bool _passwordError = false;
 
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   void _login() {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
@@ -86,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
                 decoration: InputDecoration(
                   hintText: 'Enter your email',
-                  errorText: _emailError ? 'Incorrect email address' : null,
+                  errorText: _emailError ? 'Email is required' : null,
                 ),
               ),
 
@@ -106,12 +113,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
                 decoration: InputDecoration(
                   hintText: 'Enter your password',
-                  errorText: _passwordError ? 'Incorrect password' : null,
+                  errorText: _passwordError ? 'Password is required' : null,
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _showPassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
+                      _showPassword ? Icons.visibility_off : Icons.visibility,
                     ),
                     onPressed: () {
                       setState(() => _showPassword = !_showPassword);
@@ -150,10 +155,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: const Color(0xFFE6F7F5),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Column(
-                  children: const [
-                    Icon(Icons.shield_outlined,
-                        size: 36, color: Color(0xFF0A8F84)),
+                child: const Column(
+                  children: [
+                    Icon(Icons.shield_outlined, size: 36, color: Color(0xFF0A8F84)),
                     SizedBox(height: 12),
                     Text(
                       'We use bank-level encryption to keep your health information safe and secure.',
