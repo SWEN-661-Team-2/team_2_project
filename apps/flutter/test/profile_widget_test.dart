@@ -12,54 +12,80 @@ void main() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
   });
 
+  Finder readOnlyView() => find.byKey(const Key('profile_readonly'));
+  Finder editView() => find.byKey(const Key('profile_edit_view'));
+
+  Finder editBtn() => find.byKey(const Key('profile_edit'));
+  Finder saveBtn() => find.byKey(const Key('profile_save'));
+  Finder cancelBtn() => find.byKey(const Key('profile_cancel'));
+
+  Future<void> waitForReadOnlyLoaded(WidgetTester tester) async {
+    for (var i = 0; i < 120; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+      if (readOnlyView().evaluate().isNotEmpty) return;
+    }
+    fail('profile_readonly not found');
+  }
+
+  Future<void> scrollUntilBuilt(
+    WidgetTester tester,
+    Finder target,
+    Finder scrollable,
+  ) async {
+    expect(scrollable, findsOneWidget);
+
+    for (var i = 0; i < 60; i++) {
+      if (target.evaluate().isNotEmpty) {
+        await tester.ensureVisible(target);
+        await tester.pumpAndSettle();
+        return;
+      }
+      await tester.drag(scrollable, const Offset(0, -300));
+      await tester.pumpAndSettle();
+    }
+
+    fail('target not found after scrolling');
+  }
+
+  Future<void> tapEdit(WidgetTester tester) async {
+    await scrollUntilBuilt(tester, editBtn(), readOnlyView());
+    await tester.tap(editBtn());
+    await tester.pumpAndSettle();
+    expect(editView(), findsOneWidget);
+  }
+
+  Future<void> tapSave(WidgetTester tester) async {
+    await scrollUntilBuilt(tester, saveBtn(), editView());
+    await tester.tap(saveBtn());
+    await tester.pumpAndSettle();
+  }
+
   testWidgets('Tapping Edit shows edit fields and Save/Cancel', (tester) async {
-    SharedPreferences.setMockInitialValues({});
-
     await pumpWidgetWithApp(tester, const ProfileScreen());
-    await tester.pumpAndSettle();
+    await tester.pump();
 
-    // Enter edit mode via AppBar action
-    await tester.tap(find.text('Edit'));
-    await tester.pumpAndSettle();
+    await waitForReadOnlyLoaded(tester);
+    await tapEdit(tester);
 
-    // Ensure form is visible (Save is at bottom of ListView)
-    await tester.ensureVisible(find.byType(TextField).last);
-    await tester.pumpAndSettle();
-
-    // Assert edit controls
     expect(find.byType(TextField), findsWidgets);
-    expect(find.widgetWithText(FilledButton, 'Save'), findsOneWidget);
-    expect(find.widgetWithText(OutlinedButton, 'Cancel'), findsOneWidget);
+    await scrollUntilBuilt(tester, saveBtn(), editView());
+    expect(saveBtn(), findsOneWidget);
+    expect(cancelBtn(), findsOneWidget);
   });
 
   testWidgets('Edit → Save updates profile and exits edit mode', (tester) async {
-    SharedPreferences.setMockInitialValues({});
-
     await pumpWidgetWithApp(tester, const ProfileScreen());
-    await tester.pumpAndSettle();
+    await tester.pump();
 
-    // Enter edit mode via AppBar button
-    await tester.tap(find.text('Edit'));
-    await tester.pumpAndSettle();
+    await waitForReadOnlyLoaded(tester);
+    await tapEdit(tester);
 
-    // Update first field (Name)
     await tester.enterText(find.byType(TextField).first, 'New Name');
     await tester.pumpAndSettle();
 
-    // Bring Save into view and tap it
-    await tester.drag(find.byType(ListView), const Offset(0, -600));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Save'));
-    await tester.pumpAndSettle();
+    await tapSave(tester);
 
-    // Assert we exited edit mode by verifying the AppBar "Edit" button is back
-    expect(find.text('Edit'), findsOneWidget);
-
-    // And the saved value is visible somewhere in read-only view
+    expect(readOnlyView(), findsOneWidget);
     expect(find.text('New Name'), findsOneWidget);
-
-    // Flush pending SnackBar/Timer-based animations before test teardown.
-    await tester.pump(const Duration(seconds: 6));
-    await tester.pumpAndSettle();
   });
 }

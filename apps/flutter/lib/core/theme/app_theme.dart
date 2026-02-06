@@ -19,6 +19,8 @@ class AppTheme {
       ),
     );
 
+    final scheme = base.colorScheme;
+
     return base.copyWith(
       // AppBar styling
       appBarTheme: const AppBarTheme(
@@ -28,21 +30,35 @@ class AppTheme {
         elevation: 0,
       ),
 
-      // Text styling
-      textTheme: base.textTheme.copyWith(
-        displayLarge: AppTypography.h1,
-        displayMedium: AppTypography.h2,
-        displaySmall: AppTypography.h3,
-        headlineMedium: AppTypography.h4,
-        headlineSmall: AppTypography.h5,
-        titleMedium: AppTypography.h6,
-        bodyLarge: AppTypography.body,
-        bodyMedium: AppTypography.body,
-        bodySmall: AppTypography.bodySmall,
-      ).apply(
-        bodyColor: AppColors.textPrimary,
-        displayColor: AppColors.textPrimary,
+      // Switch styling (WidgetStateProperty / WidgetState)
+      switchTheme: SwitchThemeData(
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return scheme.primary;
+          return AppColors.border;
+        }),
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return Colors.white;
+          return AppColors.textSecondary;
+        }),
       ),
+
+      // Text styling
+      textTheme: base.textTheme
+          .copyWith(
+            displayLarge: AppTypography.h1,
+            displayMedium: AppTypography.h2,
+            displaySmall: AppTypography.h3,
+            headlineMedium: AppTypography.h4,
+            headlineSmall: AppTypography.h5,
+            titleMedium: AppTypography.h6,
+            bodyLarge: AppTypography.body,
+            bodyMedium: AppTypography.body,
+            bodySmall: AppTypography.bodySmall,
+          )
+          .apply(
+            bodyColor: AppColors.textPrimary,
+            displayColor: AppColors.textPrimary,
+          ),
 
       // Buttons
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -81,6 +97,34 @@ class AppTheme {
       dividerTheme: const DividerThemeData(
         color: AppColors.border,
         thickness: 1,
+      ),
+    );
+  }
+
+  static ThemeData dark() {
+    final base = ThemeData(
+      useMaterial3: true,
+      brightness: Brightness.dark,
+      fontFamily: AppTypography.fontFamily,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColors.brandPrimary,
+        brightness: Brightness.dark,
+      ),
+    );
+
+    final scheme = base.colorScheme;
+
+    return base.copyWith(
+      // Switch styling (WidgetStateProperty / WidgetState)
+      switchTheme: SwitchThemeData(
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return scheme.primary;
+          return scheme.surfaceContainerHighest;
+        }),
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return Colors.white;
+          return scheme.onSurfaceVariant;
+        }),
       ),
     );
   }
