@@ -19,16 +19,20 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _emailError = false;
   bool _passwordError = false;
 
-  static const _validEmail = 'caregiver@careconnect.com';
-  static const _validPassword = 'password';
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   void _login() {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
     setState(() {
-      _emailError = email != _validEmail;
-      _passwordError = password != _validPassword;
+      _emailError = email.isEmpty;
+      _passwordError = password.isEmpty;
     });
 
     if (!_emailError && !_passwordError) {
@@ -88,8 +92,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                 },
                 decoration: InputDecoration(
-                  hintText: 'caregiver@careconnect.com',
-                  errorText: _emailError ? 'Incorrect email address' : null,
+                  hintText: 'Enter your email',
+                  errorText: _emailError ? 'Email is required' : null,
                 ),
               ),
 
@@ -108,13 +112,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   }
                 },
                 decoration: InputDecoration(
-                  hintText: 'password',
-                  errorText: _passwordError ? 'Incorrect password' : null,
+                  hintText: 'Enter your password',
+                  errorText: _passwordError ? 'Password is required' : null,
                   suffixIcon: IconButton(
                     icon: Icon(
-                      _showPassword
-                          ? Icons.visibility_off
-                          : Icons.visibility,
+                      _showPassword ? Icons.visibility_off : Icons.visibility,
                     ),
                     onPressed: () {
                       setState(() => _showPassword = !_showPassword);
@@ -153,10 +155,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: const Color(0xFFE6F7F5),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: Column(
-                  children: const [
-                    Icon(Icons.shield_outlined,
-                        size: 36, color: Color(0xFF0A8F84)),
+                child: const Column(
+                  children: [
+                    Icon(Icons.shield_outlined, size: 36, color: Color(0xFF0A8F84)),
                     SizedBox(height: 12),
                     Text(
                       'We use bank-level encryption to keep your health information safe and secure.',

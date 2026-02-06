@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_app/features/auth/login_screen.dart';
 import 'package:flutter_app/app/routes.dart';
 import 'package:flutter_app/app/app_shell.dart';
-
 import 'package:provider/provider.dart';
 import 'package:flutter_app/app/providers.dart';
 
@@ -12,7 +11,15 @@ import 'test_harness.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  Future<void> setTestScreenSize(WidgetTester tester, Size size) async {
+    await tester.binding.setSurfaceSize(size);
+    addTearDown(() async {
+      await tester.binding.setSurfaceSize(null); 
+    });
+  }
+
   testWidgets('Login screen renders fields and buttons', (tester) async {
+    await setTestScreenSize(tester, const Size(800, 900));
     await pumpWidgetWithApp(tester, const LoginScreen());
 
     expect(find.text('CareConnect'), findsOneWidget);
@@ -22,11 +29,14 @@ void main() {
   });
 
   testWidgets('Forgot password button exists', (tester) async {
+    await setTestScreenSize(tester, const Size(800, 900));
     await pumpWidgetWithApp(tester, const LoginScreen());
+
     expect(find.byKey(const Key('login_forgot')), findsOneWidget);
   });
 
   testWidgets('Password visibility toggles when suffix tapped', (tester) async {
+    await setTestScreenSize(tester, const Size(800, 900));
     await pumpWidgetWithApp(tester, const LoginScreen());
 
     final pwdFinder = find.byKey(const Key('login_password'));
@@ -34,56 +44,63 @@ void main() {
 
     final suffix = find.descendant(of: pwdFinder, matching: find.byType(IconButton));
     expect(suffix, findsOneWidget);
+
     await tester.tap(suffix);
     await tester.pumpAndSettle();
 
     expect(pwdFinder, findsOneWidget);
   });
 
-  testWidgets('Email error cleared when user types after error', (tester) async {
+  testWidgets('Login shows email error when email is empty', (tester) async {
+    await setTestScreenSize(tester, const Size(800, 900));
     await pumpWidgetWithApp(tester, const LoginScreen());
-
-    await tester.enterText(find.byKey(const Key('login_email')), 'bad@example.com');
     await tester.enterText(find.byKey(const Key('login_password')), 'password');
-    await tester.ensureVisible(find.byKey(const Key('login_submit')));
-    await tester.tap(find.byKey(const Key('login_submit')));
+
+    final submit = find.byKey(const Key('login_submit'));
+    await tester.ensureVisible(submit);
+    await tester.tap(submit, warnIfMissed: false);
     await tester.pumpAndSettle();
 
-    expect(find.text('Incorrect email address'), findsOneWidget);
-
-    await tester.enterText(find.byKey(const Key('login_email')), 'caregiver@careconnect.com');
-    await tester.pumpAndSettle();
-    expect(find.text('Incorrect email address'), findsNothing);
+    expect(find.text('Email is required'), findsOneWidget);
+    expect(find.byType(AppShell), findsNothing);
   });
 
-  testWidgets('Login shows email error for wrong email', (tester) async {
+  testWidgets('Email error clears when user types after error', (tester) async {
+    await setTestScreenSize(tester, const Size(800, 900));
     await pumpWidgetWithApp(tester, const LoginScreen());
-
-    await tester.enterText(find.byKey(const Key('login_email')), 'bad@example.com');
     await tester.enterText(find.byKey(const Key('login_password')), 'password');
-    await tester.ensureVisible(find.byKey(const Key('login_submit')));
-    await tester.tap(find.byKey(const Key('login_submit')));
+
+    final submit = find.byKey(const Key('login_submit'));
+    await tester.ensureVisible(submit);
+    await tester.tap(submit, warnIfMissed: false);
     await tester.pumpAndSettle();
 
-    expect(find.text('Incorrect email address'), findsOneWidget);
+    expect(find.text('Email is required'), findsOneWidget);
+
+    await tester.enterText(find.byKey(const Key('login_email')), 'anything@anywhere.com');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Email is required'), findsNothing);
+    expect(find.byType(AppShell), findsNothing);
   });
 
-  testWidgets('Login shows password error for wrong password', (tester) async {
+  testWidgets('Login shows password error when password is empty', (tester) async {
+    await setTestScreenSize(tester, const Size(800, 900));
     await pumpWidgetWithApp(tester, const LoginScreen());
+    await tester.enterText(find.byKey(const Key('login_email')), 'anything@anywhere.com');
 
-    expect(find.byKey(const Key('login_email')), findsOneWidget);
-    expect(find.byKey(const Key('login_password')), findsOneWidget);
-
-    await tester.enterText(find.byKey(const Key('login_email')), 'caregiver@careconnect.com');
-    await tester.enterText(find.byKey(const Key('login_password')), 'wrong');
-    await tester.ensureVisible(find.byKey(const Key('login_submit')));
-    await tester.tap(find.byKey(const Key('login_submit')));
+    final submit = find.byKey(const Key('login_submit'));
+    await tester.ensureVisible(submit);
+    await tester.tap(submit, warnIfMissed: false);
     await tester.pumpAndSettle();
 
-    expect(find.text('Incorrect password'), findsOneWidget);
+    expect(find.text('Password is required'), findsOneWidget);
+    expect(find.byType(AppShell), findsNothing);
   });
 
-  testWidgets('Login navigates to app on success', (tester) async {
+  testWidgets('Login navigates to app on success (any non-empty credentials)', (tester) async {
+    await setTestScreenSize(tester, const Size(800, 900));
+
     await tester.pumpWidget(
       MultiProvider(
         providers: AppProviders.build(),
@@ -95,10 +112,12 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.enterText(find.byKey(const Key('login_email')), 'caregiver@careconnect.com');
-    await tester.enterText(find.byKey(const Key('login_password')), 'password');
-    await tester.ensureVisible(find.byKey(const Key('login_submit')));
-    await tester.tap(find.byKey(const Key('login_submit')));
+    await tester.enterText(find.byKey(const Key('login_email')), 'anyone@anywhere.com');
+    await tester.enterText(find.byKey(const Key('login_password')), 'anything');
+
+    final submit = find.byKey(const Key('login_submit'));
+    await tester.ensureVisible(submit);
+    await tester.tap(submit, warnIfMissed: false);
     await tester.pumpAndSettle();
 
     expect(find.byType(AppShell), findsOneWidget);
