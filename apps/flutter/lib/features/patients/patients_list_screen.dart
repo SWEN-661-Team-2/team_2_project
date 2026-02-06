@@ -6,7 +6,15 @@ import '../../core/utils/dt_format.dart';
 
 enum PatientsViewMode { all, upcomingVisits, needingAttention }
 
-class PatientsListScreen extends StatelessWidget {
+enum PatientSortMode {
+  lastNameAsc,
+  lastNameDesc,
+  criticalityHighToLow,
+  criticalityLowToHigh,
+  upcomingVisits,
+}
+
+class PatientsListScreen extends StatefulWidget {
   final PatientsViewMode mode;
 
   const PatientsListScreen({
@@ -14,8 +22,15 @@ class PatientsListScreen extends StatelessWidget {
     this.mode = PatientsViewMode.all,
   });
 
+  @override
+  State<PatientsListScreen> createState() => _PatientsListScreenState();
+}
+
+class _PatientsListScreenState extends State<PatientsListScreen> {
+  PatientSortMode _sortMode = PatientSortMode.lastNameAsc;
+
   String get _title {
-    switch (mode) {
+    switch (widget.mode) {
       case PatientsViewMode.needingAttention:
         return 'Patients Needing Attention';
       case PatientsViewMode.upcomingVisits:
@@ -25,8 +40,60 @@ class PatientsListScreen extends StatelessWidget {
     }
   }
 
+  int _critRank(PatientCriticality? c) {
+    switch (c) {
+      case PatientCriticality.critical:
+        return 4;
+      case PatientCriticality.high:
+        return 3;
+      case PatientCriticality.medium:
+        return 2;
+      case PatientCriticality.low:
+        return 1;
+      default:
+        return 0;
+    }
+  }
+
+  String _lastName(Patient p) {
+    final parts = p.fullName.trim().split(RegExp(r'\s+'));
+    return parts.isEmpty ? '' : parts.last.toLowerCase();
+  }
+
+  List<Patient> _applySorting(List<Patient> patients) {
+    final sorted = List<Patient>.from(patients);
+
+    sorted.sort((a, b) {
+      switch (_sortMode) {
+        case PatientSortMode.lastNameAsc:
+          return _lastName(a).compareTo(_lastName(b));
+
+        case PatientSortMode.lastNameDesc:
+          return _lastName(b).compareTo(_lastName(a));
+
+        case PatientSortMode.criticalityHighToLow:
+          return _critRank(b.criticality).compareTo(_critRank(a.criticality));
+
+        case PatientSortMode.criticalityLowToHigh:
+          return _critRank(a.criticality).compareTo(_critRank(b.criticality));
+
+        case PatientSortMode.upcomingVisits:
+          final aDt = a.nextVisit;
+          final bDt = b.nextVisit;
+
+          if (aDt == null && bDt == null) return 0;
+          if (aDt == null) return 1;   // nulls last
+          if (bDt == null) return -1;
+
+          return aDt.compareTo(bDt);
+      }
+    });
+
+    return sorted;
+  }
+
   List<Patient> _items(PatientsRepository repo) {
-    switch (mode) {
+    switch (widget.mode) {
       case PatientsViewMode.needingAttention:
         return repo.needingAttentionSorted();
       case PatientsViewMode.upcomingVisits:
@@ -39,7 +106,7 @@ class PatientsListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final repo = PatientsRepository.instance;
-    final items = _items(repo);
+    final items = _applySorting(_items(repo));
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFB),
@@ -48,8 +115,44 @@ class PatientsListScreen extends StatelessWidget {
         automaticallyImplyLeading: false,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => AppShell.of(context)?.setTab(0), // back to dashboard tab
+          onPressed: () => AppShell.of(context)?.setTab(0),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<PatientSortMode>(
+                value: _sortMode,
+                onChanged: (value) {
+                  if (value == null) return;
+                  setState(() => _sortMode = value);
+                },
+                items: const [
+                  DropdownMenuItem(
+                    value: PatientSortMode.lastNameAsc,
+                    child: Text('Last Name (A–Z)'),
+                  ),
+                  DropdownMenuItem(
+                    value: PatientSortMode.lastNameDesc,
+                    child: Text('Last Name (Z–A)'),
+                  ),
+                  DropdownMenuItem(
+                    value: PatientSortMode.criticalityHighToLow,
+                    child: Text('Criticality (High → Low)'),
+                  ),
+                  DropdownMenuItem(
+                    value: PatientSortMode.criticalityLowToHigh,
+                    child: Text('Criticality (Low → High)'),
+                  ),
+                  DropdownMenuItem(
+                    value: PatientSortMode.upcomingVisits,
+                    child: Text('Upcoming Visits'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
       body: ListView.separated(
         key: const Key('patients_list'),
@@ -78,7 +181,7 @@ class PatientsListScreen extends StatelessWidget {
   }
 
   String _subtitleForMode(Patient p) {
-    switch (mode) {
+    switch (widget.mode) {
       case PatientsViewMode.upcomingVisits: {
         final dt = p.nextVisit;
         return dt == null ? 'No visit scheduled' : 'Visit: ${formatDtYmdHmm(dt.toLocal())}';
@@ -92,8 +195,6 @@ class PatientsListScreen extends StatelessWidget {
         final appt = p.nextVisit == null
             ? 'No upcoming visit'
             : 'Next Appt.: ${formatDtYmdHmm(p.nextVisit!.toLocal())}';
-
-        // ✅ NEWLINE between criticality and next appointment
         return '$crit\n$appt';
       }
     }
@@ -102,7 +203,6 @@ class PatientsListScreen extends StatelessWidget {
   Widget _tagForPatient(Patient p) {
     final c = p.criticality;
 
-    // Only show a tag when criticality exists
     if (c == null) return const SizedBox.shrink();
 
     Color color;

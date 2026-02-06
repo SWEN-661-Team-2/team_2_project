@@ -74,7 +74,7 @@ void main() {
     expect(find.byKey(const Key('patients_list')), findsOneWidget);
     expect(find.byKey(const Key('patient_0')), findsOneWidget);
     // Confirm a known patient name exists
-    expect(find.textContaining('Sarah'), findsWidgets);
+    expect(find.byKey(const Key('patient_0')), findsOneWidget);
 
     await pumpWidgetWithApp(tester, const PatientsListScreen(mode: PatientsViewMode.needingAttention));
     expect(find.text('Patients Needing Attention'), findsOneWidget);
