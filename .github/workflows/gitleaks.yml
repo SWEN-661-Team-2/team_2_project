@@ -16,11 +16,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install gitleaks
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/gitleaks/gitleaks/master/install.sh | sudo sh -s -- -b /usr/local/bin
-          gitleaks version
-
-      - name: Run gitleaks
-        run: |
-          gitleaks detect --source . --redact --no-git
+      - name: Gitleaks (secrets scan)
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          args: detect --source . --redact --no-git
