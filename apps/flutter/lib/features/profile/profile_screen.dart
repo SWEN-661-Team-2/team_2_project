@@ -5,11 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 
 import '../../core/profile/caregiver_profile.dart';
 import '../../core/profile/caregiver_profile_controller.dart';
-import 'package:provider/provider.dart';
-
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -30,26 +29,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final _email = TextEditingController();
   final _phone = TextEditingController();
 
-  late final CaregiverProfileController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-
-    Future.microtask(() => _load());
-  }
+  Future<void>? _loadFuture;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Cache provider reference while context is valid.
-    _controller = context.read<CaregiverProfileController>();
-  }
 
-  Future<void> _load() async {
-    await _controller.load();
-    _hydrateControllers(_controller.profile);
-    if (mounted) setState(() {});
+    if (_loadFuture != null) return;
+
+    final controller = context.read<CaregiverProfileController>();
+
+    _loadFuture = controller.load().then((_) {
+      if (!mounted) return;
+      _hydrateControllers(controller.profile);
+    });
   }
 
   void _hydrateControllers(CaregiverProfile p0) {
@@ -61,19 +54,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _phone.text = p0.phone;
   }
 
-  void _startEdit() {
-    _hydrateControllers(_controller.profile);
+  void _startEdit(CaregiverProfileController controller) {
+    _hydrateControllers(controller.profile);
     setState(() => _editing = true);
   }
 
-  void _cancelEdit() {
-    _hydrateControllers(_controller.profile);
+  void _cancelEdit(CaregiverProfileController controller) {
+    _hydrateControllers(controller.profile);
     setState(() => _editing = false);
   }
 
-  Future<void> _save() async {
+  Future<void> _save(CaregiverProfileController controller) async {
     final updated = CaregiverProfile(
-      photoPath: _controller.profile.photoPath,
+      photoPath: controller.profile.photoPath,
       name: _name.text.trim(),
       titleRole: _titleRole.text.trim(),
       position: _position.text.trim(),
@@ -82,7 +75,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       phone: _phone.text.trim(),
     );
 
-    await _controller.save(updated);
+    await controller.save(updated);
 
     if (!mounted) return;
     setState(() => _editing = false);
@@ -92,11 +85,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Future<void> _pickProfilePhoto() async {
+  Future<void> _pickProfilePhoto(CaregiverProfileController controller) async {
     // Web/desktop support can be added later; keep it simple for mobile.
     if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Photo upload is supported on Android/iOS for now.')),
+        const SnackBar(
+          content: Text('Photo upload is supported on Android/iOS for now.'),
+        ),
       );
       return;
     }
@@ -104,7 +100,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       final XFile? picked = await _picker.pickImage(
         source: ImageSource.gallery,
-        imageQuality: 85, // compress a bit; prevents huge files
+        imageQuality: 85,
       );
 
       if (picked == null) return;
@@ -119,14 +115,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final filename = 'caregiver_${DateTime.now().millisecondsSinceEpoch}$ext';
       final savedPath = p.join(photosDir.path, filename);
 
-      // Copy to app-controlled storage so it persists even if gallery item moves
       await File(picked.path).copy(savedPath);
 
-      final oldPath = _controller.profile.photoPath;
+      final oldPath = controller.profile.photoPath;
 
-      await _controller.updateField(photoPath: savedPath);
+      await controller.updateField(photoPath: savedPath);
 
-      // Optional cleanup: delete previous saved photo file
+      // Optional cleanup
       if (oldPath != null && oldPath.trim().isNotEmpty && oldPath != savedPath) {
         try {
           final oldFile = File(oldPath);
@@ -139,12 +134,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
 
       if (!mounted) return;
-      setState(() {}); // refresh UI
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Photo updated')),
       );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Could not pick photo: $e')),
       );
@@ -164,40 +158,40 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_controller.loaded) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
+    final controller = context.watch<CaregiverProfileController>();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile information'),
-        actions: [
-          if (!_editing)
-            TextButton(
-              onPressed: _startEdit,
-              child: const Text('Edit'),
-            ),
-        ],
-      ),
-      body: _editing
-          ? _EditView(
-              profile: _controller.profile,
-              name: _name,
-              titleRole: _titleRole,
-              position: _position,
-              organization: _organization,
-              email: _email,
-              phone: _phone,
-              onCancel: _cancelEdit,
-              onSave: _save,
-              onTapPhoto: _pickProfilePhoto,
-            )
-          : _ReadOnlyView(
-              profile: _controller.profile,
-              onEdit: _startEdit,
-            ),
+    return FutureBuilder<void>(
+      future: _loadFuture,
+      builder: (context, snap) {
+        if (snap.connectionState != ConnectionState.done || !controller.loaded) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Profile information'),
+          ),
+          body: _editing
+              ? _EditView(
+                  profile: controller.profile,
+                  name: _name,
+                  titleRole: _titleRole,
+                  position: _position,
+                  organization: _organization,
+                  email: _email,
+                  phone: _phone,
+                  onCancel: () => _cancelEdit(controller),
+                  onSave: () => _save(controller),
+                  onTapPhoto: () => _pickProfilePhoto(controller),
+                )
+              : _ReadOnlyView(
+                  profile: controller.profile,
+                  onEdit: () => _startEdit(controller),
+                ),
+        );
+      },
     );
   }
 }
@@ -216,26 +210,22 @@ class _ReadOnlyView extends StatelessWidget {
     String blankAsDash(String v) => v.trim().isEmpty ? '—' : v.trim();
 
     return ListView(
+      key: const Key('profile_readonly'),
       padding: const EdgeInsets.all(16),
       children: [
         Center(
-          child: _PhotoCircle(
-            photoPath: profile.photoPath,
-            onTap: null,
-          ),
+          child: _PhotoCircle(photoPath: profile.photoPath, onTap: null),
         ),
         const SizedBox(height: 16),
-
         _InfoTile(label: 'Name', value: blankAsDash(profile.name)),
         _InfoTile(label: 'Title / Role', value: blankAsDash(profile.titleRole)),
         _InfoTile(label: 'Position', value: blankAsDash(profile.position)),
         _InfoTile(label: 'Organization', value: blankAsDash(profile.organization)),
         _InfoTile(label: 'Email', value: blankAsDash(profile.email)),
         _InfoTile(label: 'Phone', value: blankAsDash(profile.phone)),
-
         const SizedBox(height: 16),
-
         FilledButton(
+          key: const Key('profile_edit'),
           onPressed: onEdit,
           child: const Text('Edit Profile'),
         ),
@@ -274,57 +264,42 @@ class _EditView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
+      key: const Key('profile_edit_view'),
       padding: const EdgeInsets.all(16),
       children: [
         Center(
-          child: _PhotoCircle(
-            photoPath: profile.photoPath,
-            onTap: onTapPhoto,
-          ),
+          child: _PhotoCircle(photoPath: profile.photoPath, onTap: onTapPhoto),
         ),
         const SizedBox(height: 16),
-
         const Text('Name'),
         const SizedBox(height: 6),
         TextField(controller: name),
         const SizedBox(height: 12),
-
         const Text('Title / Role'),
         const SizedBox(height: 6),
         TextField(controller: titleRole),
         const SizedBox(height: 12),
-
         const Text('Position'),
         const SizedBox(height: 6),
         TextField(controller: position),
         const SizedBox(height: 12),
-
         const Text('Organization'),
         const SizedBox(height: 6),
         TextField(controller: organization),
         const SizedBox(height: 12),
-
         const Text('Email'),
         const SizedBox(height: 6),
-        TextField(
-          controller: email,
-          keyboardType: TextInputType.emailAddress,
-        ),
+        TextField(controller: email, keyboardType: TextInputType.emailAddress),
         const SizedBox(height: 12),
-
         const Text('Phone'),
         const SizedBox(height: 6),
-        TextField(
-          controller: phone,
-          keyboardType: TextInputType.phone,
-        ),
-
+        TextField(controller: phone, keyboardType: TextInputType.phone),
         const SizedBox(height: 20),
-
         Row(
           children: [
             Expanded(
               child: OutlinedButton(
+                key: const Key('profile_cancel'),
                 onPressed: onCancel,
                 child: const Text('Cancel'),
               ),
@@ -332,6 +307,7 @@ class _EditView extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: FilledButton(
+                key: const Key('profile_save'),
                 onPressed: onSave,
                 child: const Text('Save'),
               ),
@@ -345,7 +321,7 @@ class _EditView extends StatelessWidget {
 
 class _PhotoCircle extends StatelessWidget {
   final String? photoPath;
-  final VoidCallback? onTap; // nullable
+  final VoidCallback? onTap;
 
   const _PhotoCircle({
     required this.photoPath,
@@ -392,10 +368,8 @@ class _PhotoCircle extends StatelessWidget {
       child: inner,
     );
 
-    // Read-only: not tappable
     if (onTap == null) return circle;
 
-    // Edit mode: tappable
     return Material(
       color: Colors.transparent,
       shape: const CircleBorder(),
@@ -407,6 +381,7 @@ class _PhotoCircle extends StatelessWidget {
     );
   }
 }
+
 class _InfoTile extends StatelessWidget {
   final String label;
   final String value;

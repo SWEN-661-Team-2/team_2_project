@@ -40,6 +40,21 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
     }
   }
 
+  String _sortLabel(PatientSortMode mode) {
+    switch (mode) {
+      case PatientSortMode.lastNameAsc:
+        return 'Last Name (A–Z)';
+      case PatientSortMode.lastNameDesc:
+        return 'Last Name (Z–A)';
+      case PatientSortMode.criticalityHighToLow:
+        return 'Criticality (High → Low)';
+      case PatientSortMode.criticalityLowToHigh:
+        return 'Criticality (Low → High)';
+      case PatientSortMode.upcomingVisits:
+        return 'Upcoming Visits';
+    }
+  }
+
   int _critRank(PatientCriticality? c) {
     switch (c) {
       case PatientCriticality.critical:
@@ -50,26 +65,34 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
         return 2;
       case PatientCriticality.low:
         return 1;
-      default:
+      case null:
         return 0;
     }
   }
 
-  String _lastName(Patient p) {
-    final parts = p.fullName.trim().split(RegExp(r'\s+'));
-    return parts.isEmpty ? '' : parts.last.toLowerCase();
-  }
+  List<Patient> _items(PatientsRepository repo) {
+    List<Patient> items;
+    switch (widget.mode) {
+      case PatientsViewMode.needingAttention:
+        items = repo.needingAttentionSorted();
+        break;
+      case PatientsViewMode.upcomingVisits:
+        items = repo.upcomingVisitsSorted();
+        break;
+      case PatientsViewMode.all:
+        items = repo.allPatients();
+        break;
+    }
 
-  List<Patient> _applySorting(List<Patient> patients) {
-    final sorted = List<Patient>.from(patients);
+    items = List<Patient>.from(items);
 
-    sorted.sort((a, b) {
+    items.sort((a, b) {
       switch (_sortMode) {
         case PatientSortMode.lastNameAsc:
-          return _lastName(a).compareTo(_lastName(b));
+          return a.lastName.toLowerCase().compareTo(b.lastName.toLowerCase());
 
         case PatientSortMode.lastNameDesc:
-          return _lastName(b).compareTo(_lastName(a));
+          return b.lastName.toLowerCase().compareTo(a.lastName.toLowerCase());
 
         case PatientSortMode.criticalityHighToLow:
           return _critRank(b.criticality).compareTo(_critRank(a.criticality));
@@ -78,35 +101,24 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
           return _critRank(a.criticality).compareTo(_critRank(b.criticality));
 
         case PatientSortMode.upcomingVisits:
-          final aDt = a.nextVisit;
-          final bDt = b.nextVisit;
+          final adt = a.nextVisit;
+          final bdt = b.nextVisit;
 
-          if (aDt == null && bDt == null) return 0;
-          if (aDt == null) return 1;   // nulls last
-          if (bDt == null) return -1;
+          if (adt == null && bdt == null) return 0;
+          if (adt == null) return 1;
+          if (bdt == null) return -1;
 
-          return aDt.compareTo(bDt);
+          return adt.compareTo(bdt);
       }
     });
 
-    return sorted;
-  }
-
-  List<Patient> _items(PatientsRepository repo) {
-    switch (widget.mode) {
-      case PatientsViewMode.needingAttention:
-        return repo.needingAttentionSorted();
-      case PatientsViewMode.upcomingVisits:
-        return repo.upcomingVisitsSorted();
-      case PatientsViewMode.all:
-        return repo.allPatients();
-    }
+    return items;
   }
 
   @override
   Widget build(BuildContext context) {
     final repo = PatientsRepository.instance;
-    final items = _applySorting(_items(repo));
+    final items = _items(repo);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFB),
@@ -118,39 +130,37 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
           onPressed: () => AppShell.of(context)?.setTab(0),
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 12),
-            child: DropdownButtonHideUnderline(
-              child: DropdownButton<PatientSortMode>(
-                value: _sortMode,
-                onChanged: (value) {
-                  if (value == null) return;
-                  setState(() => _sortMode = value);
-                },
-                items: const [
-                  DropdownMenuItem(
-                    value: PatientSortMode.lastNameAsc,
-                    child: Text('Last Name (A–Z)'),
-                  ),
-                  DropdownMenuItem(
-                    value: PatientSortMode.lastNameDesc,
-                    child: Text('Last Name (Z–A)'),
-                  ),
-                  DropdownMenuItem(
-                    value: PatientSortMode.criticalityHighToLow,
-                    child: Text('Criticality (High → Low)'),
-                  ),
-                  DropdownMenuItem(
-                    value: PatientSortMode.criticalityLowToHigh,
-                    child: Text('Criticality (Low → High)'),
-                  ),
-                  DropdownMenuItem(
-                    value: PatientSortMode.upcomingVisits,
-                    child: Text('Upcoming Visits'),
-                  ),
-                ],
+          PopupMenuButton<PatientSortMode>(
+            tooltip: 'Sort patients',
+            icon: const Icon(Icons.sort),
+            initialValue: _sortMode,
+            onSelected: (mode) {
+              setState(() => _sortMode = mode);
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                value: PatientSortMode.lastNameAsc,
+                child: Text(_sortLabel(PatientSortMode.lastNameAsc)),
               ),
-            ),
+              PopupMenuItem(
+                value: PatientSortMode.lastNameDesc,
+                child: Text(_sortLabel(PatientSortMode.lastNameDesc)),
+              ),
+              const PopupMenuDivider(),
+              PopupMenuItem(
+                value: PatientSortMode.criticalityHighToLow,
+                child: Text(_sortLabel(PatientSortMode.criticalityHighToLow)),
+              ),
+              PopupMenuItem(
+                value: PatientSortMode.criticalityLowToHigh,
+                child: Text(_sortLabel(PatientSortMode.criticalityLowToHigh)),
+              ),
+              const PopupMenuDivider(),
+              PopupMenuItem(
+                value: PatientSortMode.upcomingVisits,
+                child: Text(_sortLabel(PatientSortMode.upcomingVisits)),
+              ),
+            ],
           ),
         ],
       ),
@@ -169,10 +179,12 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               subtitle: Text(_subtitleForMode(p)),
-              trailing: p.criticality == null ? null : Container(
-                key: Key('patient_tag_$i'),
-                child: _tagForPatient(p),
-              ),
+              trailing: p.criticality == null
+                  ? null
+                  : Container(
+                      key: Key('patient_tag_$i'),
+                      child: _tagForPatient(p),
+                    ),
             ),
           );
         },
@@ -182,21 +194,22 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
 
   String _subtitleForMode(Patient p) {
     switch (widget.mode) {
-      case PatientsViewMode.upcomingVisits: {
+      case PatientsViewMode.upcomingVisits:
         final dt = p.nextVisit;
-        return dt == null ? 'No visit scheduled' : 'Visit: ${formatDtYmdHmm(dt.toLocal())}';
-      }
+        return dt == null
+            ? 'No visit scheduled'
+            : 'Visit: ${formatDtYmdHmm(dt.toLocal())}';
 
       case PatientsViewMode.needingAttention:
         return 'Priority: ${_critText(p.criticality)}';
 
-      case PatientsViewMode.all: {
+      case PatientsViewMode.all:
         final crit = _critText(p.criticality);
         final appt = p.nextVisit == null
             ? 'No upcoming visit'
             : 'Next Appt.: ${formatDtYmdHmm(p.nextVisit!.toLocal())}';
+
         return '$crit\n$appt';
-      }
     }
   }
 
@@ -233,7 +246,10 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
         color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Text(text, style: TextStyle(color: color, fontWeight: FontWeight.bold)),
+      child: Text(
+        text,
+        style: TextStyle(color: color, fontWeight: FontWeight.bold),
+      ),
     );
   }
 
