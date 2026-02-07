@@ -1,0 +1,80 @@
+# FILE: .github/workflows/flutter-quality.yml
+name: Flutter Quality (analyze + format + tests + pana)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  flutter:
+    name: Flutter checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Locate Flutter app dir
+        id: locate
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Prefer your known location; fall back to repo root if pubspec.yaml is there.
+          if [ -f "apps/flutter/pubspec.yaml" ]; then
+            echo "dir=apps/flutter" >> "$GITHUB_OUTPUT"
+          elif [ -f "pubspec.yaml" ]; then
+            echo "dir=." >> "$GITHUB_OUTPUT"
+          else
+            echo "dir=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Fail if Flutter app not found
+        if: ${{ steps.locate.outputs.dir == '' }}
+        run: |
+          echo "No pubspec.yaml found. Can't run Flutter checks."
+          exit 1
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Pub get
+        working-directory: ${{ steps.locate.outputs.dir }}
+        run: flutter pub get
+
+      - name: flutter analyze
+        working-directory: ${{ steps.locate.outputs.dir }}
+        run: flutter analyze
+
+      - name: dart format (check)
+        working-directory: ${{ steps.locate.outputs.dir }}
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: flutter test
+        working-directory: ${{ steps.locate.outputs.dir }}
+        run: flutter test
+
+      - name: Install pana
+        working-directory: ${{ steps.locate.outputs.dir }}
+        run: dart pub global activate pana
+
+      - name: Run pana (report)
+        working-directory: ${{ steps.locate.outputs.dir }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ../reports
+          pana --no-warning --json > ../reports/pana.json || true
+          pana --no-warning > ../reports/pana.txt || true
+
+      - name: Upload pana report
+        uses: actions/upload-artifact@v4
+        with:
+          name: pana
+          path: reports/pana.*
