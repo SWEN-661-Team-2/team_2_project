@@ -1,0 +1,53 @@
+name: SBOM + Vulnerability Scan (Syft + Grype)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  sbom_and_scan:
+    name: Syft SBOM + Grype scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Syft + Grype
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+          syft version
+          grype version
+
+      - name: Generate SBOM (Syft)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p reports/sbom
+          syft dir:. -o spdx-json=reports/sbom/sbom.spdx.json
+
+      - name: Scan SBOM (Grype) -> SARIF
+        shell: bash
+        run: |
+          set -euo pipefail
+          grype sbom:reports/sbom/sbom.spdx.json -o sarif > reports/sbom/grype.sarif || true
+
+      - name: Upload SARIF (Grype)
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: reports/sbom/grype.sarif
+
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-and-grype
+          path: reports/sbom/
