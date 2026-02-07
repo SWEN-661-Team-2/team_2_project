@@ -1,0 +1,38 @@
+name: SCA (OWASP Dependency-Check)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  owasp_dependency_check:
+    name: OWASP Dependency-Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Runs across the repo; if you want to narrow it later, set scan-path to your Java backend folder.
+      - name: OWASP Dependency-Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: "team_2_project"
+          path: "."
+          format: "ALL"
+          out: "dependency-check-report"
+          # If you want to fail on severity later, uncomment and tune:
+          # args: >
+          #   --failOnCVSS 7
+
+      - name: Upload Dependency-Check reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: owasp-dependency-check
+          path: dependency-check-report/
