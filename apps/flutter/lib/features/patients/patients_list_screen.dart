@@ -5,15 +5,18 @@ import '../../core/patients/patients_repository.dart';
 import '../../core/patients/patient.dart';
 import '../../core/utils/dt_format.dart';
 import '../../core/accessibility/app_settings_controller.dart';
+import '../../app/app_shell.dart';
 
 enum PatientsViewMode { all, upcomingVisits, needingAttention }
 
 class PatientsListScreen extends StatefulWidget {
   final PatientsViewMode mode;
+  final bool showBackButton;
 
   const PatientsListScreen({
     super.key,
     this.mode = PatientsViewMode.all,
+    this.showBackButton = false,
   });
 
   @override
@@ -27,6 +30,16 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
   void initState() {
     super.initState();
     _currentMode = widget.mode;
+  }
+
+  @override
+  void didUpdateWidget(PatientsListScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.mode != widget.mode) {
+      setState(() {
+        _currentMode = widget.mode;
+      });
+    }
   }
 
   String _getTitle() {
@@ -64,23 +77,35 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
       title: _getTitle(),
       child: Column(
         children: [
-          // Menu button row at the top
+          // Menu/back button row at the top
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Row(
               children: [
                 if (isLeftAligned) ...[
-                  IconButton(
-                    icon: const Icon(Icons.sort),
-                    onPressed: () => _showFilterMenu(context),
-                  ),
+                  widget.showBackButton
+                      ? IconButton(
+                          icon: const Icon(Icons.arrow_back),
+                          onPressed: () => AppShell.of(context)?.goBackToDashboard(),
+                          tooltip: 'Back to dashboard',
+                        )
+                      : IconButton(
+                          icon: const Icon(Icons.sort),
+                          onPressed: () => _showFilterMenu(context),
+                        ),
                   const Spacer(),
                 ] else ...[
                   const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.sort),
-                    onPressed: () => _showFilterMenu(context),
-                  ),
+                  widget.showBackButton
+                      ? IconButton(
+                          icon: const Icon(Icons.arrow_back),
+                          onPressed: () => AppShell.of(context)?.goBackToDashboard(),
+                          tooltip: 'Back to dashboard',
+                        )
+                      : IconButton(
+                          icon: const Icon(Icons.sort),
+                          onPressed: () => _showFilterMenu(context),
+                        ),
                 ],
               ],
             ),
