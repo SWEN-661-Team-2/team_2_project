@@ -24,7 +24,6 @@ void main() {
   });
 
   testWidgets('Continue navigates to login', (tester) async {
-    // FIXED: Use pumpAppWithRoutes instead of bare MaterialApp
     await pumpAppWithRoutes(tester, initialRoute: Routes.welcome);
     await tester.pumpAndSettle();
 
@@ -70,12 +69,6 @@ void main() {
     expect(find.descendant(of: find.byKey(const Key('message_0')), matching: find.byIcon(Icons.circle)), findsOneWidget);
   });
 
-
-
-
-
-
-
  testWidgets('Patients list renders for different modes', (tester) async {
     await pumpWidgetWithApp(
       tester, 
@@ -109,7 +102,6 @@ void main() {
     
     expect(find.text('Upcoming Visits'), findsOneWidget);
   });
-
 
 }
 
