@@ -1,0 +1,62 @@
+name: Java Static Analysis (SpotBugs + FindSecBugs)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  spotbugs:
+    name: SpotBugs + FindSecBugs (best-effort)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+          cache: "maven"
+
+      - name: Run SpotBugs (+ FindSecBugs) across all Maven modules
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          poms=( $(git ls-files '**/pom.xml') )
+          if [ ${#poms[@]} -eq 0 ]; then
+            echo "No pom.xml found. Skipping SpotBugs."
+            exit 0
+          fi
+
+          mkdir -p reports/spotbugs
+
+          for pom in "${poms[@]}"; do
+            echo "Analyzing: $pom"
+            # This uses SpotBugs plugin directly, and attempts to pull FindSecBugs as an extra plugin.
+            # If a module can't run (missing plugin/config), we continue so one module doesn't break the pipeline.
+            mvn -f "$pom" -DskipTests \
+              com.github.spotbugs:spotbugs-maven-plugin:4.8.5.0:spotbugs \
+              -Dspotbugs.effort=Max \
+              -Dspotbugs.threshold=Low \
+              -DspotbugsPlugins=com.h3xstream.findsecbugs:findsecbugs-plugin:1.13.0 \
+              || true
+          done
+
+          # Collect anything spotbugs produced (varies by project config)
+          find . -type f \( -name "spotbugsXml.xml" -o -name "spotbugs.html" -o -name "*spotbugs*.xml" \) -print0 \
+            | xargs -0 -I{} cp "{}" reports/spotbugs/ || true
+
+      - name: Upload SpotBugs artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: spotbugs-findsecbugs
+          path: reports/spotbugs/
