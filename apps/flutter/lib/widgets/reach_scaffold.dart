@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../core/accessibility/app_settings_controller.dart';
+import 'handedness_toggle_button.dart';
 
 class ReachScaffold extends StatelessWidget {
   final String title;
@@ -19,7 +20,15 @@ class ReachScaffold extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text(title)),
-      body: SafeArea(child: child),
+      body: Stack(
+        children: [
+          // Main content
+          SafeArea(child: child),
+          
+          // Floating handedness toggle button (only shows in toggle mode)
+          const HandednessToggleButton(),
+        ],
+      ),
     );
   }
 }

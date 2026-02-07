@@ -1,10 +1,8 @@
 enum HandednessMode {
-  left,
-  right,
-  toggle,
-}
+  left,      
+  right,     
+  toggle;
 
-extension HandednessModeLabel on HandednessMode {
   String get label {
     switch (this) {
       case HandednessMode.left:
@@ -16,3 +14,5 @@ extension HandednessModeLabel on HandednessMode {
     }
   }
 }
+
+

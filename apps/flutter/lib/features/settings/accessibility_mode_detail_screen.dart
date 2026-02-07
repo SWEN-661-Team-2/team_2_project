@@ -1,5 +1,10 @@
+// lib/features/settings/accessibility_mode_detail_screen.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:flutter_app/core/tokens/spacing.dart';
+import 'package:flutter_app/core/accessibility/app_settings_controller.dart';
+import 'package:flutter_app/widgets/reach_scaffold.dart';
 
 class AccessibilityModeDetailScreen extends StatelessWidget {
   final String title;
@@ -21,10 +26,13 @@ class AccessibilityModeDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFB),
-      appBar: AppBar(title: Text(title)),
-      body: Padding(
+    final settingsController = context.read<AppSettingsController>();
+
+    final isLeftAligned = settingsController.isLeftAligned;
+
+    return ReachScaffold(
+      title: title,
+      child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -62,6 +70,9 @@ class AccessibilityModeDetailScreen extends StatelessWidget {
                 onChanged: onChanged,
                 title: Text(enabled ? 'Enabled' : 'Disabled', style: text.titleMedium),
                 subtitle: const Text('Toggle on to activate (UI only for now).'),
+                controlAffinity: isLeftAligned
+                    ? ListTileControlAffinity.leading
+                    : ListTileControlAffinity.trailing,
               ),
             ),
             const SizedBox(height: AppSpacing.md),
@@ -74,3 +85,4 @@ class AccessibilityModeDetailScreen extends StatelessWidget {
     );
   }
 }
+

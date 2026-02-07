@@ -1,11 +1,3 @@
-// Keeps: Account & Profile, Notifications, Privacy & Security, Help & About, Logout
-// Adds: Display section with boxed Text Size + Contrast (Day/Night) toggle button
-// Adds: Accessibility section with tiles (icon + disability + mitigation)
-// Each tile opens a detail screen where user can enable/disable
-// When enabled: tile has darker/high-contrast styling + active indicator circle
-// Does NOT implement actual mitigations — only stores state + changes UI.
-//    (Comments included where real mitigation should be implemented.)
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -26,6 +18,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = context.watch<AppSettingsController>();
     final text = Theme.of(context).textTheme;
+    final isLeftAligned = controller.isLeftAligned;
 
     return ReachScaffold(
       title: 'Settings',
@@ -49,14 +42,16 @@ class SettingsScreen extends StatelessWidget {
           Text('Account & Profile', style: text.titleMedium),
           const SizedBox(height: AppSpacing.sm),
 
-          ListTile(
+          _HandedListTile(
             title: const Text('Profile information'),
-            trailing: const Icon(Icons.chevron_right),
+            icon: Icons.chevron_right,
+            isLeftAligned: isLeftAligned,
             onTap: () => Navigator.of(context).pushNamed(Routes.profile),
           ),
-          ListTile(
+          _HandedListTile(
             title: const Text('Change password'),
-            trailing: const Icon(Icons.chevron_right),
+            icon: Icons.chevron_right,
+            isLeftAligned: isLeftAligned,
             onTap: () => Navigator.of(context).pushNamed(Routes.changePassword),
           ),
 
@@ -70,17 +65,19 @@ class SettingsScreen extends StatelessWidget {
           Text('Notifications', style: text.titleMedium),
           const SizedBox(height: AppSpacing.sm),
 
-          SwitchListTile(
+          _HandedSwitchListTile(
             value: controller.notificationsEnabled,
             onChanged: (v) => controller.setNotificationsEnabled(v),
             title: const Text('Notifications'),
             subtitle: const Text('Enable reminders and alerts'),
+            isLeftAligned: isLeftAligned,
           ),
 
-          ListTile(
+          _HandedListTile(
             title: const Text('Reminder frequency'),
             subtitle: Text(_reminderFrequencyLabel(controller.reminderFrequency)),
-            trailing: const Icon(Icons.chevron_right),
+            icon: Icons.chevron_right,
+            isLeftAligned: isLeftAligned,
             onTap: () => _showReminderFrequencyPicker(context, controller),
           ),
 
@@ -94,7 +91,7 @@ class SettingsScreen extends StatelessWidget {
           Text('Display', style: text.titleMedium),
           const SizedBox(height: AppSpacing.sm),
 
-          _DisplaySection(controller: controller),
+          _DisplaySection(controller: controller, isLeftAligned: isLeftAligned),
 
           const SizedBox(height: AppSpacing.lg),
           const Divider(),
@@ -111,7 +108,7 @@ class SettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
 
-          _AccessibilityTiles(controller: controller),
+          _AccessibilityTiles(controller: controller, isLeftAligned: isLeftAligned),
 
           const SizedBox(height: AppSpacing.lg),
           const Divider(),
@@ -128,19 +125,9 @@ class SettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
 
-          RadioGroup<HandednessMode>(
-            groupValue: controller.handednessMode,
-            onChanged: (mode) {
-              if (mode != null) controller.setHandednessMode(mode);
-            },
-            child: Column(
-              children: HandednessMode.values.map((mode) {
-                return RadioListTile<HandednessMode>(
-                  value: mode,
-                  title: Text(mode.label),
-                );
-              }).toList(),
-            ),
+          _HandednessRadioGroup(
+            controller: controller,
+            isLeftAligned: isLeftAligned,
           ),
 
           const SizedBox(height: AppSpacing.lg),
@@ -153,19 +140,20 @@ class SettingsScreen extends StatelessWidget {
           Text('Privacy & Security', style: text.titleMedium),
           const SizedBox(height: AppSpacing.sm),
 
-          ListTile(
+          _HandedListTile(
             title: const Text('Privacy policy'),
-            trailing: const Icon(Icons.open_in_new),
+            icon: Icons.open_in_new,
+            isLeftAligned: isLeftAligned,
             onTap: () {
-              // TODO: open URL or show policy screen
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Privacy policy (coming soon)')),
               );
             },
           ),
-          ListTile(
+          _HandedListTile(
             title: const Text('Terms of service'),
-            trailing: const Icon(Icons.open_in_new),
+            icon: Icons.open_in_new,
+            isLeftAligned: isLeftAligned,
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Terms of service (coming soon)')),
@@ -183,20 +171,21 @@ class SettingsScreen extends StatelessWidget {
           Text('Help & About', style: text.titleMedium),
           const SizedBox(height: AppSpacing.sm),
 
-          ListTile(
+          _HandedListTile(
             title: const Text('Help / Support'),
-            trailing: const Icon(Icons.chevron_right),
+            icon: Icons.chevron_right,
+            isLeftAligned: isLeftAligned,
             onTap: () {
-              // TODO: support screen
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Support (coming soon)')),
               );
             },
           ),
-          ListTile(
+          _HandedListTile(
             title: const Text('About CareConnect'),
             subtitle: const Text('Version, credits, licensing'),
-            trailing: const Icon(Icons.chevron_right),
+            icon: Icons.chevron_right,
+            isLeftAligned: isLeftAligned,
             onTap: () {
               showAboutDialog(
                 context: context,
@@ -218,7 +207,8 @@ class SettingsScreen extends StatelessWidget {
               'Logout',
               style: TextStyle(color: Colors.red, fontWeight: FontWeight.w700),
             ),
-            leading: const Icon(Icons.logout, color: Colors.red),
+            leading: isLeftAligned ? const Icon(Icons.logout, color: Colors.red) : null,
+            trailing: !isLeftAligned ? const Icon(Icons.logout, color: Colors.red) : null,
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Logged out')),
@@ -231,9 +221,84 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
 
+
           const SizedBox(height: AppSpacing.lg),
         ],
       ),
+    );
+  }
+}
+
+// ============================================================================
+// HANDED LIST TILE - Swaps leading/trailing based on handedness
+// ============================================================================
+
+class _HandedListTile extends StatelessWidget {
+  final Widget title;
+  final Widget? subtitle;
+  final IconData icon;
+  final bool isLeftAligned;
+  final VoidCallback onTap;
+
+  const _HandedListTile({
+    required this.title,
+    this.subtitle,
+    required this.icon,
+    required this.isLeftAligned,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLeftAligned) {
+      // Left-handed: icon on the left
+      return ListTile(
+        leading: Icon(icon),
+        title: title,
+        subtitle: subtitle,
+        onTap: onTap,
+      );
+    } else {
+      // Right-handed: icon on the right
+      return ListTile(
+        title: title,
+        subtitle: subtitle,
+        trailing: Icon(icon),
+        onTap: onTap,
+      );
+    }
+  }
+}
+
+// ============================================================================
+// HANDED SWITCH LIST TILE - Swaps switch position based on handedness
+// ============================================================================
+
+class _HandedSwitchListTile extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool> onChanged;
+  final Widget title;
+  final Widget? subtitle;
+  final bool isLeftAligned;
+
+  const _HandedSwitchListTile({
+    required this.value,
+    required this.onChanged,
+    required this.title,
+    this.subtitle,
+    required this.isLeftAligned,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SwitchListTile(
+      value: value,
+      onChanged: onChanged,
+      title: title,
+      subtitle: subtitle,
+      controlAffinity: isLeftAligned 
+          ? ListTileControlAffinity.leading 
+          : ListTileControlAffinity.trailing,
     );
   }
 }
@@ -244,8 +309,12 @@ class SettingsScreen extends StatelessWidget {
 
 class _DisplaySection extends StatelessWidget {
   final AppSettingsController controller;
+  final bool isLeftAligned;
 
-  const _DisplaySection({required this.controller});
+  const _DisplaySection({
+    required this.controller,
+    required this.isLeftAligned,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -266,6 +335,7 @@ class _DisplaySection extends StatelessWidget {
         Wrap(
           spacing: 10,
           runSpacing: 10,
+          alignment: isLeftAligned ? WrapAlignment.start : WrapAlignment.end,
           children: options.map((opt) {
             final label = opt.$1;
             final value = opt.$2;
@@ -285,23 +355,19 @@ class _DisplaySection extends StatelessWidget {
         const SizedBox(height: AppSpacing.sm),
 
         Card(
-          child: ListTile(
+          child: _HandedListTile(
             title: Text(
               controller.highContrastEnabled
                   ? 'Night / High Contrast'
                   : 'Day / Normal',
             ),
             subtitle: const Text('Toggle contrast mode (persisted).'),
-            trailing: Icon(
-              controller.highContrastEnabled
-                  ? Icons.nights_stay
-                  : Icons.wb_sunny,
-            ),
+            icon: controller.highContrastEnabled
+                ? Icons.nights_stay
+                : Icons.wb_sunny,
+            isLeftAligned: isLeftAligned,
             onTap: () {
               controller.setHighContrastEnabled(!controller.highContrastEnabled);
-
-              // TODO(implement): Apply this setting to ThemeData / ColorScheme globally.
-              // For now, it persists + updates UI labels only.
             },
           ),
         ),
@@ -349,13 +415,17 @@ class _ChoiceBox extends StatelessWidget {
 }
 
 // ============================================================================
-// ACCESSIBILITY TILES (tap -> detail screen, active circle, darker when active)
+// ACCESSIBILITY TILES
 // ============================================================================
 
 class _AccessibilityTiles extends StatelessWidget {
   final AppSettingsController controller;
+  final bool isLeftAligned;
 
-  const _AccessibilityTiles({required this.controller});
+  const _AccessibilityTiles({
+    required this.controller,
+    required this.isLeftAligned,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -366,8 +436,9 @@ class _AccessibilityTiles extends StatelessWidget {
           subtitle: 'Larger text + improved contrast (UI only)',
           icon: Icons.visibility,
           enabled: controller.lowVisionEnabled,
+          isLeftAligned: isLeftAligned,
           onTap: () {
-            Navigator.of(context).push(
+            Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute(
                 builder: (_) => AccessibilityModeDetailScreen(
                   title: 'Low Vision',
@@ -377,7 +448,6 @@ class _AccessibilityTiles extends StatelessWidget {
                   enabled: controller.lowVisionEnabled,
                   onChanged: (v) {
                     controller.setLowVisionEnabled(v);
-                    // TODO(implement): apply global low-vision mitigations.
                   },
                 ),
               ),
@@ -390,8 +460,9 @@ class _AccessibilityTiles extends StatelessWidget {
           subtitle: 'Larger targets + reduced precision (UI only)',
           icon: Icons.pan_tool_alt,
           enabled: controller.tremorSupportEnabled,
+          isLeftAligned: isLeftAligned,
           onTap: () {
-            Navigator.of(context).push(
+            Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute(
                 builder: (_) => AccessibilityModeDetailScreen(
                   title: 'Tremor / Motor',
@@ -401,7 +472,6 @@ class _AccessibilityTiles extends StatelessWidget {
                   enabled: controller.tremorSupportEnabled,
                   onChanged: (v) {
                     controller.setTremorSupportEnabled(v);
-                    // TODO(implement): apply tremor mitigations.
                   },
                 ),
               ),
@@ -414,8 +484,9 @@ class _AccessibilityTiles extends StatelessWidget {
           subtitle: 'Reduced complexity + clear flow (UI only)',
           icon: Icons.psychology,
           enabled: controller.guidedModeEnabled,
+          isLeftAligned: isLeftAligned,
           onTap: () {
-            Navigator.of(context).push(
+            Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute(
                 builder: (_) => AccessibilityModeDetailScreen(
                   title: 'Cognitive Load (STML)',
@@ -425,7 +496,6 @@ class _AccessibilityTiles extends StatelessWidget {
                   enabled: controller.guidedModeEnabled,
                   onChanged: (v) {
                     controller.setGuidedModeEnabled(v);
-                    // TODO(implement): apply guided-mode mitigations.
                   },
                 ),
               ),
@@ -438,8 +508,9 @@ class _AccessibilityTiles extends StatelessWidget {
           subtitle: 'Visual alerts + captions (UI only)',
           icon: Icons.hearing_disabled,
           enabled: controller.hearingImpairedEnabled,
+          isLeftAligned: isLeftAligned,
           onTap: () {
-            Navigator.of(context).push(
+            Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute(
                 builder: (_) => AccessibilityModeDetailScreen(
                   title: 'Hearing Impaired',
@@ -449,7 +520,6 @@ class _AccessibilityTiles extends StatelessWidget {
                   enabled: controller.hearingImpairedEnabled,
                   onChanged: (v) {
                     controller.setHearingImpairedEnabled(v);
-                    // TODO(implement): apply hearing mitigations.
                   },
                 ),
               ),
@@ -466,6 +536,7 @@ class _AccessibilityModeTile extends StatelessWidget {
   final String subtitle;
   final IconData icon;
   final bool enabled;
+  final bool isLeftAligned;
   final VoidCallback onTap;
 
   const _AccessibilityModeTile({
@@ -473,6 +544,7 @@ class _AccessibilityModeTile extends StatelessWidget {
     required this.subtitle,
     required this.icon,
     required this.enabled,
+    required this.isLeftAligned,
     required this.onTap,
   });
 
@@ -484,7 +556,25 @@ class _AccessibilityModeTile extends StatelessWidget {
     final border =
         enabled ? const Color(0xFF0A7A8A) : const Color(0xFFCED8DC);
 
+    final indicatorAndChevron = Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 18,
+          height: 18,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: border, width: 2),
+            color: enabled ? const Color(0xFF0A7A8A) : Colors.transparent,
+          ),
+        ),
+        const SizedBox(width: 10),
+        const Icon(Icons.chevron_right),
+      ],
+    );
+
     return Card(
+      key: const Key('a11y_mode_toggle'),
       color: bg,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -492,35 +582,60 @@ class _AccessibilityModeTile extends StatelessWidget {
       ),
       child: ListTile(
         onTap: onTap,
-        leading: Icon(icon, color: const Color(0xFF374151)),
+        leading: isLeftAligned ? indicatorAndChevron : Icon(icon, color: const Color(0xFF374151)),
         title: Text(
           title,
           style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
         ),
         subtitle: Text(subtitle, style: text.bodySmall),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 18,
-              height: 18,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: border, width: 2),
-                color: enabled ? const Color(0xFF0A7A8A) : Colors.transparent,
-              ),
-            ),
-            const SizedBox(width: 10),
-            const Icon(Icons.chevron_right),
-          ],
-        ),
+        trailing: isLeftAligned ? Icon(icon, color: const Color(0xFF374151)) : indicatorAndChevron,
       ),
     );
   }
 }
 
 // ============================================================================
-// Reminder Frequency Picker (persisted)
+// HANDEDNESS RADIO GROUP
+// ============================================================================
+
+class _HandednessRadioGroup extends StatelessWidget {
+  final AppSettingsController controller;
+  final bool isLeftAligned;
+
+  const _HandednessRadioGroup({
+    required this.controller,
+    required this.isLeftAligned,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return RadioGroup<HandednessMode>(
+      groupValue: controller.handednessMode,
+      onChanged: (mode) {
+        if (mode != null) controller.setHandednessMode(mode);
+      },
+      child: Column(
+        children: HandednessMode.values.map((mode) {
+          if (isLeftAligned) {
+            return RadioListTile<HandednessMode>(
+              value: mode,
+              title: Text(mode.label),
+            );
+          } else {
+            return RadioListTile<HandednessMode>(
+              value: mode,
+              title: Text(mode.label),
+              controlAffinity: ListTileControlAffinity.trailing,
+            );
+          }
+        }).toList(),
+      ),
+    );
+  }
+}
+
+// ============================================================================
+// Reminder Frequency Picker
 // ============================================================================
 
 String _reminderFrequencyLabel(ReminderFrequency f) {
@@ -538,6 +653,8 @@ Future<void> _showReminderFrequencyPicker(
   BuildContext context,
   AppSettingsController controller,
 ) async {
+  final isLeftAligned = controller.isLeftAligned;
+  
   final selected = await showModalBottomSheet<ReminderFrequency>(
     context: context,
     showDragHandle: true,
@@ -562,20 +679,29 @@ Future<void> _showReminderFrequencyPicker(
                 onChanged: (v) {
                   if (v != null) Navigator.pop(ctx, v);
                 },
-                child: const Column(
+                child: Column(
                   children: [
                     RadioListTile<ReminderFrequency>(
                       value: ReminderFrequency.daily,
-                      title: Text('Daily'),
+                      title: const Text('Daily'),
+                      controlAffinity: isLeftAligned 
+                          ? ListTileControlAffinity.leading 
+                          : ListTileControlAffinity.trailing,
                     ),
                     RadioListTile<ReminderFrequency>(
                       value: ReminderFrequency.weekly,
-                      title: Text('Weekly'),
+                      title: const Text('Weekly'),
+                      controlAffinity: isLeftAligned 
+                          ? ListTileControlAffinity.leading 
+                          : ListTileControlAffinity.trailing,
                     ),
                     RadioListTile<ReminderFrequency>(
                       value: ReminderFrequency.custom,
-                      title: Text('Custom'),
-                      subtitle: Text('Setup screen (coming soon)'),
+                      title: const Text('Custom'),
+                      subtitle: const Text('Setup screen (coming soon)'),
+                      controlAffinity: isLeftAligned 
+                          ? ListTileControlAffinity.leading 
+                          : ListTileControlAffinity.trailing,
                     ),
                   ],
                 ),
@@ -594,11 +720,6 @@ Future<void> _showReminderFrequencyPicker(
   await controller.setReminderFrequency(selected);
 
   if (selected == ReminderFrequency.custom) {
-    // TODO(implement): Navigate to a Custom Reminder setup screen:
-    // - choose time(s)
-    // - choose days of week
-    // - store selections (persist)
-    // - apply to scheduling logic when notifications exist
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Custom reminders setup (coming soon)')),

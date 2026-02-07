@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../app/app_shell.dart';
-import '../../core/patients/patient.dart';
+import 'package:provider/provider.dart';
+import '../../widgets/reach_scaffold.dart';
 import '../../core/patients/patients_repository.dart';
+import '../../core/patients/patient.dart';
 import '../../core/utils/dt_format.dart';
+import '../../core/accessibility/app_settings_controller.dart';
 
 enum PatientsViewMode { all, upcomingVisits, needingAttention }
-
-enum PatientSortMode {
-  lastNameAsc,
-  lastNameDesc,
-  criticalityHighToLow,
-  criticalityLowToHigh,
-  upcomingVisits,
-}
 
 class PatientsListScreen extends StatefulWidget {
   final PatientsViewMode mode;
@@ -27,235 +21,275 @@ class PatientsListScreen extends StatefulWidget {
 }
 
 class _PatientsListScreenState extends State<PatientsListScreen> {
-  PatientSortMode _sortMode = PatientSortMode.lastNameAsc;
+  PatientsViewMode _currentMode = PatientsViewMode.all;
 
-  String get _title {
-    switch (widget.mode) {
-      case PatientsViewMode.needingAttention:
-        return 'Patients Needing Attention';
-      case PatientsViewMode.upcomingVisits:
-        return 'Upcoming Visits';
+  @override
+  void initState() {
+    super.initState();
+    _currentMode = widget.mode;
+  }
+
+  String _getTitle() {
+    switch (_currentMode) {
       case PatientsViewMode.all:
         return 'Patients';
-    }
-  }
-
-  String _sortLabel(PatientSortMode mode) {
-    switch (mode) {
-      case PatientSortMode.lastNameAsc:
-        return 'Last Name (A–Z)';
-      case PatientSortMode.lastNameDesc:
-        return 'Last Name (Z–A)';
-      case PatientSortMode.criticalityHighToLow:
-        return 'Criticality (High → Low)';
-      case PatientSortMode.criticalityLowToHigh:
-        return 'Criticality (Low → High)';
-      case PatientSortMode.upcomingVisits:
-        return 'Upcoming Visits';
-    }
-  }
-
-  int _critRank(PatientCriticality? c) {
-    switch (c) {
-      case PatientCriticality.critical:
-        return 4;
-      case PatientCriticality.high:
-        return 3;
-      case PatientCriticality.medium:
-        return 2;
-      case PatientCriticality.low:
-        return 1;
-      case null:
-        return 0;
-    }
-  }
-
-  List<Patient> _items(PatientsRepository repo) {
-    List<Patient> items;
-    switch (widget.mode) {
-      case PatientsViewMode.needingAttention:
-        items = repo.needingAttentionSorted();
-        break;
       case PatientsViewMode.upcomingVisits:
-        items = repo.upcomingVisitsSorted();
-        break;
-      case PatientsViewMode.all:
-        items = repo.allPatients();
-        break;
+        return 'Upcoming Visits';
+      case PatientsViewMode.needingAttention:
+        return 'Patients Needing Attention';
     }
-
-    items = List<Patient>.from(items);
-
-    items.sort((a, b) {
-      switch (_sortMode) {
-        case PatientSortMode.lastNameAsc:
-          return a.lastName.toLowerCase().compareTo(b.lastName.toLowerCase());
-
-        case PatientSortMode.lastNameDesc:
-          return b.lastName.toLowerCase().compareTo(a.lastName.toLowerCase());
-
-        case PatientSortMode.criticalityHighToLow:
-          return _critRank(b.criticality).compareTo(_critRank(a.criticality));
-
-        case PatientSortMode.criticalityLowToHigh:
-          return _critRank(a.criticality).compareTo(_critRank(b.criticality));
-
-        case PatientSortMode.upcomingVisits:
-          final adt = a.nextVisit;
-          final bdt = b.nextVisit;
-
-          if (adt == null && bdt == null) return 0;
-          if (adt == null) return 1;
-          if (bdt == null) return -1;
-
-          return adt.compareTo(bdt);
-      }
-    });
-
-    return items;
   }
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<AppSettingsController>();
+    final isLeftAligned = controller.isLeftAligned;
+    
     final repo = PatientsRepository.instance;
-    final items = _items(repo);
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFB),
-      appBar: AppBar(
-        title: Text(_title),
-        automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => AppShell.of(context)?.setTab(0),
-        ),
-        actions: [
-          PopupMenuButton<PatientSortMode>(
-            tooltip: 'Sort patients',
-            icon: const Icon(Icons.sort),
-            initialValue: _sortMode,
-            onSelected: (mode) {
-              setState(() => _sortMode = mode);
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: PatientSortMode.lastNameAsc,
-                child: Text(_sortLabel(PatientSortMode.lastNameAsc)),
-              ),
-              PopupMenuItem(
-                value: PatientSortMode.lastNameDesc,
-                child: Text(_sortLabel(PatientSortMode.lastNameDesc)),
-              ),
-              const PopupMenuDivider(),
-              PopupMenuItem(
-                value: PatientSortMode.criticalityHighToLow,
-                child: Text(_sortLabel(PatientSortMode.criticalityHighToLow)),
-              ),
-              PopupMenuItem(
-                value: PatientSortMode.criticalityLowToHigh,
-                child: Text(_sortLabel(PatientSortMode.criticalityLowToHigh)),
-              ),
-              const PopupMenuDivider(),
-              PopupMenuItem(
-                value: PatientSortMode.upcomingVisits,
-                child: Text(_sortLabel(PatientSortMode.upcomingVisits)),
-              ),
-            ],
+    List<Patient> patients;
+    switch (_currentMode) {
+      case PatientsViewMode.all:
+        patients = repo.allPatients();
+        break;
+      case PatientsViewMode.upcomingVisits:
+        patients = repo.upcomingVisitsSorted();
+        break;
+      case PatientsViewMode.needingAttention:
+        patients = repo.needingAttentionSorted();
+        break;
+    }
+
+    return ReachScaffold(
+      title: _getTitle(),
+      child: Column(
+        children: [
+          // Menu button row at the top
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: Row(
+              children: [
+                if (isLeftAligned) ...[
+                  IconButton(
+                    icon: const Icon(Icons.sort),
+                    onPressed: () => _showFilterMenu(context),
+                  ),
+                  const Spacer(),
+                ] else ...[
+                  const Spacer(),
+                  IconButton(
+                    icon: const Icon(Icons.sort),
+                    onPressed: () => _showFilterMenu(context),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          // Patient list
+          Expanded(
+            child: patients.isEmpty 
+                ? const Center(child: Text('No patients found')) 
+                : ListView.builder(
+                    key: const Key('patients_list'),
+                    padding: const EdgeInsets.all(16),
+                    itemCount: patients.length,
+                    itemBuilder: (context, index) {
+                      final patient = patients[index];
+
+                      // Different card styles based on current view mode
+                      switch (_currentMode) {
+                        case PatientsViewMode.needingAttention:
+                          return _PriorityPatientCard(
+                            key: Key('patient_$index'),
+                            patient: patient,
+                            index: index,
+                          );
+                        case PatientsViewMode.upcomingVisits:
+                          return _VisitPatientCard(
+                            key: Key('patient_$index'), 
+                            patient: patient,
+                            index: index, 
+                          );
+                        case PatientsViewMode.all:
+                          return _PatientCard(
+                            key: Key('patient_$index'), 
+                            patient: patient,
+                            index: index, 
+                          );
+                      }
+                    },
+                  ),
           ),
         ],
       ),
-      body: ListView.separated(
-        key: const Key('patients_list'),
-        padding: const EdgeInsets.all(16),
-        itemCount: items.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 12),
-        itemBuilder: (context, i) {
-          final p = items[i];
-          return Card(
-            child: ListTile(
-              key: Key('patient_$i'),
-              title: Text(
-                p.fullName,
-                style: const TextStyle(fontWeight: FontWeight.w700),
-              ),
-              subtitle: Text(_subtitleForMode(p)),
-              trailing: p.criticality == null
-                  ? null
-                  : Container(
-                      key: Key('patient_tag_$i'),
-                      child: _tagForPatient(p),
-                    ),
+    );
+  }
+
+  void _showFilterMenu(BuildContext context) {
+    final controller = context.read<AppSettingsController>();
+    final isLeftAligned = controller.isLeftAligned;
+    
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Filter Patients',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                ListTile(
+                  leading: isLeftAligned ? const Icon(Icons.people) : null,
+                  trailing: !isLeftAligned ? const Icon(Icons.people) : null,
+                  title: const Text('All Patients'),
+                  selected: _currentMode == PatientsViewMode.all,
+                  onTap: () {
+                    setState(() => _currentMode = PatientsViewMode.all);
+                    Navigator.pop(ctx);
+                  },
+                ),
+                ListTile(
+                  leading: isLeftAligned ? const Icon(Icons.schedule) : null,
+                  trailing: !isLeftAligned ? const Icon(Icons.schedule) : null,
+                  title: const Text('Upcoming Visits'),
+                  selected: _currentMode == PatientsViewMode.upcomingVisits,
+                  onTap: () {
+                    setState(() => _currentMode = PatientsViewMode.upcomingVisits);
+                    Navigator.pop(ctx);
+                  },
+                ),
+                ListTile(
+                  leading: isLeftAligned ? const Icon(Icons.warning_amber) : null,
+                  trailing: !isLeftAligned ? const Icon(Icons.warning_amber) : null,
+                  title: const Text('Needing Attention'),
+                  selected: _currentMode == PatientsViewMode.needingAttention,
+                  onTap: () {
+                    setState(() => _currentMode = PatientsViewMode.needingAttention);
+                    Navigator.pop(ctx);
+                  },
+                ),
+                const SizedBox(height: 16),
+              ],
             ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// ============================================================================
+// PRIORITY PATIENT CARD (for "Needing Attention" view)
+// Tags ALWAYS on the right
+// ============================================================================
+
+// _PriorityPatientCard
+class _PriorityPatientCard extends StatelessWidget {
+  final Patient patient;
+  final int index; 
+
+  const _PriorityPatientCard({
+    super.key, 
+    required this.patient,
+    required this.index, 
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final critTag = _criticalityTag(patient.criticality);
+    final critColor = _criticalityColor(patient.criticality);
+
+    final priorityText = patient.criticality != null
+        ? 'Priority: ${_criticalityText(patient.criticality!)}'
+        : 'Priority: —';
+
+    // Build the tag widget (only if there's a criticality)
+    final tagWidget = critTag.isNotEmpty
+        ? Container(
+            key: Key('patient_tag_$index'), 
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: critColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              critTag,
+              style: TextStyle(
+                color: critColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          )
+        : null;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Patient: ${patient.fullName}')),
           );
         },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              // Patient info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      patient.fullName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      priorityText,
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Tag ALWAYS on right
+              if (tagWidget != null) ...[
+                const SizedBox(width: 12),
+                tagWidget,
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  String _subtitleForMode(Patient p) {
-    switch (widget.mode) {
-      case PatientsViewMode.upcomingVisits:
-        final dt = p.nextVisit;
-        return dt == null
-            ? 'No visit scheduled'
-            : 'Visit: ${formatDtYmdHmm(dt.toLocal())}';
-
-      case PatientsViewMode.needingAttention:
-        return 'Priority: ${_critText(p.criticality)}';
-
-      case PatientsViewMode.all:
-        final crit = _critText(p.criticality);
-        final appt = p.nextVisit == null
-            ? 'No upcoming visit'
-            : 'Next Appt.: ${formatDtYmdHmm(p.nextVisit!.toLocal())}';
-
-        return '$crit\n$appt';
-    }
-  }
-
-  Widget _tagForPatient(Patient p) {
-    final c = p.criticality;
-
-    if (c == null) return const SizedBox.shrink();
-
-    Color color;
-    String text;
-
+  String _criticalityTag(PatientCriticality? c) {
+    if (c == null) return '';
     switch (c) {
       case PatientCriticality.critical:
-        color = Colors.red;
-        text = 'CRITICAL';
-        break;
+        return 'CRITICAL';
       case PatientCriticality.high:
-        color = Colors.orange;
-        text = 'HIGH';
-        break;
+        return 'HIGH';
       case PatientCriticality.medium:
-        color = Colors.blueGrey;
-        text = 'MED';
-        break;
+        return 'MED';
       case PatientCriticality.low:
-        color = Colors.green;
-        text = 'LOW';
-        break;
+        return 'LOW';
     }
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(color: color, fontWeight: FontWeight.bold),
-      ),
-    );
   }
 
-  String _critText(PatientCriticality? c) {
-    if (c == null) return '—';
-
+  String _criticalityText(PatientCriticality c) {
     switch (c) {
       case PatientCriticality.critical:
         return 'Critical';
@@ -267,4 +301,276 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
         return 'Low';
     }
   }
+
+  Color _criticalityColor(PatientCriticality? c) {
+    if (c == null) return Colors.grey;
+    switch (c) {
+      case PatientCriticality.critical:
+        return Colors.red;
+      case PatientCriticality.high:
+        return Colors.orange;
+      case PatientCriticality.medium:
+        return Colors.blueGrey;
+      case PatientCriticality.low:
+        return Colors.green;
+    }
+  }
 }
+
+// ============================================================================
+// VISIT PATIENT CARD (for "Upcoming Visits" view)
+// Tags ALWAYS on the right
+// ============================================================================
+
+class _VisitPatientCard extends StatelessWidget {
+  final Patient patient;
+  final int index;
+
+  const _VisitPatientCard({
+    super.key,
+    required this.patient,
+    required this.index,
+    });
+
+  @override
+  Widget build(BuildContext context) {
+    final critTag = _criticalityTag(patient.criticality);
+    final critColor = _criticalityColor(patient.criticality);
+
+    final visitText = patient.nextVisit != null
+        ? 'Visit: ${formatDtYmdHmm(patient.nextVisit!.toLocal())}'
+        : 'No upcoming visit';
+
+    // Build the tag widget (only if there's a criticality)
+    final tagWidget = critTag.isNotEmpty
+        ? Container(
+          key: Key('patient_tag_$index'),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: critColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              critTag,
+              style: TextStyle(
+                color: critColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          )
+        : null;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Patient: ${patient.fullName}')),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              // Patient info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      patient.fullName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      visitText,
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Tag ALWAYS on right
+              if (tagWidget != null) ...[
+                const SizedBox(width: 12),
+                tagWidget,
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _criticalityTag(PatientCriticality? c) {
+    if (c == null) return '';
+    switch (c) {
+      case PatientCriticality.critical:
+        return 'CRITICAL';
+      case PatientCriticality.high:
+        return 'HIGH';
+      case PatientCriticality.medium:
+        return 'MED';
+      case PatientCriticality.low:
+        return 'LOW';
+    }
+  }
+
+  Color _criticalityColor(PatientCriticality? c) {
+    if (c == null) return Colors.grey;
+    switch (c) {
+      case PatientCriticality.critical:
+        return Colors.red;
+      case PatientCriticality.high:
+        return Colors.orange;
+      case PatientCriticality.medium:
+        return Colors.blueGrey;
+      case PatientCriticality.low:
+        return Colors.green;
+    }
+  }
+}
+
+// ============================================================================
+// DEFAULT PATIENT CARD (for "All Patients" view)
+// Tags ALWAYS on the right
+// ============================================================================
+
+class _PatientCard extends StatelessWidget {
+  final Patient patient;
+  final int index;
+
+  const _PatientCard({
+    super.key,
+    required this.patient,
+    required this.index,
+    });
+
+  @override
+  Widget build(BuildContext context) {
+    final critTag = _criticalityTag(patient.criticality);
+    final critColor = _criticalityColor(patient.criticality);
+
+    final visitText = patient.nextVisit != null
+        ? 'Next Appt.: ${formatDtYmdHmm(patient.nextVisit!.toLocal())}'
+        : 'No upcoming visit';
+
+    final criticalityText = patient.criticality != null
+        ? _criticalityText(patient.criticality!)
+        : '—';
+
+    // Build the tag widget (only if there's a criticality)
+    final tagWidget = critTag.isNotEmpty
+        ? Container(
+          key: Key('patient_tag_$index'),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: critColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              critTag,
+              style: TextStyle(
+                color: critColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          )
+        : null;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: InkWell(
+        onTap: () {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Patient: ${patient.fullName}')),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              // Patient info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      patient.fullName,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      criticalityText,
+                      style: const TextStyle(color: Colors.grey),
+                    ),
+                    Text(
+                      visitText,
+                      style: const TextStyle(color: Colors.grey, fontSize: 13),
+                    ),
+                  ],
+                ),
+              ),
+              
+              // Tag ALWAYS on right
+              if (tagWidget != null) ...[
+                const SizedBox(width: 12),
+                tagWidget,
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _criticalityTag(PatientCriticality? c) {
+    if (c == null) return '';
+    switch (c) {
+      case PatientCriticality.critical:
+        return 'CRITICAL';
+      case PatientCriticality.high:
+        return 'HIGH';
+      case PatientCriticality.medium:
+        return 'MED';
+      case PatientCriticality.low:
+        return 'LOW';
+    }
+  }
+
+  String _criticalityText(PatientCriticality c) {
+    switch (c) {
+      case PatientCriticality.critical:
+        return 'Critical';
+      case PatientCriticality.high:
+        return 'High';
+      case PatientCriticality.medium:
+        return 'Medium';
+      case PatientCriticality.low:
+        return 'Low';
+    }
+  }
+
+  Color _criticalityColor(PatientCriticality? c) {
+    if (c == null) return Colors.grey;
+    switch (c) {
+      case PatientCriticality.critical:
+        return Colors.red;
+      case PatientCriticality.high:
+        return Colors.orange;
+      case PatientCriticality.medium:
+        return Colors.blueGrey;
+      case PatientCriticality.low:
+        return Colors.green;
+    }
+  }
+}
+

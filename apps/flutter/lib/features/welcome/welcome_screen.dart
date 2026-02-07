@@ -36,23 +36,21 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void initState() {
     super.initState();
     _pageController = PageController();
-
-    // Random start per load
     _index = Random().nextInt(_carouselImages.length);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      _pageController.jumpToPage(_index);
+      if (mounted) {
+        _pageController.jumpToPage(_index);
+      }
     });
 
-    // Auto-rotate (no user interaction)
     _timer = Timer.periodic(const Duration(seconds: 4), (_) {
       if (!mounted) return;
       final next = (_index + 1) % _carouselImages.length;
       setState(() => _index = next);
       _pageController.animateToPage(
         next,
-        duration: const Duration(milliseconds: 350),
+        duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
     });
@@ -74,28 +72,22 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            // Mobile-first: reduce vertical padding so logo/title sit higher
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             child: Column(
               children: [
                 Align(
                   alignment: Alignment.topRight,
-                  child: _CircleIconButton(
+                  child: IconButton(
                     key: const Key('welcome_settings'),
-                    icon: Icons.settings,
-                    label: 'Settings',
-                    onTap: () {
-                      Navigator.of(context).pushReplacementNamed(Routes.login);
+                    icon: const Icon(Icons.settings),
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(Routes.login);
                     },
                   ),
                 ),
-                const SizedBox(height: AppSpacing.sm),
 
-                // Logo (no background circle) — larger
                 const AppLogo(size: 220),
-                const SizedBox(height: AppSpacing.sm),
 
-                // Title — larger
                 Text(
                   'CareConnect',
                   style: text.displayLarge?.copyWith(
@@ -106,157 +98,35 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
                 const SizedBox(height: AppSpacing.lg),
 
-                // Carousel image card
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(28),
-                  child: AspectRatio(
-                    aspectRatio: 16 / 10,
-                    child: PageView.builder(
-                      controller: _pageController,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _carouselImages.length,
-                      itemBuilder: (context, i) {
-                        return Image.asset(
-                          _carouselImages[i],
-                          fit: BoxFit.cover,
-                        );
-                      },
+                AspectRatio(
+                  aspectRatio: 16 / 10,
+                  child: PageView.builder(
+                    controller: _pageController,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: _carouselImages.length,
+                    itemBuilder: (_, i) => Image.asset(
+                      _carouselImages[i],
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
-
-                const SizedBox(height: AppSpacing.md),
-
-                _Dots(count: _carouselImages.length, index: _index),
 
                 const SizedBox(height: AppSpacing.xl),
 
-                // Gradient headline
-                ShaderMask(
-                  shaderCallback: (rect) => const LinearGradient(
-                    colors: [
-                      Color(0xFF2F80ED),
-                      Color(0xFF00A4BB),
-                      Color(0xFF6FCF97),
-                    ],
-                  ).createShader(rect),
-                  child: Text(
-                    'Supporting Care, Connecting\nHearts',
-                    textAlign: TextAlign.center,
-                    style: text.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: AppSpacing.md),
-
-                Text(
-                  'Empowering caregivers and care recipients\nwith compassion.',
-                  textAlign: TextAlign.center,
-                  style: text.titleMedium?.copyWith(
-                    color: const Color(0xFF6B7280),
-                    height: 1.4,
-                  ),
-                ),
-
-                const SizedBox(height: 48),
-
                 SizedBox(
                   width: double.infinity,
-                  height: 58,
+                  height: 56,
                   child: ElevatedButton(
-                      key: const Key('welcome_continue'),
-                      onPressed: () {
-                        Navigator.of(context).pushNamed(Routes.login);
-                      },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF0A8F84),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(32),
-                      ),
-                      elevation: 10,
-                      shadowColor: Colors.black.withValues(alpha: 0.18),
-                    ),
-                    child: const Text(
-                      'Continue',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
+                    key: const Key('welcome_continue'),
+                    onPressed: () {
+                      Navigator.of(context).pushNamed(Routes.login);
+                    },
+                    child: const Text('Continue'),
                   ),
                 ),
 
                 const SizedBox(height: AppSpacing.lg),
               ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Dots extends StatelessWidget {
-  final int count;
-  final int index;
-
-  const _Dots({required this.count, required this.index});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(count, (i) {
-        final active = i == index;
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          margin: const EdgeInsets.symmetric(horizontal: 6),
-          width: active ? 34 : 10,
-          height: 10,
-          decoration: BoxDecoration(
-            color: active ? const Color(0xFF2F80ED) : const Color(0xFF93C5FD),
-            borderRadius: BorderRadius.circular(99),
-          ),
-        );
-      }),
-    );
-  }
-}
-
-class _CircleIconButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
-  const _CircleIconButton({
-    super.key,
-    required this.icon,
-    required this.label,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: label,
-      child: Tooltip(
-        message: label,
-        child: Material(
-          color: Colors.white.withValues(alpha: 0.9),
-          shape: const CircleBorder(),
-          elevation: 6,
-          shadowColor: Colors.black.withValues(alpha: 0.12),
-          child: InkWell(
-            customBorder: const CircleBorder(),
-            onTap: onTap,
-            child: SizedBox(
-              width: 52,
-              height: 52,
-              child: Icon(icon, color: const Color(0xFF374151)),
             ),
           ),
         ),

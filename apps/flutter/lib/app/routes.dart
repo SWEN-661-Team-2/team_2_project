@@ -10,7 +10,6 @@ class Routes {
   static const welcome = '/';
   static const login = '/login';
   static const app = '/app';
-
   static const profile = '/profile';
   static const changePassword = '/change-password';
 
@@ -18,8 +17,8 @@ class Routes {
         welcome: (_) => const WelcomeScreen(),
         login: (_) => const LoginScreen(),
         app: (_) => const AppShell(),
-
         profile: (_) => const ProfileScreen(),
         changePassword: (_) => const ChangePasswordScreen(),
       };
 }
+

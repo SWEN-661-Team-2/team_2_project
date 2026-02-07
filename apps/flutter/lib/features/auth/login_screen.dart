@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../app/routes.dart';
 import '../../widgets/app_logo.dart';
 import '../../core/tokens/spacing.dart';
+import '../../core/accessibility/app_settings_controller.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -46,6 +49,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
+    final settingsController = context.watch<AppSettingsController>();
+    final isLeftAligned = settingsController.isLeftAligned;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFB),
@@ -62,6 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               Text(
                 'CareConnect',
+                key: const Key('login_title'),
                 textAlign: TextAlign.center,
                 style: text.displaySmall?.copyWith(
                   fontWeight: FontWeight.w800,
@@ -114,27 +120,44 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: InputDecoration(
                   hintText: 'Enter your password',
                   errorText: _passwordError ? 'Password is required' : null,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _showPassword ? Icons.visibility_off : Icons.visibility,
-                    ),
-                    onPressed: () {
-                      setState(() => _showPassword = !_showPassword);
-                    },
-                  ),
+                  prefixIcon: isLeftAligned
+                      ? IconButton(
+                          icon: Icon(
+                            _showPassword ? Icons.visibility_off : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(() => _showPassword = !_showPassword);
+                          },
+                        )
+                      : null,
+                  suffixIcon: !isLeftAligned
+                      ? IconButton(
+                          icon: Icon(
+                            _showPassword ? Icons.visibility_off : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(() => _showPassword = !_showPassword);
+                          },
+                        )
+                      : null,
                 ),
               ),
 
               const SizedBox(height: 12),
 
+              const SizedBox(height: 12),
+
               Align(
-                alignment: Alignment.centerRight,
+                alignment: isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
                 child: TextButton(
                   key: const Key('login_forgot'),
                   onPressed: () {},
                   child: const Text('Forgot your password?'),
                 ),
               ),
+
+              const SizedBox(height: 20),
+
 
               const SizedBox(height: 20),
 
