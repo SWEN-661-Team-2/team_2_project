@@ -6,7 +6,7 @@ import 'reminder_frequency.dart';
 
 /// NOTE:
 /// This storage class persists ONLY the settings we want saved across app restarts.
-/// The “accessibility modes” (low vision, tremor, hearing, guided mode) are
+/// The "accessibility modes" (low vision, tremor, hearing, guided mode) are
 /// intentionally NOT persisted yet.
 ///
 /// Accessibility Overlay (Debug)
@@ -21,6 +21,7 @@ class AppSettingsStorage {
   // Keys (persisted)
   // =========================
   static const _keyHandedness = 'handedness_mode';
+  static const _keyCurrentToggleHandedness = 'current_toggle_handedness'; // NEW
   static const _keyA11yOverlay = 'a11y_overlay';
   static const _keyNotificationsEnabled = 'notifications_enabled';
 
@@ -45,6 +46,23 @@ class AppSettingsStorage {
   Future<void> saveHandednessMode(HandednessMode mode) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keyHandedness, mode.name);
+  }
+
+  // Current toggle handedness state
+  Future<HandednessMode> loadCurrentToggleHandedness() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(_keyCurrentToggleHandedness);
+    if (value == null) return HandednessMode.left;
+    
+    return HandednessMode.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => HandednessMode.left,
+    );
+  }
+
+  Future<void> saveCurrentToggleHandedness(HandednessMode mode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyCurrentToggleHandedness, mode.name);
   }
 
   // =========================

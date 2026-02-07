@@ -1,4 +1,10 @@
+// lib/features/auth/change_password_screen.dart
+
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../widgets/reach_scaffold.dart';
+import '../../core/accessibility/app_settings_controller.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -37,7 +43,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
     setState(() => _error = null);
 
-    // TODO: call real password change API later
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Password updated (placeholder)')),
     );
@@ -46,11 +51,12 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final error = _error;
+    final settings = context.watch<AppSettingsController>();
+    final isLeftAligned = settings.isLeftAligned;
 
-    return Scaffold(
-      appBar: AppBar(title: const Text('Change password')),
-      body: ListView(
+    return ReachScaffold(
+      title: 'Change password',
+      child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           TextField(
@@ -59,10 +65,18 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             obscureText: !_showOld,
             decoration: InputDecoration(
               labelText: 'Old password',
-              suffixIcon: IconButton(
-                onPressed: () => setState(() => _showOld = !_showOld),
-                icon: Icon(_showOld ? Icons.visibility_off : Icons.visibility),
-              ),
+              prefixIcon: isLeftAligned
+                  ? IconButton(
+                      onPressed: () => setState(() => _showOld = !_showOld),
+                      icon: Icon(_showOld ? Icons.visibility_off : Icons.visibility),
+                    )
+                  : null,
+              suffixIcon: !isLeftAligned
+                  ? IconButton(
+                      onPressed: () => setState(() => _showOld = !_showOld),
+                      icon: Icon(_showOld ? Icons.visibility_off : Icons.visibility),
+                    )
+                  : null,
             ),
           ),
           const SizedBox(height: 12),
@@ -72,10 +86,18 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             obscureText: !_showNew,
             decoration: InputDecoration(
               labelText: 'New password',
-              suffixIcon: IconButton(
-                onPressed: () => setState(() => _showNew = !_showNew),
-                icon: Icon(_showNew ? Icons.visibility_off : Icons.visibility),
-              ),
+              prefixIcon: isLeftAligned
+                  ? IconButton(
+                      onPressed: () => setState(() => _showNew = !_showNew),
+                      icon: Icon(_showNew ? Icons.visibility_off : Icons.visibility),
+                    )
+                  : null,
+              suffixIcon: !isLeftAligned
+                  ? IconButton(
+                      onPressed: () => setState(() => _showNew = !_showNew),
+                      icon: Icon(_showNew ? Icons.visibility_off : Icons.visibility),
+                    )
+                  : null,
             ),
           ),
           const SizedBox(height: 12),
@@ -85,11 +107,19 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             obscureText: !_showConfirm,
             decoration: InputDecoration(
               labelText: 'Confirm new password',
-              errorText: error,
-              suffixIcon: IconButton(
-                onPressed: () => setState(() => _showConfirm = !_showConfirm),
-                icon: Icon(_showConfirm ? Icons.visibility_off : Icons.visibility),
-              ),
+              errorText: _error,
+              prefixIcon: isLeftAligned
+                  ? IconButton(
+                      onPressed: () => setState(() => _showConfirm = !_showConfirm),
+                      icon: Icon(_showConfirm ? Icons.visibility_off : Icons.visibility),
+                    )
+                  : null,
+              suffixIcon: !isLeftAligned
+                  ? IconButton(
+                      onPressed: () => setState(() => _showConfirm = !_showConfirm),
+                      icon: Icon(_showConfirm ? Icons.visibility_off : Icons.visibility),
+                    )
+                  : null,
             ),
           ),
           const SizedBox(height: 20),

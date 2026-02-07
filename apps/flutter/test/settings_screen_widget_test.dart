@@ -54,7 +54,8 @@ void main() {
     expect(find.text('Logout'), findsOneWidget);
   });
 
-  testWidgets('Text size boxes render and tapping changes controller.textSizeMode',
+  testWidgets(
+      'Text size boxes render and tapping changes controller.textSizeMode',
       (tester) async {
     final controller = AppSettingsController();
 
@@ -76,7 +77,8 @@ void main() {
     expect(controller.textSizeMode, TextSizeMode.extraLarge);
   });
 
-  testWidgets('Contrast tile toggles controller.highContrastEnabled', (tester) async {
+  testWidgets('Contrast tile toggles controller.highContrastEnabled',
+      (tester) async {
     final controller = AppSettingsController();
 
     await pumpSettings(tester, controller);

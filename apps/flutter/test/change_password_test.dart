@@ -1,17 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_app/features/auth/change_password_screen.dart';
-
 import 'package:provider/provider.dart';
-import 'package:flutter_app/app/providers.dart';
 
-import 'test_harness.dart';
+import 'package:flutter_app/features/auth/change_password_screen.dart';
+import 'package:flutter_app/core/accessibility/app_settings_controller.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  Future<void> pumpChangePassword(WidgetTester tester) async {
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (_) => AppSettingsController(),
+          ),
+        ],
+        child: MaterialApp(
+          home: ChangePasswordScreen(), // ❗ NOT const
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+  }
+
   testWidgets('Change password fields and save button exist', (tester) async {
-    await pumpWidgetWithApp(tester, const ChangePasswordScreen());
+    await pumpChangePassword(tester);
 
     expect(find.byKey(const Key('change_old')), findsOneWidget);
     expect(find.byKey(const Key('change_new')), findsOneWidget);
@@ -20,26 +35,35 @@ void main() {
   });
 
   testWidgets('Mismatch new/confirm shows error', (tester) async {
-    await pumpWidgetWithApp(tester, const ChangePasswordScreen());
+    await pumpChangePassword(tester);
 
     await tester.enterText(find.byKey(const Key('change_new')), 'abc123');
-    await tester.enterText(find.byKey(const Key('change_confirm')), 'different');
+    await tester.enterText(find.byKey(const Key('change_confirm')), 'xyz123');
+
     await tester.tap(find.byKey(const Key('change_save')));
     await tester.pumpAndSettle();
 
-    expect(find.text('New password and confirmation must match.'), findsOneWidget);
+    expect(
+      find.text('New password and confirmation must match.'),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('Matching new/confirm triggers save and pop', (tester) async {
-    final pops = <Route<dynamic>>[];
-    final observer = _RecorderObserver(onPop: (r) => pops.add(r));
+  testWidgets('Matching new/confirm pops route', (tester) async {
+    final popped = <Route<dynamic>>[];
 
     await tester.pumpWidget(
       MultiProvider(
-        providers: AppProviders.build(),
+        providers: [
+          ChangeNotifierProvider(
+            create: (_) => AppSettingsController(),
+          ),
+        ],
         child: MaterialApp(
-          home: const ChangePasswordScreen(),
-          navigatorObservers: [observer],
+          home: ChangePasswordScreen(), // ❗ NOT const
+          navigatorObservers: [
+            _RecorderObserver(onPop: (r) => popped.add(r)),
+          ],
         ),
       ),
     );
@@ -48,10 +72,11 @@ void main() {
 
     await tester.enterText(find.byKey(const Key('change_new')), 'abc123');
     await tester.enterText(find.byKey(const Key('change_confirm')), 'abc123');
+
     await tester.tap(find.byKey(const Key('change_save')));
     await tester.pumpAndSettle();
 
-    expect(pops.length, greaterThanOrEqualTo(1));
+    expect(popped.isNotEmpty, true);
   });
 }
 

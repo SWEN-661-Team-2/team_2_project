@@ -9,14 +9,14 @@ import '../features/settings/settings_screen.dart';
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
 
-  static AppShellState? of(BuildContext context) =>
-      context.findAncestorStateOfType<AppShellState>();
+  static AppShellState? of(BuildContext context) {
+    return context.findAncestorStateOfType<AppShellState>();
+  }
 
   @override
   State<AppShell> createState() => AppShellState();
 }
 
-// Public on purpose (avoids private type in public API warning)
 class AppShellState extends State<AppShell> {
   int _index = 0;
   PatientsViewMode _patientsMode = PatientsViewMode.all;
@@ -27,8 +27,6 @@ class AppShellState extends State<AppShell> {
   void setTab(int i) {
     setState(() {
       _index = i;
-
-      // Bottom-nav Patients should always show All Patients
       if (i == 1) {
         _patientsMode = PatientsViewMode.all;
       }
@@ -38,7 +36,7 @@ class AppShellState extends State<AppShell> {
   void openPatients(PatientsViewMode mode) {
     setState(() {
       _patientsMode = mode;
-      _index = 1; // Patients tab
+      _index = 1;
     });
   }
 
@@ -61,17 +59,34 @@ class AppShellState extends State<AppShell> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        key: const Key('bottom_nav'),
         currentIndex: _index,
         type: BottomNavigationBarType.fixed,
         onTap: setTab,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home, key: Key('bn_home')), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.people, key: Key('bn_people')), label: 'Patients'),
-          BottomNavigationBarItem(icon: Icon(Icons.check_circle_outline, key: Key('bn_tasks')), label: 'Tasks'),
-          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble_outline, key: Key('bn_messages')), label: 'Messages'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings, key: Key('bn_settings')), label: 'Settings'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home, key: Key('bn_home')),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.people, key: Key('bn_people')),
+            label: 'Patients',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.check_circle_outline, key: Key('bn_tasks')),
+            label: 'Tasks',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat_bubble_outline, key: Key('bn_messages')),
+            label: 'Messages',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings, key: Key('bn_settings')),
+            label: 'Settings',
+          ),
         ],
       ),
     );
   }
 }
+

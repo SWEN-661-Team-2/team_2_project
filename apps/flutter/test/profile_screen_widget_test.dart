@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
+import 'package:nested/nested.dart';
 
 import 'package:flutter_app/features/profile/profile_screen.dart';
 import 'package:flutter_app/core/profile/caregiver_profile.dart';
 import 'package:flutter_app/core/profile/caregiver_profile_controller.dart';
+import 'package:flutter_app/core/accessibility/app_settings_controller.dart';
 
 class FakeCaregiverProfileController extends ChangeNotifier
     implements CaregiverProfileController {
@@ -65,8 +67,13 @@ Future<void> pumpProfile(WidgetTester tester, FakeCaregiverProfileController c) 
   await tester.binding.setSurfaceSize(const Size(800, 1400));
 
   await tester.pumpWidget(
-    ChangeNotifierProvider<CaregiverProfileController>.value(
-      value: c,
+    MultiProvider(
+      providers: <SingleChildWidget>[
+        ChangeNotifierProvider<CaregiverProfileController>.value(value: c),
+        ChangeNotifierProvider<AppSettingsController>(
+          create: (_) => AppSettingsController(),
+        ),
+      ],
       child: const MaterialApp(home: ProfileScreen()),
     ),
   );

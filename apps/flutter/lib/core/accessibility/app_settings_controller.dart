@@ -11,6 +11,7 @@ class AppSettingsController extends ChangeNotifier {
   // Persisted settings
   // =========================
   HandednessMode _handednessMode = HandednessMode.left;
+  HandednessMode _currentToggleHandedness = HandednessMode.left; // NEW: tracks toggle state
   bool _a11yOverlayEnabled = false;
   bool _notificationsEnabled = true;
 
@@ -20,6 +21,7 @@ class AppSettingsController extends ChangeNotifier {
   ReminderFrequency _reminderFrequency = ReminderFrequency.daily;
 
   HandednessMode get handednessMode => _handednessMode;
+  HandednessMode get currentToggleHandedness => _currentToggleHandedness; // NEW
   bool get a11yOverlayEnabled => _a11yOverlayEnabled;
   bool get notificationsEnabled => _notificationsEnabled;
 
@@ -28,8 +30,16 @@ class AppSettingsController extends ChangeNotifier {
 
   ReminderFrequency get reminderFrequency => _reminderFrequency;
 
+  // NEW: Helper to get effective handedness (considers toggle mode)
+  bool get isLeftAligned {
+    if (_handednessMode == HandednessMode.toggle) {
+      return _currentToggleHandedness == HandednessMode.left;
+    }
+    return _handednessMode == HandednessMode.left;
+  }
+
   // =========================
-  // Accessibility “modes” (UI-only for now)
+  // Accessibility "modes" (UI-only for now)
   // NOTE: Not persisted yet (per your instruction: buttons active only).
   // =========================
   bool _lowVisionEnabled = false;
@@ -44,6 +54,7 @@ class AppSettingsController extends ChangeNotifier {
 
   Future<void> load() async {
     _handednessMode = await _storage.loadHandednessMode();
+    _currentToggleHandedness = await _storage.loadCurrentToggleHandedness(); // NEW
     _a11yOverlayEnabled = await _storage.loadA11yOverlay();
     _notificationsEnabled = await _storage.loadNotificationsEnabled();
 
@@ -62,6 +73,13 @@ class AppSettingsController extends ChangeNotifier {
     _handednessMode = mode;
     notifyListeners();
     await _storage.saveHandednessMode(mode);
+  }
+
+  // NEW: Set the current toggle handedness (used by toggle button)
+  Future<void> setCurrentToggleHandedness(HandednessMode mode) async {
+    _currentToggleHandedness = mode;
+    notifyListeners();
+    await _storage.saveCurrentToggleHandedness(mode);
   }
 
   Future<void> setA11yOverlay(bool enabled) async {

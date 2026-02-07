@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import '../../widgets/reach_scaffold.dart';
+
 
 class TasksScreen extends StatelessWidget {
   const TasksScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFB),
-      appBar: AppBar(title: const Text('Tasks')),
-      body: ListView(
+    return ReachScaffold(
+      title: 'Tasks',
+      child: ListView(
         padding: const EdgeInsets.all(16),
         children: const [
           Text(
@@ -27,3 +28,4 @@ class TasksScreen extends StatelessWidget {
     );
   }
 }
+

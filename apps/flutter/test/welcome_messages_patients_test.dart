@@ -24,7 +24,8 @@ void main() {
   });
 
   testWidgets('Continue navigates to login', (tester) async {
-    await tester.pumpWidget(MaterialApp(routes: Routes.map, initialRoute: Routes.welcome));
+    // FIXED: Use pumpAppWithRoutes instead of bare MaterialApp
+    await pumpAppWithRoutes(tester, initialRoute: Routes.welcome);
     await tester.pumpAndSettle();
 
     await tester.ensureVisible(find.byKey(const Key('welcome_continue')));
@@ -35,7 +36,8 @@ void main() {
   });
 
   testWidgets('Settings icon navigates to login', (tester) async {
-    await tester.pumpWidget(MaterialApp(routes: Routes.map, initialRoute: Routes.welcome));
+    // FIXED: Use pumpAppWithRoutes instead of bare MaterialApp
+    await pumpAppWithRoutes(tester, initialRoute: Routes.welcome);
     await tester.pumpAndSettle();
 
     await tester.ensureVisible(find.byKey(const Key('welcome_settings')));
@@ -68,20 +70,47 @@ void main() {
     expect(find.descendant(of: find.byKey(const Key('message_0')), matching: find.byIcon(Icons.circle)), findsOneWidget);
   });
 
-  testWidgets('Patients list renders for different modes', (tester) async {
-    await pumpWidgetWithApp(tester, const PatientsListScreen(mode: PatientsViewMode.all));
+
+
+
+
+
+
+ testWidgets('Patients list renders for different modes', (tester) async {
+    await pumpWidgetWithApp(
+      tester, 
+      const PatientsListScreen(
+        key: Key('patients_all'),  // Added unique key
+        mode: PatientsViewMode.all,
+      ),
+    );
 
     expect(find.byKey(const Key('patients_list')), findsOneWidget);
     expect(find.byKey(const Key('patient_0')), findsOneWidget);
-    // Confirm a known patient name exists
-    expect(find.byKey(const Key('patient_0')), findsOneWidget);
 
-    await pumpWidgetWithApp(tester, const PatientsListScreen(mode: PatientsViewMode.needingAttention));
+    await pumpWidgetWithApp(
+      tester,
+      const PatientsListScreen(
+        key: Key('patients_needing_attention'),  // Added unique key
+        mode: PatientsViewMode.needingAttention,
+      ),
+    );
+    
     expect(find.text('Patients Needing Attention'), findsOneWidget);
-    // At least one tagged patient should exist (first patient has criticality)
     expect(find.byKey(const Key('patient_tag_0')), findsOneWidget);
 
-    await pumpWidgetWithApp(tester, const PatientsListScreen(mode: PatientsViewMode.upcomingVisits));
+    await pumpWidgetWithApp(
+      tester,
+      const PatientsListScreen(
+        key: Key('patients_upcoming'),  // Added unique key
+        mode: PatientsViewMode.upcomingVisits,
+      ),
+    );
+    
     expect(find.text('Upcoming Visits'), findsOneWidget);
   });
+
+
 }
+
+

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../widgets/app_logo.dart';
 import '../../app/app_shell.dart';
@@ -7,6 +8,7 @@ import '../../core/patients/patient.dart';
 import '../../core/patients/patients_repository.dart';
 import '../../core/utils/dt_format.dart';
 import '../../core/messages/messages_repository.dart';
+import '../../core/accessibility/app_settings_controller.dart';
 
 class CaregiverDashboardScreen extends StatelessWidget {
   const CaregiverDashboardScreen({super.key});
@@ -15,6 +17,9 @@ class CaregiverDashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<AppSettingsController>();
+    final isLeftAligned = controller.isLeftAligned;
+    
     final repo = PatientsRepository.instance;
     final msgRepo = MessagesRepository.instance;
 
@@ -25,11 +30,14 @@ class CaregiverDashboardScreen extends StatelessWidget {
       children: [
         const AppLogo(size: 22),
         const SizedBox(width: 10),
-        const Text(
-          'CareConnect',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+        Expanded(
+          child: Text(
+            'CareConnect',
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
         ),
-        const Spacer(),
+        ),
         IconButton(
           tooltip: 'App information',
           icon: const Icon(Icons.info_outline),
@@ -82,60 +90,61 @@ class CaregiverDashboardScreen extends StatelessWidget {
         );
 
     Widget needingSection() => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _SectionHeader(title: 'Patients Needing Attention'),
-            for (final p in needingTop3)
-              _PatientRow(
-                name: p.fullName,
-                subtitle: 'Priority: ${_critText(p.criticality)}',
-                tag: _critTag(p.criticality),
-                color: _critColor(p.criticality),
-              ),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _SectionHeader(title: 'Patients Needing Attention'),
+        for (final p in needingTop3)
+          _PatientRow(
+            name: p.fullName,
+            subtitle: 'Priority: ${_critText(p.criticality)}',
+            tag: _critTag(p.criticality),
+            color: _critColor(p.criticality),
+          ),
 
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Semantics(
-                button: true,
-                label: 'View all patients needing attention',
-                child: TextButton(
-                  onPressed: () =>
-                      AppShell.of(context)?.openPatients(PatientsViewMode.needingAttention),
-                  child: const Text('View All'),
-                ),
-              ),
+        Align(
+          alignment: isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
+          child: Semantics(
+            button: true,
+            label: 'View all patients needing attention',
+            child: TextButton(
+              onPressed: () =>
+                  AppShell.of(context)?.openPatients(PatientsViewMode.needingAttention),
+              child: const Text('View All'),
             ),
-          ],
-        );
+          ),
+        ),
+      ],
+    );
 
     Widget upcomingSection() => Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _SectionHeader(title: 'Upcoming Visits'),
-            for (final p in upcomingTop3)
-              _PatientRow(
-                name: p.fullName,
-                subtitle: p.nextVisit == null
-                    ? 'No visit scheduled'
-                    : 'Visit: ${formatDtYmdHmm(p.nextVisit!.toLocal())}',
-                tag: _critTagOrBlank(p.criticality),
-                color: _critColorOrTransparent(p.criticality),
-              ),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _SectionHeader(title: 'Upcoming Visits'),
+        for (final p in upcomingTop3)
+          _PatientRow(
+            name: p.fullName,
+            subtitle: p.nextVisit == null
+                ? 'No visit scheduled'
+                : 'Visit: ${formatDtYmdHmm(p.nextVisit!.toLocal())}',
+            tag: _critTagOrBlank(p.criticality),
+            color: _critColorOrTransparent(p.criticality),
+          ),
 
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Semantics(
-                button: true,
-                label: 'View all upcoming visits',
-                child: TextButton(
-                  onPressed: () =>
-                      AppShell.of(context)?.openPatients(PatientsViewMode.upcomingVisits),
-                  child: const Text('View All'),
-                ),
-              ),
-            ),      
-          ],
-        );
+        Align(
+          alignment: isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
+          child: Semantics(
+            button: true,
+            label: 'View all upcoming visits',
+            child: TextButton(
+              onPressed: () =>
+                  AppShell.of(context)?.openPatients(PatientsViewMode.upcomingVisits),
+              child: const Text('View All'),
+            ),
+          ),
+        ),
+      ],
+    );
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isTablet = constraints.maxWidth >= _tabletBreakpoint;
@@ -157,14 +166,11 @@ class CaregiverDashboardScreen extends StatelessWidget {
                             LayoutBuilder(
                               builder: (context, constraints) {
                                 final w = constraints.maxWidth;
-
-                                // Simple responsive rule:
-                                // phone: 2, small tablet: 3, tablet/desktop: 4
                                 final cols = w >= 900 ? 4 : (w >= 600 ? 3 : 2);
 
                                 return kpiGrid(
                                   crossAxisCount: cols,
-                                  mainAxisExtent: 140,
+                                  mainAxisExtent: 170,
                                 );
                               },
                             ),
@@ -190,14 +196,11 @@ class CaregiverDashboardScreen extends StatelessWidget {
                       LayoutBuilder(
                         builder: (context, constraints) {
                           final w = constraints.maxWidth;
-
-                          // Simple responsive rule:
-                          // phone: 2, small tablet: 3, tablet/desktop: 4
                           final cols = w >= 900 ? 4 : (w >= 600 ? 3 : 2);
 
                           return kpiGrid(
                             crossAxisCount: cols,
-                            mainAxisExtent: 140,
+                            mainAxisExtent: 170,
                           );
                         },
                       ),
@@ -395,39 +398,59 @@ class _PatientRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tagWidget = (tag.trim().isEmpty)
+        ? null
+        : Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Text(
+                tag,
+                style: TextStyle(color: color, fontWeight: FontWeight.bold),
+              ),
+            ),
+          );
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        title: Text(
-          name,
-          style: const TextStyle(fontWeight: FontWeight.w600),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        subtitle: Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis),
-        trailing: (tag.trim().isEmpty)
-            ? null
-            : ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 110),
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        tag,
-                        style: TextStyle(color: color, fontWeight: FontWeight.bold),
-                      ),
-                    ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          children: [
+            // Patient info on left
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
+                  Text(
+                    subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
+            ),
+            
+            // Tag ALWAYS on right
+            if (tagWidget != null) ...[
+              const SizedBox(width: 12),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 110),
+                child: tagWidget,
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }

@@ -1,45 +1,113 @@
+// FILE: test/test_harness.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
+import 'package:nested/nested.dart';
+
+import 'package:flutter_app/features/welcome/welcome_screen.dart';
+import 'package:flutter_app/features/auth/login_screen.dart';
+import 'package:flutter_app/app/app_shell.dart';
+import 'package:flutter_app/features/profile/profile_screen.dart';
+import 'package:flutter_app/features/auth/change_password_screen.dart';
 import 'package:flutter_app/app/providers.dart';
-import 'package:flutter_app/app/routes.dart';
 
-Future<void> pumpWidgetWithApp(WidgetTester tester, Widget child) async {
-  SharedPreferences.setMockInitialValues(<String, Object>{});
+typedef TestWrapper = Widget Function(Widget child);
 
-  final routesSansRoot = Map<String, WidgetBuilder>.from(Routes.map);
-  routesSansRoot.remove('/');
-
-  await tester.pumpWidget(
-    MultiProvider(
-      providers: AppProviders.build(),
-      child: MaterialApp(
-        home: child,
-        routes: routesSansRoot,
-      ),
-    ),
-  );
-
-  await tester.pumpAndSettle();
+Widget _wrapAll(Widget child, List<TestWrapper> wrappers) {
+  var current = child;
+  for (final wrap in wrappers) {
+    current = wrap(current);
+  }
+  return current;
 }
 
-/// Boots the real route table using initialRoute (Settings → Login, etc.)
-Future<void> pumpAppAtRoute(
-  WidgetTester tester, {
-  required String initialRoute,
+/// Pump a widget as the app "home".
+/// Guarantees MaterialApp has either `home` OR a non-empty `routes`.
+Future<void> pumpWidgetWithApp(
+  WidgetTester tester,
+  Widget home, {
+  Map<String, WidgetBuilder> routes = const {},
+  List<TestWrapper> wrappers = const [],
+  List<SingleChildWidget> providers = const [],
 }) async {
-  SharedPreferences.setMockInitialValues(<String, Object>{});
+  final hasRootRoute = routes.containsKey(Navigator.defaultRouteName);
 
-  await tester.pumpWidget(
-    MultiProvider(
-      providers: AppProviders.build(),
-      child: MaterialApp(
-        routes: Routes.map,
-        initialRoute: initialRoute,
-      ),
+  final effectiveHome = hasRootRoute ? null : home;
+
+  final effectiveRoutes = (effectiveHome == null && routes.isEmpty)
+      ? <String, WidgetBuilder>{
+          Navigator.defaultRouteName: (_) => const SizedBox.shrink(),
+        }
+      : routes;
+
+  // Use AppProviders.build() to get the same providers as the real app,
+  // then add any additional test-specific providers
+  final allProviders = <SingleChildWidget>[
+    ...AppProviders.build(),
+    ...providers,
+  ];
+
+  Widget app = MultiProvider(
+    providers: allProviders,
+    child: MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: effectiveHome,
+      routes: effectiveRoutes,
     ),
   );
 
+  await tester.pumpWidget(_wrapAll(app, wrappers));
   await tester.pumpAndSettle();
 }
+
+/// Default routes for tests (optional).
+Map<String, WidgetBuilder> _defaultTestRoutes() => {
+      Navigator.defaultRouteName: (_) => const WelcomeScreen(),
+      '/login': (_) => const LoginScreen(),
+      '/app': (_) => const AppShell(),
+      '/profile': (_) => const ProfileScreen(),
+      '/change-password': (_) => const ChangePasswordScreen(),
+    };
+
+/// Pump a MaterialApp configured for navigation tests.
+Future<void> pumpAppWithRoutes(
+  WidgetTester tester, {
+  String initialRoute = Navigator.defaultRouteName,
+  Map<String, WidgetBuilder> routes = const {},
+  List<TestWrapper> wrappers = const [],
+  List<SingleChildWidget> providers = const [],
+}) async {
+  final mergedRoutes = <String, WidgetBuilder>{
+    ..._defaultTestRoutes(),
+    ...routes,
+  };
+
+  final effectiveRoutes = mergedRoutes.isEmpty
+      ? <String, WidgetBuilder>{
+          Navigator.defaultRouteName: (_) =>
+              const Scaffold(body: SizedBox.shrink()),
+        }
+      : mergedRoutes;
+
+  // Use AppProviders.build() to get the same providers as the real app,
+  // then add any additional test-specific providers
+  final allProviders = <SingleChildWidget>[
+    ...AppProviders.build(),
+    ...providers,
+  ];
+
+  Widget app = MultiProvider(
+    providers: allProviders,
+    child: MaterialApp(
+      debugShowCheckedModeBanner: false,
+      initialRoute: initialRoute,
+      routes: effectiveRoutes,
+    ),
+  );
+
+  await tester.pumpWidget(_wrapAll(app, wrappers));
+  await tester.pumpAndSettle();
+}
+
+
+
