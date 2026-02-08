@@ -29,9 +29,10 @@ jobs:
           severity: "CRITICAL,HIGH,MEDIUM"
 
       - name: Upload SARIF (Trivy FS)
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-fs.sarif
+          category: trivy-filesystem
 
       - name: Trivy config scan (SARIF)
         uses: aquasecurity/trivy-action@0.24.0
@@ -43,6 +44,7 @@ jobs:
           severity: "CRITICAL,HIGH,MEDIUM"
 
       - name: Upload SARIF (Trivy Config)
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: trivy-config.sarif
+          category: trivy-config
