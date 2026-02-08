@@ -13,7 +13,7 @@ import {
   Modal,
   Pressable,
 } from 'react-native';
-import { PatientViewMode } from '../contexts/PatientsContext';
+import { PatientViewMode } from '../../contexts/PatientsContext';
 
 const PatientFilterMenu = ({ visible, onClose, viewMode, onViewModeChange }) => {
   const filterOptions = [
