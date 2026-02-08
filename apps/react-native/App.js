@@ -4,6 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AppProviders } from './src/contexts/AppProviders';
 import { useAuth } from './src/contexts/AuthContext';
 import { DashboardProvider } from './src/contexts/DashboardContext';
+import { MessagesProvider } from './src/contexts/MessagesContext';
 
 // Auth Screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -16,6 +17,8 @@ import TasksScreen from './src/screens/TasksScreen';
 import PatientsScreen from './src/screens/PatientsScreen';
 import ScheduleScreen from './src/screens/ScheduleScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
+import MessagesListScreen from './src/screens/MessagesListScreen';
+import MessageDetailScreen from './src/screens/MessageDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -53,6 +56,20 @@ function AppStack() {
       <Stack.Screen name="Patients" component={PatientsScreen} />
       <Stack.Screen name="Schedule" component={ScheduleScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen 
+        name="Messages" 
+        component={MessagesListScreen}
+        options={{
+          animationEnabled: true,
+        }}
+      />
+      <Stack.Screen 
+        name="MessageDetail" 
+        component={MessageDetailScreen}
+        options={{
+          animationEnabled: true,
+        }}
+      />
       <Stack.Screen 
         name="ChangePassword" 
         component={ChangePasswordScreen}
@@ -93,7 +110,9 @@ export default function App() {
   return (
     <AppProviders>
       <DashboardProvider>
-        <RootNavigator />
+        <MessagesProvider>
+          <RootNavigator />
+        </MessagesProvider>
       </DashboardProvider>
     </AppProviders>
   );
