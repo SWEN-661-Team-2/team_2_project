@@ -1,193 +1,283 @@
-import React from 'react';
+/**
+ * Welcome Screen
+ * Equivalent to Flutter's WelcomeScreen
+ * 
+ * Displays app branding, carousel of images, and navigation to login
+ */
+
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
+  ScrollView,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
+  SafeAreaView,
   Dimensions,
+  Image,
+  FlatList,
+  Platform,
+  StatusBar,
 } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { useHandedness, useTheme } from '../contexts/AppProviders';
-
-const { width } = Dimensions.get('window');
 
 /**
- * Welcome Screen
- * React Native equivalent of Flutter WelcomeScreen widget
+ * Carousel Image Assets
+ * In a real app, these would be imported from an assets folder
+ * Using placeholder URLs for now
  */
+const CAROUSEL_IMAGES = [
+  { id: '1', uri: 'https://via.placeholder.com/800x500?text=Caregiver+1' },
+  { id: '2', uri: 'https://via.placeholder.com/800x500?text=Caregiver+2' },
+  { id: '3', uri: 'https://via.placeholder.com/800x500?text=Caregiver+3' },
+  { id: '4', uri: 'https://via.placeholder.com/800x500?text=Caregiver+4' },
+  { id: '5', uri: 'https://via.placeholder.com/800x500?text=Caregiver+5' },
+  { id: '6', uri: 'https://via.placeholder.com/800x500?text=Caregiver+6' },
+  { id: '7', uri: 'https://via.placeholder.com/800x500?text=Caregiver+7' },
+  { id: '8', uri: 'https://via.placeholder.com/800x500?text=Caregiver+8' },
+  { id: '9', uri: 'https://via.placeholder.com/800x500?text=Caregiver+9' },
+  { id: '10', uri: 'https://via.placeholder.com/800x500?text=Caregiver+10' },
+];
+
+const CAROUSEL_INTERVAL = 4000; // 4 seconds
+const ANIMATION_DURATION = 300; // milliseconds
+
 export default function WelcomeScreen({ navigation }) {
-  const { isLeftHanded, toggleHandedness } = useHandedness();
-  const { colors } = useTheme();
+  const [currentIndex, setCurrentIndex] = useState(
+    Math.floor(Math.random() * CAROUSEL_IMAGES.length)
+  );
+  const flatListRef = useRef(null);
+  const timerRef = useRef(null);
+  const { width } = Dimensions.get('window');
 
-  return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar style="auto" />
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* Header */}
-        <View style={[styles.header, isLeftHanded && styles.headerReversed]}>
-          <Text style={[styles.title, { color: colors.primary }]}>
-            CareConnect
-          </Text>
-          <TouchableOpacity
-            style={styles.handednessButton}
-            onPress={toggleHandedness}
-            accessibilityLabel={`Switch to ${isLeftHanded ? 'right' : 'left'}-handed mode`}
-          >
-            <Text style={styles.handednessText}>
-              {isLeftHanded ? '👈 Left' : '👉 Right'}
-            </Text>
-          </TouchableOpacity>
-        </View>
+  // Setup carousel auto-rotation
+  useEffect(() => {
+    // Jump to initial random index
+    if (flatListRef.current) {
+      setTimeout(() => {
+        if (flatListRef.current) {
+          flatListRef.current.scrollToIndex({
+            index: currentIndex,
+            animated: false,
+          });
+        }
+      }, 100);
+    }
 
-        {/* Main Content */}
-        <View style={styles.content}>
-          <Text style={[styles.welcomeTitle, { color: colors.text }]}>
-            Welcome to CareConnect
-          </Text>
-          <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            Accessible UI designed for clinical workflows
-          </Text>
+    // Setup timer for automatic carousel rotation
+    timerRef.current = setInterval(() => {
+      setCurrentIndex(prev => {
+        const next = (prev + 1) % CAROUSEL_IMAGES.length;
+        if (flatListRef.current) {
+          flatListRef.current.scrollToIndex({
+            index: next,
+            animated: true,
+          });
+        }
+        return next;
+      });
+    }, CAROUSEL_INTERVAL);
 
-          {/* Carousel Placeholder */}
-          <View style={[styles.carousel, { backgroundColor: colors.surface }]}>
-            <Text style={[styles.carouselText, { color: colors.textSecondary }]}>
-              Auto-rotating carousel
-            </Text>
-          </View>
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
 
-          {/* Get Started Button */}
-          <TouchableOpacity
-            style={[styles.getStartedButton, { backgroundColor: colors.primary }]}
-            onPress={() => navigation.navigate('Tasks')}
-          >
-            <Text style={styles.getStartedText}>Get Started</Text>
-          </TouchableOpacity>
+  const handleNavigateToLogin = () => {
+    navigation.replace('Login');
+  };
 
-          {/* Quick Links */}
-          <View style={styles.quickLinks}>
-            <TouchableOpacity
-              style={[styles.quickLinkButton, { borderColor: colors.border }]}
-              onPress={() => navigation.navigate('Patients')}
-            >
-              <Text style={[styles.quickLinkText, { color: colors.text }]}>
-                👥 Patients
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.quickLinkButton, { borderColor: colors.border }]}
-              onPress={() => navigation.navigate('Schedule')}
-            >
-              <Text style={[styles.quickLinkText, { color: colors.text }]}>
-                📅 Schedule
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+  const handleSettingsPress = () => {
+    // Settings button navigates to login (like Flutter version)
+    navigation.replace('Login');
+  };
 
-        {/* Footer */}
-        <Text style={[styles.footer, { color: colors.textSecondary }]}>
-          Optimized for left-handed and right-handed caregivers
-        </Text>
-      </ScrollView>
+  const renderCarouselImage = ({ item }) => (
+    <View style={[styles.carouselItem, { width }]}>
+      <Image
+        source={{ uri: item.uri }}
+        style={styles.carouselImage}
+      />
     </View>
   );
+
+  const onViewableItemsChanged = ({ viewableItems: vItems }) => {
+    if (vItems.length > 0 && vItems[0].index !== null) {
+      setCurrentIndex(vItems[0].index);
+    }
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F7FAFB" />
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Settings Button */}
+        <TouchableOpacity
+          testID="welcome_settings"
+          style={styles.settingsButton}
+          onPress={handleSettingsPress}
+        >
+          <Text style={styles.settingsIcon}>⚙️</Text>
+        </TouchableOpacity>
+
+        {/* App Logo */}
+        <View style={styles.logoContainer}>
+          <View style={styles.logo}>
+            <Text style={styles.logoText}>CC</Text>
+          </View>
+        </View>
+
+        {/* App Title */}
+        <Text style={styles.title}>CareConnect</Text>
+
+        {/* Carousel */}
+        <View style={styles.carouselContainer}>
+          <FlatList
+            ref={flatListRef}
+            data={CAROUSEL_IMAGES}
+            renderItem={renderCarouselImage}
+            keyExtractor={item => item.id}
+            horizontal
+            pagingEnabled
+            scrollEnabled={false}
+            showsHorizontalScrollIndicator={false}
+            onViewableItemsChanged={onViewableItemsChanged}
+            viewabilityConfig={{
+              itemVisiblePercentThreshold: 50,
+            }}
+            scrollEventThrottle={16}
+          />
+
+          {/* Carousel Indicators */}
+          <View style={styles.indicatorsContainer}>
+            {CAROUSEL_IMAGES.map((_, index) => (
+              <View
+                key={`indicator-${index}`}
+                style={[
+                  styles.indicator,
+                  index === currentIndex && styles.indicatorActive,
+                ]}
+              />
+            ))}
+          </View>
+        </View>
+
+        {/* Continue Button */}
+        <TouchableOpacity
+          testID="welcome_continue"
+          style={styles.continueButton}
+          onPress={handleNavigateToLogin}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.continueButtonText}>Continue</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
+  );
 }
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F7FAFB',
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 40,
-    marginBottom: 20,
-  },
-  headerReversed: {
-    flexDirection: 'row-reverse',
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-  },
-  handednessButton: {
     paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: '#e0f2fe',
-    borderRadius: 8,
-  },
-  handednessText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#0369a1',
-  },
-  content: {
-    flex: 1,
+    paddingTop: 8,
+    paddingBottom: 16,
     alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 40,
   },
-  welcomeTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 12,
+  settingsButton: {
+    alignSelf: 'flex-end',
+    padding: 12,
+    marginRight: -8,
   },
-  subtitle: {
-    fontSize: 18,
-    textAlign: 'center',
-    marginBottom: 32,
+  settingsIcon: {
+    fontSize: 24,
   },
-  carousel: {
-    width: width - 40,
-    height: 250,
-    borderRadius: 12,
+  logoContainer: {
+    marginVertical: 16,
+  },
+  logo: {
+    width: 220,
+    height: 220,
+    borderRadius: 16,
+    backgroundColor: '#E6F7F5',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 32,
-  },
-  carouselText: {
-    fontSize: 16,
-  },
-  getStartedButton: {
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 12,
-    marginBottom: 24,
-    elevation: 4,
+    elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  getStartedText: {
-    color: '#ffffff',
-    fontSize: 18,
-    fontWeight: 'bold',
+  logoText: {
+    fontSize: 80,
+    fontWeight: '800',
+    color: '#0A7A8A',
   },
-  quickLinks: {
+  title: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#0A7A8A',
+    marginBottom: 24,
+    textAlign: 'center',
+  },
+  carouselContainer: {
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 32,
+  },
+  carouselItem: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  carouselImage: {
+    height: Dimensions.get('window').width * (10 / 16),
+    width: '100%',
+    borderRadius: 12,
+  },
+  indicatorsContainer: {
     flexDirection: 'row',
-    gap: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 12,
+    gap: 6,
   },
-  quickLinkButton: {
-    paddingHorizontal: 24,
-    paddingVertical: 12,
+  indicator: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#DDD',
+  },
+  indicatorActive: {
+    backgroundColor: '#0A7A8A',
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  continueButton: {
+    width: '100%',
+    height: 56,
+    backgroundColor: '#0A7A8A',
     borderRadius: 8,
-    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
   },
-  quickLinkText: {
+  continueButtonText: {
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
-  },
-  footer: {
-    textAlign: 'center',
-    fontSize: 12,
-    marginTop: 32,
   },
 });
