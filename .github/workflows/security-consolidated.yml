@@ -49,7 +49,7 @@ jobs:
           category: grype-vulnerabilities
     
       - name: Upload SBOM artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: sbom-and-grype
           path: reports/sbom/
@@ -129,7 +129,7 @@ jobs:
           detect-secrets scan --all-files --exclude-files '\.git/|build/|\.dart_tool/|\.idea/|\.vscode/|Pods/|\.syft/|coverage/' > detect-secrets.json
     
       - name: Upload detect-secrets artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: detect-secrets
           path: detect-secrets.json
