@@ -5,6 +5,7 @@ import { AppProviders } from './src/contexts/AppProviders';
 import { useAuth } from './src/contexts/AuthContext';
 import { DashboardProvider } from './src/contexts/DashboardContext';
 import { MessagesProvider } from './src/contexts/MessagesContext';
+import { PatientsProvider } from './src/contexts/PatientsContext';
 
 // Auth Screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -14,7 +15,7 @@ import ChangePasswordScreen from './src/screens/ChangePasswordScreen';
 import CaregiverDashboardScreen from './src/screens/CaregiverDashboardScreen';
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import TasksScreen from './src/screens/TasksScreen';
-import PatientsScreen from './src/screens/PatientsScreen';
+import PatientsListScreen from './src/screens/PatientsListScreen';
 import ScheduleScreen from './src/screens/ScheduleScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import MessagesListScreen from './src/screens/MessagesListScreen';
@@ -53,7 +54,13 @@ function AppStack() {
       <Stack.Screen name="Dashboard" component={CaregiverDashboardScreen} />
       <Stack.Screen name="Home" component={WelcomeScreen} />
       <Stack.Screen name="Tasks" component={TasksScreen} />
-      <Stack.Screen name="Patients" component={PatientsScreen} />
+      <Stack.Screen 
+        name="Patients" 
+        component={PatientsListScreen}
+        options={{
+          animationEnabled: true,
+        }}
+      />
       <Stack.Screen name="Schedule" component={ScheduleScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen 
@@ -111,7 +118,9 @@ export default function App() {
     <AppProviders>
       <DashboardProvider>
         <MessagesProvider>
-          <RootNavigator />
+          <PatientsProvider>
+            <RootNavigator />
+          </PatientsProvider>
         </MessagesProvider>
       </DashboardProvider>
     </AppProviders>

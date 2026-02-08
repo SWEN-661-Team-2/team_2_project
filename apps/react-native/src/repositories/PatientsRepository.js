@@ -135,4 +135,5 @@ class PatientsRepository {
   }
 }
 
+export default PatientsRepository;
 export const patientsRepository = new PatientsRepository();
