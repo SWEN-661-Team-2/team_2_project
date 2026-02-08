@@ -12,9 +12,7 @@ void main() {
     await tester.pumpWidget(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider(
-            create: (_) => AppSettingsController(),
-          ),
+          ChangeNotifierProvider(create: (_) => AppSettingsController()),
         ],
         child: MaterialApp(
           home: ChangePasswordScreen(), // ❗ NOT const
@@ -55,15 +53,11 @@ void main() {
     await tester.pumpWidget(
       MultiProvider(
         providers: [
-          ChangeNotifierProvider(
-            create: (_) => AppSettingsController(),
-          ),
+          ChangeNotifierProvider(create: (_) => AppSettingsController()),
         ],
         child: MaterialApp(
           home: ChangePasswordScreen(), // ❗ NOT const
-          navigatorObservers: [
-            _RecorderObserver(onPop: (r) => popped.add(r)),
-          ],
+          navigatorObservers: [_RecorderObserver(onPop: (r) => popped.add(r))],
         ),
       ),
     );

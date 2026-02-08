@@ -19,9 +19,7 @@ void main() {
         value: controller,
         child: MaterialApp(
           home: const SettingsScreen(),
-          routes: {
-            '/login': (_) => const Scaffold(body: Text('Login Screen')),
-          },
+          routes: {'/login': (_) => const Scaffold(body: Text('Login Screen'))},
         ),
       ),
     );
@@ -55,30 +53,32 @@ void main() {
   });
 
   testWidgets(
-      'Text size boxes render and tapping changes controller.textSizeMode',
-      (tester) async {
-    final controller = AppSettingsController();
+    'Text size boxes render and tapping changes controller.textSizeMode',
+    (tester) async {
+      final controller = AppSettingsController();
 
-    await pumpSettings(tester, controller);
+      await pumpSettings(tester, controller);
 
-    expect(find.text('Small'), findsOneWidget);
-    expect(find.text('Default'), findsOneWidget);
-    expect(find.text('Large'), findsOneWidget);
-    expect(find.text('XL'), findsOneWidget);
+      expect(find.text('Small'), findsOneWidget);
+      expect(find.text('Default'), findsOneWidget);
+      expect(find.text('Large'), findsOneWidget);
+      expect(find.text('XL'), findsOneWidget);
 
-    expect(controller.textSizeMode, TextSizeMode.medium);
+      expect(controller.textSizeMode, TextSizeMode.medium);
 
-    await tester.tap(find.text('Large'));
-    await tester.pump(const Duration(milliseconds: 120));
-    expect(controller.textSizeMode, TextSizeMode.large);
+      await tester.tap(find.text('Large'));
+      await tester.pump(const Duration(milliseconds: 120));
+      expect(controller.textSizeMode, TextSizeMode.large);
 
-    await tester.tap(find.text('XL'));
-    await tester.pump(const Duration(milliseconds: 120));
-    expect(controller.textSizeMode, TextSizeMode.extraLarge);
-  });
+      await tester.tap(find.text('XL'));
+      await tester.pump(const Duration(milliseconds: 120));
+      expect(controller.textSizeMode, TextSizeMode.extraLarge);
+    },
+  );
 
-  testWidgets('Contrast tile toggles controller.highContrastEnabled',
-      (tester) async {
+  testWidgets('Contrast tile toggles controller.highContrastEnabled', (
+    tester,
+  ) async {
     final controller = AppSettingsController();
 
     await pumpSettings(tester, controller);
@@ -101,8 +101,9 @@ void main() {
     expect(find.text('Night / High Contrast'), findsOneWidget);
   });
 
-  testWidgets('Handedness radios change controller.handednessMode',
-      (tester) async {
+  testWidgets('Handedness radios change controller.handednessMode', (
+    tester,
+  ) async {
     final controller = AppSettingsController();
 
     await pumpSettings(tester, controller);
@@ -136,8 +137,9 @@ void main() {
     expect(find.byType(Switch), findsNWidgets(2));
   });
 
-  testWidgets('Detail screen switch toggles controller.guidedModeEnabled',
-      (tester) async {
+  testWidgets('Detail screen switch toggles controller.guidedModeEnabled', (
+    tester,
+  ) async {
     final controller = AppSettingsController();
 
     await pumpSettings(tester, controller);

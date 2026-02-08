@@ -16,10 +16,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: AppProviders.build(),
-      child: MaterialApp(
-        routes: Routes.map,
-        initialRoute: Routes.welcome,
-      ),
+      child: MaterialApp(routes: Routes.map, initialRoute: Routes.welcome),
     );
   }
 }

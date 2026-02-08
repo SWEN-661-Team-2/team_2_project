@@ -14,9 +14,7 @@ Future<void> _pump(
       providers: <SingleChildWidget>[
         ChangeNotifierProvider(create: (_) => AppSettingsController()),
       ],
-      child: MaterialApp(
-        home: PatientsListScreen(mode: mode),
-      ),
+      child: MaterialApp(home: PatientsListScreen(mode: mode)),
     ),
   );
 
@@ -40,7 +38,9 @@ void main() {
     expect(find.byType(Card), findsWidgets);
   });
 
-  testWidgets('Patients list renders for NEEDING ATTENTION mode', (tester) async {
+  testWidgets('Patients list renders for NEEDING ATTENTION mode', (
+    tester,
+  ) async {
     await _pump(tester, mode: PatientsViewMode.needingAttention);
 
     expect(find.text('Patients Needing Attention'), findsOneWidget);

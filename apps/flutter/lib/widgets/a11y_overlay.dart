@@ -10,6 +10,6 @@ class A11yOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     context.watch<AppSettingsController>();
-    return child; 
+    return child;
   }
 }

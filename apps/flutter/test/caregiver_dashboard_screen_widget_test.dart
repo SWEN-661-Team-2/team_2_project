@@ -11,9 +11,7 @@ Future<void> _pump(WidgetTester tester, Size size) async {
   await tester.pumpWidget(
     ChangeNotifierProvider(
       create: (_) => AppSettingsController(),
-      child: const MaterialApp(
-        home: CaregiverDashboardScreen(),
-      ),
+      child: const MaterialApp(home: CaregiverDashboardScreen()),
     ),
   );
 

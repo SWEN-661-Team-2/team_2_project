@@ -38,14 +38,14 @@ class CaregiverProfile {
   }
 
   Map<String, Object?> toJson() => {
-        'photoPath': photoPath,
-        'name': name,
-        'titleRole': titleRole,
-        'position': position,
-        'organization': organization,
-        'email': email,
-        'phone': phone,
-      };
+    'photoPath': photoPath,
+    'name': name,
+    'titleRole': titleRole,
+    'position': position,
+    'organization': organization,
+    'email': email,
+    'phone': phone,
+  };
 
   static CaregiverProfile fromJson(Map<String, Object?> json) {
     String? asString(Object? v) => v is String ? v : null;

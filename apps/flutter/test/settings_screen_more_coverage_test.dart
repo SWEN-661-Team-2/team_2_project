@@ -38,7 +38,9 @@ Future<void> pumpSettingsWithRoutes(
           Routes.login: (_) => const Scaffold(body: Text('Login Route')),
         },
         // Dart 3+: null-aware element avoids the lint.
-        navigatorObservers: observer != null ? [observer] : const <NavigatorObserver>[],
+        navigatorObservers: observer != null
+            ? [observer]
+            : const <NavigatorObserver>[],
       ),
     ),
   );
@@ -49,9 +51,7 @@ Future<void> pumpSettingsWithRoutes(
 Finder findTextCI(String text) {
   final target = text.toLowerCase();
   return find.byWidgetPredicate(
-    (w) =>
-        w is Text &&
-        (w.data ?? '').toLowerCase() == target,
+    (w) => w is Text && (w.data ?? '').toLowerCase() == target,
     description: 'Text("$text") (case-insensitive)',
   );
 }
@@ -67,7 +67,10 @@ Finder firstMatchTextCI(List<String> options) {
 
 /// If your Settings UI uses a collapsible group header (ExpansionTile), call this
 /// before looking for tiles inside it. Safe no-op if header not present.
-Future<void> expandIfPresent(WidgetTester tester, List<String> headerOptions) async {
+Future<void> expandIfPresent(
+  WidgetTester tester,
+  List<String> headerOptions,
+) async {
   final header = firstMatchTextCI(headerOptions);
   if (header.evaluate().isEmpty) return;
 
@@ -132,36 +135,37 @@ Future<void> expectSnackBarTextOneOf(
 }
 
 void main() {
-    testWidgets('Account tiles navigate to routes', (tester) async {
-  final controller = AppSettingsController();
-  
-  // Test Profile navigation
-  {
-    final nav = TestNavObserver();
-    await pumpSettingsWithRoutes(tester, controller, observer: nav);
-    
-    final beforeProfile = nav.pushed.length;
-    await tapEnsuringVisibleTextCI(tester, const ['Profile information']);
-    await tester.pumpAndSettle();
-    expect(nav.pushed.length, greaterThan(beforeProfile));
-  }
+  testWidgets('Account tiles navigate to routes', (tester) async {
+    final controller = AppSettingsController();
 
-  // Test Change Password navigation - completely fresh start
-  {
-    final nav = TestNavObserver();
-    await tester.pumpWidget(Container()); 
-    await tester.pumpAndSettle();
-    
-    await pumpSettingsWithRoutes(tester, controller, observer: nav);
+    // Test Profile navigation
+    {
+      final nav = TestNavObserver();
+      await pumpSettingsWithRoutes(tester, controller, observer: nav);
 
-    final beforeChange = nav.pushed.length;
-    await tapEnsuringVisibleTextCI(tester, const ['Change password', 'Change Password']);
-    await tester.pumpAndSettle();
-    expect(nav.pushed.length, greaterThan(beforeChange));
-  }
-});
+      final beforeProfile = nav.pushed.length;
+      await tapEnsuringVisibleTextCI(tester, const ['Profile information']);
+      await tester.pumpAndSettle();
+      expect(nav.pushed.length, greaterThan(beforeProfile));
+    }
 
+    // Test Change Password navigation - completely fresh start
+    {
+      final nav = TestNavObserver();
+      await tester.pumpWidget(Container());
+      await tester.pumpAndSettle();
 
+      await pumpSettingsWithRoutes(tester, controller, observer: nav);
+
+      final beforeChange = nav.pushed.length;
+      await tapEnsuringVisibleTextCI(tester, const [
+        'Change password',
+        'Change Password',
+      ]);
+      await tester.pumpAndSettle();
+      expect(nav.pushed.length, greaterThan(beforeChange));
+    }
+  });
 
   testWidgets(
     'Reminder frequency opens bottom sheet and selecting updates controller',
@@ -171,7 +175,10 @@ void main() {
 
       expect(controller.reminderFrequency, ReminderFrequency.daily);
 
-      await tapEnsuringVisibleTextCI(tester, const ['Reminder frequency', 'Reminder Frequency']);
+      await tapEnsuringVisibleTextCI(tester, const [
+        'Reminder frequency',
+        'Reminder Frequency',
+      ]);
       await tester.pumpAndSettle();
 
       expect(find.text('Weekly'), findsOneWidget);
@@ -187,24 +194,32 @@ void main() {
     final controller = AppSettingsController();
     await pumpSettingsWithRoutes(tester, controller);
 
-    await tapEnsuringVisibleTextCI(tester, const ['Privacy policy', 'Privacy Policy']);
-    await expectSnackBarTextOneOf(tester, const ['Privacy policy (coming soon)']);
+    await tapEnsuringVisibleTextCI(tester, const [
+      'Privacy policy',
+      'Privacy Policy',
+    ]);
+    await expectSnackBarTextOneOf(tester, const [
+      'Privacy policy (coming soon)',
+    ]);
 
-    await tapEnsuringVisibleTextCI(tester, const ['Terms of service', 'Terms of Service']);
-    await expectSnackBarTextOneOf(
-      tester,
-      const [
-        'Terms of service (coming soon)',
-        'Terms (coming soon)',
-      ],
-    );
+    await tapEnsuringVisibleTextCI(tester, const [
+      'Terms of service',
+      'Terms of Service',
+    ]);
+    await expectSnackBarTextOneOf(tester, const [
+      'Terms of service (coming soon)',
+      'Terms (coming soon)',
+    ]);
   });
 
   testWidgets('Help / Support shows snackbar', (tester) async {
     final controller = AppSettingsController();
     await pumpSettingsWithRoutes(tester, controller);
 
-    await tapEnsuringVisibleTextCI(tester, const ['Help / Support', 'Help & Support']);
+    await tapEnsuringVisibleTextCI(tester, const [
+      'Help / Support',
+      'Help & Support',
+    ]);
     await expectSnackBarTextOneOf(tester, const ['Support (coming soon)']);
   });
 
@@ -212,7 +227,10 @@ void main() {
     final controller = AppSettingsController();
     await pumpSettingsWithRoutes(tester, controller);
 
-    await tapEnsuringVisibleTextCI(tester, const ['About CareConnect', 'About']);
+    await tapEnsuringVisibleTextCI(tester, const [
+      'About CareConnect',
+      'About',
+    ]);
     await tester.pumpAndSettle();
 
     expect(find.byType(AboutDialog), findsOneWidget);

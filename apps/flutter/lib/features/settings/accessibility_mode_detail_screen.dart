@@ -51,7 +51,9 @@ class AccessibilityModeDetailScreen extends StatelessWidget {
                         children: [
                           Text(
                             title,
-                            style: text.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                            style: text.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                           const SizedBox(height: AppSpacing.sm),
                           Text(description, style: text.bodyMedium),
@@ -68,8 +70,13 @@ class AccessibilityModeDetailScreen extends StatelessWidget {
                 key: const Key('a11y_mode_toggle'),
                 value: enabled,
                 onChanged: onChanged,
-                title: Text(enabled ? 'Enabled' : 'Disabled', style: text.titleMedium),
-                subtitle: const Text('Toggle on to activate (UI only for now).'),
+                title: Text(
+                  enabled ? 'Enabled' : 'Disabled',
+                  style: text.titleMedium,
+                ),
+                subtitle: const Text(
+                  'Toggle on to activate (UI only for now).',
+                ),
                 controlAffinity: isLeftAligned
                     ? ListTileControlAffinity.leading
                     : ListTileControlAffinity.trailing,
@@ -85,4 +92,3 @@ class AccessibilityModeDetailScreen extends StatelessWidget {
     );
   }
 }
-

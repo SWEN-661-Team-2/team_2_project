@@ -11,7 +11,8 @@ class AppSettingsController extends ChangeNotifier {
   // Persisted settings
   // =========================
   HandednessMode _handednessMode = HandednessMode.left;
-  HandednessMode _currentToggleHandedness = HandednessMode.left; // NEW: tracks toggle state
+  HandednessMode _currentToggleHandedness =
+      HandednessMode.left; // NEW: tracks toggle state
   bool _a11yOverlayEnabled = false;
   bool _notificationsEnabled = true;
 
@@ -54,7 +55,8 @@ class AppSettingsController extends ChangeNotifier {
 
   Future<void> load() async {
     _handednessMode = await _storage.loadHandednessMode();
-    _currentToggleHandedness = await _storage.loadCurrentToggleHandedness(); // NEW
+    _currentToggleHandedness = await _storage
+        .loadCurrentToggleHandedness(); // NEW
     _a11yOverlayEnabled = await _storage.loadA11yOverlay();
     _notificationsEnabled = await _storage.loadNotificationsEnabled();
 
