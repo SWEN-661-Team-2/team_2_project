@@ -18,7 +18,7 @@ jobs:
     name: SBOM + Grype Scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install Syft + Grype
         shell: bash
@@ -58,7 +58,7 @@ jobs:
     name: Trivy Scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
   
       - name: Trivy filesystem scan
         uses: aquasecurity/trivy-action@0.24.0
@@ -94,7 +94,7 @@ jobs:
     name: Secret Scanning
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
   
@@ -138,7 +138,7 @@ jobs:
     name: Semgrep SAST
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: returntocorp/semgrep-action@v1
         with:
           config: p/ci
