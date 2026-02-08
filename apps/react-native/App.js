@@ -3,12 +3,14 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AppProviders } from './src/contexts/AppProviders';
 import { useAuth } from './src/contexts/AuthContext';
+import { DashboardProvider } from './src/contexts/DashboardContext';
 
 // Auth Screens
 import LoginScreen from './src/screens/LoginScreen';
 import ChangePasswordScreen from './src/screens/ChangePasswordScreen';
 
 // App Screens
+import CaregiverDashboardScreen from './src/screens/CaregiverDashboardScreen';
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import TasksScreen from './src/screens/TasksScreen';
 import PatientsScreen from './src/screens/PatientsScreen';
@@ -40,11 +42,12 @@ function AuthStack() {
 function AppStack() {
   return (
     <Stack.Navigator
-      initialRouteName="Home"
+      initialRouteName="Dashboard"
       screenOptions={{
         headerShown: false,
       }}
     >
+      <Stack.Screen name="Dashboard" component={CaregiverDashboardScreen} />
       <Stack.Screen name="Home" component={WelcomeScreen} />
       <Stack.Screen name="Tasks" component={TasksScreen} />
       <Stack.Screen name="Patients" component={PatientsScreen} />
@@ -89,7 +92,9 @@ function RootNavigator() {
 export default function App() {
   return (
     <AppProviders>
-      <RootNavigator />
+      <DashboardProvider>
+        <RootNavigator />
+      </DashboardProvider>
     </AppProviders>
   );
 }
