@@ -20,6 +20,7 @@ import ScheduleScreen from './src/screens/ScheduleScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import MessagesListScreen from './src/screens/MessagesListScreen';
 import MessageDetailScreen from './src/screens/MessageDetailScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -63,6 +64,7 @@ function AppStack() {
       />
       <Stack.Screen name="Schedule" component={ScheduleScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="Settings" component={SettingsScreen} />
       <Stack.Screen 
         name="Messages" 
         component={MessagesListScreen}

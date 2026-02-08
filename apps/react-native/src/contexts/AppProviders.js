@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import { AuthProvider } from './AuthContext';
+import { AppSettingsProvider } from './AppSettingsContext';
 
 /**
  * App Providers for React Native
@@ -70,9 +71,11 @@ export function AppProviders({ children }) {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <HandednessProvider>
-          {children}
-        </HandednessProvider>
+        <AppSettingsProvider>
+          <HandednessProvider>
+            {children}
+          </HandednessProvider>
+        </AppSettingsProvider>
       </AuthProvider>
     </ThemeProvider>
   );
