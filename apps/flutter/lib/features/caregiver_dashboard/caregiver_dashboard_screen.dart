@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../messages/messages_list_screen.dart';
 
 import '../../widgets/app_logo.dart';
 import '../../app/app_shell.dart';
@@ -82,7 +83,7 @@ class CaregiverDashboardScreen extends StatelessWidget {
                 icon: Icons.chat_bubble_outline,
                 value: '${msgRepo.unreadCount()}',
                 label: 'Messages / Unread',
-                onTap: () => AppShell.of(context)?.setTab(3),
+                onTap: () => AppShell.of(context)?.openMessages(MessagesViewMode.unread),
               ),
             ];
             return cards[index];
