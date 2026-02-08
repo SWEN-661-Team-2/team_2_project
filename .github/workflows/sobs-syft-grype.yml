@@ -42,9 +42,10 @@ jobs:
           grype sbom:reports/sbom/sbom.spdx.json -o sarif > reports/sbom/grype.sarif || true
 
       - name: Upload SARIF (Grype)
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: reports/sbom/grype.sarif
+          category: grype-scan
 
       - name: Upload SBOM artifacts
         uses: actions/upload-artifact@v4
