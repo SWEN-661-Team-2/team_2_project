@@ -1,155 +1,144 @@
 name: Security Scanning (Consolidated)
 
 on:
-push:
-branches: [ “main” ]
-pull_request:
-branches: [ “main” ]
-schedule:
-- cron: ‘0 7 * * 1’  # Mondays 07:00 UTC
-workflow_dispatch: {}
+  push:
+    branches: [“main”]
+  pull_request:
+    branches: [“main”]
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_dispatch: {}
 
 permissions:
-contents: read
-security-events: write
+  contents: read
+  security-events: write
 
 jobs:
+  sbom-grype:
+    name: SBOM + Grype Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-# SBOM Generation and Vulnerability Scanning
+      - name: Install Syft + Grype
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+          syft version
+          grype version
 
-sbom_grype:
-name: SBOM + Grype Scan
-runs-on: ubuntu-latest
-steps:
-  - uses: actions/checkout@v4
-
-
-  - name: Install Syft + Grype
-    shell: bash
-    run: |
-      set -euo pipefail
-      curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
-      curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
-      syft version
-      grype version
-
-  - name: Generate SBOM (Syft)
-    shell: bash
-    run: |
-      set -euo pipefail
-      mkdir -p reports/sbom
-      syft dir:. -o spdx-json=reports/sbom/sbom.spdx.json
-
-  - name: Scan SBOM (Grype) -> SARIF
-    shell: bash
-    run: |
-      set -euo pipefail
-      grype sbom:reports/sbom/sbom.spdx.json -o sarif > reports/sbom/grype.sarif || true
-
-  - name: Upload SARIF (Grype)
-    uses: github/codeql-action/upload-sarif@v4
-    with:
-      sarif_file: reports/sbom/grype.sarif
-      category: grype-vulnerabilities
-
-  - name: Upload SBOM artifacts
-    uses: actions/upload-artifact@v4
-    with:
-      name: sbom-and-grype
-      path: reports/sbom/
-
-# Trivy Scanning
-
-trivy:
-name: Trivy Scan
-runs-on: ubuntu-latest
-steps:
-  - uses: actions/checkout@v4
-
-  - name: Trivy filesystem scan
-    uses: aquasecurity/trivy-action@0.24.0
-    with:
-      scan-type: "fs"
-      scan-ref: "."
-      format: "sarif"
-      output: "trivy-fs.sarif"
-      severity: "CRITICAL,HIGH,MEDIUM"
-
-  - name: Upload SARIF (Trivy FS)
-    uses: github/codeql-action/upload-sarif@v4
-    with:
-      sarif_file: trivy-fs.sarif
-      category: trivy-filesystem
-
-  - name: Trivy config scan
-    uses: aquasecurity/trivy-action@0.24.0
-    with:
-      scan-type: "config"
-      scan-ref: "."
-      format: "sarif"
-      output: "trivy-config.sarif"
-      severity: "CRITICAL,HIGH,MEDIUM"
-
-  - name: Upload SARIF (Trivy Config)
-    uses: github/codeql-action/upload-sarif@v4
-    with:
-      sarif_file: trivy-config.sarif
-      category: trivy-config
-```
-
-# Secret Scanning
-
-secrets:
-name: Secret Scanning
-runs-on: ubuntu-latest
-steps:
-  - uses: actions/checkout@v4
-    with:
-      fetch-depth: 0
-
-  - name: TruffleHog scan
-    uses: trufflesecurity/trufflehog@main
-    with:
-      path: .
-      base: ${{ github.event.pull_request.base.sha || github.event.before }}
-      head: ${{ github.event.pull_request.head.sha || github.sha }}
-      extra_args: --only-verified --format sarif --output trufflehog.sarif
-
-  - name: Upload SARIF (TruffleHog)
-    uses: github/codeql-action/upload-sarif@v4
-    with:
-      sarif_file: trufflehog.sarif
-      category: trufflehog-secrets
-
-  - name: Setup Python
-    uses: actions/setup-python@v5
-    with:
-      python-version: "3.12"
-
-  - name: Install detect-secrets
-    run: |
-      python -m pip install --upgrade pip
-      pip install detect-secrets
-
-  - name: Run detect-secrets
-    shell: bash
-    run: |
-      set -euo pipefail
-      detect-secrets scan --all-files --exclude-files '\.git/|build/|\.dart_tool/|\.idea/|\.vscode/|Pods/|\.syft/|coverage/' > detect-secrets.json
-
-  - name: Upload detect-secrets artifact
-    uses: actions/upload-artifact@v4
-    with:
-      name: detect-secrets
-      path: detect-secrets.json
-
-# Semgrep SAST
-
-semgrep:
-name: Semgrep SAST
-runs-on: ubuntu-latest
-steps:
-- uses: actions/checkout@v4
-- uses: returntocorp/semgrep-action@v1
-with:
-config: p/ci
+      - name: Generate SBOM (Syft)
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p reports/sbom
+          syft dir:. -o spdx-json=reports/sbom/sbom.spdx.json
+    
+      - name: Scan SBOM (Grype) -> SARIF
+        shell: bash
+        run: |
+          set -euo pipefail
+          grype sbom:reports/sbom/sbom.spdx.json -o sarif > reports/sbom/grype.sarif || true
+    
+      - name: Upload SARIF (Grype)
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: reports/sbom/grype.sarif
+          category: grype-vulnerabilities
+    
+      - name: Upload SBOM artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-and-grype
+          path: reports/sbom/
+  
+  trivy:
+    name: Trivy Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+  
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: "fs"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-fs.sarif"
+          severity: "CRITICAL,HIGH,MEDIUM"
+    
+      - name: Upload SARIF (Trivy FS)
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-fs.sarif
+          category: trivy-filesystem
+    
+      - name: Trivy config scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          scan-type: "config"
+          scan-ref: "."
+          format: "sarif"
+          output: "trivy-config.sarif"
+          severity: "CRITICAL,HIGH,MEDIUM"
+    
+      - name: Upload SARIF (Trivy Config)
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trivy-config.sarif
+          category: trivy-config
+  
+  secrets:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+  
+      - name: TruffleHog scan
+        uses: trufflesecurity/trufflehog@v3.86.1
+        with:
+          path: .
+          base: ${{ github.event.pull_request.base.sha || github.event.before }}
+          head: ${{ github.event.pull_request.head.sha || github.sha }}
+          extra_args: --only-verified --format sarif --output trufflehog.sarif
+    
+      - name: Upload SARIF (TruffleHog)
+        uses: github/codeql-action/upload-sarif@v4
+        with:
+          sarif_file: trufflehog.sarif
+          category: trufflehog-secrets
+    
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+    
+      - name: Install detect-secrets
+        run: |
+          python -m pip install --upgrade pip
+          pip install detect-secrets
+    
+      - name: Run detect-secrets
+        shell: bash
+        run: |
+          set -euo pipefail
+          detect-secrets scan --all-files --exclude-files '\.git/|build/|\.dart_tool/|\.idea/|\.vscode/|Pods/|\.syft/|coverage/' > detect-secrets.json
+    
+      - name: Upload detect-secrets artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: detect-secrets
+          path: detect-secrets.json
+  
+  semgrep:
+    name: Semgrep SAST
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: returntocorp/semgrep-action@v1
+        with:
+          config: p/ci
