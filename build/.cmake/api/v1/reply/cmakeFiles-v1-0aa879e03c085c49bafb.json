@@ -102,6 +102,9 @@
 		},
 		{
 			"path" : "runner/CMakeLists.txt"
+		},
+		{
+			"path" : "flutter/ephemeral/.plugin_symlinks/file_selector_windows/windows/CMakeLists.txt"
 		}
 	],
 	"kind" : "cmakeFiles",

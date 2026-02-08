@@ -5,7 +5,7 @@
 		"commands" : [],
 		"files" : 
 		[
-			"CMakeLists.txt"
+			"flutter/ephemeral/.plugin_symlinks/file_selector_windows/windows/CMakeLists.txt"
 		],
 		"nodes" : 
 		[
@@ -17,25 +17,19 @@
 	"dependencies" : 
 	[
 		{
-			"id" : "flutter_wrapper_plugin::@2bb09fbb03a373b2cb34"
-		},
-		{
-			"id" : "flutter_wrapper_app::@2bb09fbb03a373b2cb34"
-		},
-		{
-			"id" : "flutter_app::@056c4f61b0156d1d9b06"
+			"id" : "file_selector_windows_plugin::@24329985f05541c6c489"
 		},
 		{
 			"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df"
 		}
 	],
-	"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
+	"id" : "ALL_BUILD::@24329985f05541c6c489",
 	"isGeneratorProvided" : true,
 	"name" : "ALL_BUILD",
 	"paths" : 
 	{
-		"build" : ".",
-		"source" : "."
+		"build" : "plugins/file_selector_windows",
+		"source" : "flutter/ephemeral/.plugin_symlinks/file_selector_windows/windows"
 	},
 	"sources" : [],
 	"type" : "UTILITY"

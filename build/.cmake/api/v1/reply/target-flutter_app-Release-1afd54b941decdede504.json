@@ -2,10 +2,10 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "runner/Profile/flutter_app.exe"
+			"path" : "runner/Release/flutter_app.exe"
 		},
 		{
-			"path" : "runner/Profile/flutter_app.pdb"
+			"path" : "runner/Release/flutter_app.pdb"
 		}
 	],
 	"backtrace" : 1,
@@ -16,6 +16,7 @@
 			"add_executable",
 			"install",
 			"target_link_libraries",
+			"include",
 			"add_dependencies",
 			"target_compile_options",
 			"apply_standard_settings",
@@ -28,6 +29,7 @@
 		[
 			"runner/CMakeLists.txt",
 			"CMakeLists.txt",
+			"flutter/generated_plugins.cmake",
 			"flutter/CMakeLists.txt"
 		],
 		"nodes" : 
@@ -63,97 +65,113 @@
 				"parent" : 0
 			},
 			{
-				"file" : 2
+				"command" : 3,
+				"file" : 1,
+				"line" : 58,
+				"parent" : 2
+			},
+			{
+				"file" : 2,
+				"parent" : 6
 			},
 			{
 				"command" : 2,
 				"file" : 2,
-				"line" : 39,
-				"parent" : 6
+				"line" : 16,
+				"parent" : 7
 			},
 			{
-				"command" : 3,
+				"file" : 3
+			},
+			{
+				"command" : 2,
+				"file" : 3,
+				"line" : 39,
+				"parent" : 9
+			},
+			{
+				"command" : 4,
 				"file" : 0,
 				"line" : 40,
 				"parent" : 0
 			},
 			{
-				"command" : 5,
+				"command" : 6,
 				"file" : 0,
 				"line" : 21,
 				"parent" : 0
 			},
 			{
-				"command" : 4,
+				"command" : 5,
 				"file" : 1,
 				"line" : 42,
-				"parent" : 9
+				"parent" : 12
 			},
 			{
-				"command" : 4,
+				"command" : 5,
 				"file" : 1,
 				"line" : 43,
-				"parent" : 9
+				"parent" : 12
 			},
 			{
-				"command" : 6,
+				"command" : 7,
 				"file" : 0,
 				"line" : 24,
 				"parent" : 0
 			},
 			{
-				"command" : 6,
+				"command" : 7,
 				"file" : 0,
 				"line" : 28,
 				"parent" : 0
 			},
 			{
-				"command" : 6,
+				"command" : 7,
 				"file" : 0,
 				"line" : 25,
 				"parent" : 0
 			},
 			{
-				"command" : 6,
+				"command" : 7,
 				"file" : 0,
 				"line" : 26,
 				"parent" : 0
 			},
 			{
-				"command" : 6,
+				"command" : 7,
 				"file" : 0,
 				"line" : 27,
 				"parent" : 0
 			},
 			{
-				"command" : 6,
+				"command" : 7,
 				"file" : 0,
 				"line" : 31,
 				"parent" : 0
 			},
 			{
-				"command" : 7,
+				"command" : 8,
 				"file" : 1,
 				"line" : 33,
 				"parent" : 2
 			},
 			{
-				"command" : 6,
+				"command" : 7,
 				"file" : 1,
 				"line" : 44,
-				"parent" : 9
+				"parent" : 12
 			},
 			{
-				"command" : 8,
+				"command" : 9,
 				"file" : 0,
 				"line" : 37,
 				"parent" : 0
 			},
 			{
-				"command" : 9,
+				"command" : 10,
 				"file" : 1,
 				"line" : 41,
-				"parent" : 9
+				"parent" : 12
 			}
 		]
 	},
@@ -166,65 +184,65 @@
 					"fragment" : "/DWIN32 /D_WINDOWS /W3 /GR /EHsc /MD /O2 /Ob2 /DNDEBUG -std:c++17"
 				},
 				{
-					"backtrace" : 10,
+					"backtrace" : 13,
 					"fragment" : "/W4"
 				},
 				{
-					"backtrace" : 10,
+					"backtrace" : 13,
 					"fragment" : "/WX"
 				},
 				{
-					"backtrace" : 10,
+					"backtrace" : 13,
 					"fragment" : "/wd\\\"4100\\\""
 				},
 				{
-					"backtrace" : 11,
+					"backtrace" : 14,
 					"fragment" : "/EHsc"
 				}
 			],
 			"defines" : 
 			[
 				{
-					"backtrace" : 12,
+					"backtrace" : 15,
 					"define" : "FLUTTER_VERSION=\"1.0.0+1\""
 				},
 				{
-					"backtrace" : 13,
+					"backtrace" : 16,
 					"define" : "FLUTTER_VERSION_BUILD=1"
 				},
 				{
-					"backtrace" : 14,
+					"backtrace" : 17,
 					"define" : "FLUTTER_VERSION_MAJOR=1"
 				},
 				{
-					"backtrace" : 15,
+					"backtrace" : 18,
 					"define" : "FLUTTER_VERSION_MINOR=0"
 				},
 				{
-					"backtrace" : 16,
+					"backtrace" : 19,
 					"define" : "FLUTTER_VERSION_PATCH=0"
 				},
 				{
-					"backtrace" : 17,
+					"backtrace" : 20,
 					"define" : "NOMINMAX"
 				},
 				{
-					"backtrace" : 18,
+					"backtrace" : 21,
 					"define" : "UNICODE"
 				},
 				{
-					"backtrace" : 19,
+					"backtrace" : 22,
 					"define" : "_HAS_EXCEPTIONS=0"
 				},
 				{
-					"backtrace" : 18,
+					"backtrace" : 21,
 					"define" : "_UNICODE"
 				}
 			],
 			"includes" : 
 			[
 				{
-					"backtrace" : 20,
+					"backtrace" : 23,
 					"path" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/apps/flutter/windows"
 				},
 				{
@@ -234,6 +252,10 @@
 				{
 					"backtrace" : 4,
 					"path" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/apps/flutter/windows/flutter/ephemeral/cpp_client_wrapper/include"
+				},
+				{
+					"backtrace" : 8,
+					"path" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/apps/flutter/windows/flutter/ephemeral/.plugin_symlinks/file_selector_windows/windows/include"
 				}
 			],
 			"language" : "CXX",
@@ -241,7 +263,7 @@
 			{
 				"backtraces" : 
 				[
-					21
+					24
 				],
 				"standard" : "17"
 			},
@@ -264,46 +286,46 @@
 			"defines" : 
 			[
 				{
-					"backtrace" : 12,
+					"backtrace" : 15,
 					"define" : "FLUTTER_VERSION=\"1.0.0+1\""
 				},
 				{
-					"backtrace" : 13,
+					"backtrace" : 16,
 					"define" : "FLUTTER_VERSION_BUILD=1"
 				},
 				{
-					"backtrace" : 14,
+					"backtrace" : 17,
 					"define" : "FLUTTER_VERSION_MAJOR=1"
 				},
 				{
-					"backtrace" : 15,
+					"backtrace" : 18,
 					"define" : "FLUTTER_VERSION_MINOR=0"
 				},
 				{
-					"backtrace" : 16,
+					"backtrace" : 19,
 					"define" : "FLUTTER_VERSION_PATCH=0"
 				},
 				{
-					"backtrace" : 17,
+					"backtrace" : 20,
 					"define" : "NOMINMAX"
 				},
 				{
-					"backtrace" : 18,
+					"backtrace" : 21,
 					"define" : "UNICODE"
 				},
 				{
-					"backtrace" : 19,
+					"backtrace" : 22,
 					"define" : "_HAS_EXCEPTIONS=0"
 				},
 				{
-					"backtrace" : 18,
+					"backtrace" : 21,
 					"define" : "_UNICODE"
 				}
 			],
 			"includes" : 
 			[
 				{
-					"backtrace" : 20,
+					"backtrace" : 23,
 					"path" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/apps/flutter/windows"
 				},
 				{
@@ -313,6 +335,10 @@
 				{
 					"backtrace" : 4,
 					"path" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/apps/flutter/windows/flutter/ephemeral/cpp_client_wrapper/include"
+				},
+				{
+					"backtrace" : 8,
+					"path" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/apps/flutter/windows/flutter/ephemeral/.plugin_symlinks/file_selector_windows/windows/include"
 				}
 			],
 			"language" : "RC",
@@ -329,8 +355,12 @@
 			"id" : "flutter_wrapper_app::@2bb09fbb03a373b2cb34"
 		},
 		{
-			"backtrace" : 8,
+			"backtrace" : 11,
 			"id" : "flutter_assemble::@2bb09fbb03a373b2cb34"
+		},
+		{
+			"backtrace" : 8,
+			"id" : "file_selector_windows_plugin::@24329985f05541c6c489"
 		},
 		{
 			"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df"
@@ -343,7 +373,7 @@
 		[
 			{
 				"backtrace" : 3,
-				"path" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/build/runner/Profile"
+				"path" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/build/runner/Release"
 			}
 		],
 		"prefix" : 
@@ -365,7 +395,7 @@
 			},
 			{
 				"backtrace" : 4,
-				"fragment" : "..\\flutter\\Profile\\flutter_wrapper_app.lib",
+				"fragment" : "..\\flutter\\Release\\flutter_wrapper_app.lib",
 				"role" : "libraries"
 			},
 			{
@@ -374,7 +404,12 @@
 				"role" : "libraries"
 			},
 			{
-				"backtrace" : 7,
+				"backtrace" : 8,
+				"fragment" : "..\\plugins\\file_selector_windows\\Release\\file_selector_windows_plugin.lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 10,
 				"fragment" : "C:\\Users\\Corey\\OneDrive\\Desktop\\SWEN661Project\\team_2_project\\apps\\flutter\\windows\\flutter\\ephemeral\\flutter_windows.dll.lib",
 				"role" : "libraries"
 			},

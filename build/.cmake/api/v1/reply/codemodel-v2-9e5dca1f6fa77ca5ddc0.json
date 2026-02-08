@@ -9,10 +9,11 @@
 					"childIndexes" : 
 					[
 						1,
-						2
+						2,
+						3
 					],
 					"hasInstallRule" : true,
-					"jsonFile" : "directory-.-Debug-6e6a075abcb297b9f2a8.json",
+					"jsonFile" : "directory-.-Debug-4ec7ca703bff0ec1fa1f.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.14"
@@ -22,7 +23,7 @@
 					"targetIndexes" : 
 					[
 						0,
-						2
+						3
 					]
 				},
 				{
@@ -37,9 +38,9 @@
 					"source" : "flutter",
 					"targetIndexes" : 
 					[
-						4,
-						5,
-						6
+						6,
+						7,
+						8
 					]
 				},
 				{
@@ -55,7 +56,23 @@
 					"targetIndexes" : 
 					[
 						1,
-						3
+						5
+					]
+				},
+				{
+					"build" : "plugins/file_selector_windows",
+					"jsonFile" : "directory-plugins.file_selector_windows-Debug-00e6fb393360b0d33738.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.14"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 2,
+					"source" : "flutter/ephemeral/.plugin_symlinks/file_selector_windows/windows",
+					"targetIndexes" : 
+					[
+						2,
+						4
 					]
 				}
 			],
@@ -65,7 +82,8 @@
 				{
 					"childIndexes" : 
 					[
-						1
+						1,
+						2
 					],
 					"directoryIndexes" : 
 					[
@@ -76,10 +94,10 @@
 					"targetIndexes" : 
 					[
 						0,
-						2,
-						4,
-						5,
-						6
+						3,
+						6,
+						7,
+						8
 					]
 				},
 				{
@@ -92,7 +110,20 @@
 					"targetIndexes" : 
 					[
 						1,
+						5
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
 						3
+					],
+					"name" : "file_selector_windows",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						2,
+						4
 					]
 				}
 			],
@@ -101,7 +132,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-ALL_BUILD-Debug-e42032e2f3f4d4f62e12.json",
+					"jsonFile" : "target-ALL_BUILD-Debug-2d3c30b0bd37decee05a.json",
 					"name" : "ALL_BUILD",
 					"projectIndex" : 0
 				},
@@ -113,6 +144,13 @@
 					"projectIndex" : 1
 				},
 				{
+					"directoryIndex" : 3,
+					"id" : "ALL_BUILD::@24329985f05541c6c489",
+					"jsonFile" : "target-ALL_BUILD-Debug-9a529fa71a1b8e88aaa9.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 2
+				},
+				{
 					"directoryIndex" : 0,
 					"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df",
 					"jsonFile" : "target-ZERO_CHECK-Debug-4d385435ba5bd39147b0.json",
@@ -120,9 +158,16 @@
 					"projectIndex" : 0
 				},
 				{
+					"directoryIndex" : 3,
+					"id" : "file_selector_windows_plugin::@24329985f05541c6c489",
+					"jsonFile" : "target-file_selector_windows_plugin-Debug-abb99b3aaa9001ffb513.json",
+					"name" : "file_selector_windows_plugin",
+					"projectIndex" : 2
+				},
+				{
 					"directoryIndex" : 2,
 					"id" : "flutter_app::@056c4f61b0156d1d9b06",
-					"jsonFile" : "target-flutter_app-Debug-6c131919b7f6f7b1afe1.json",
+					"jsonFile" : "target-flutter_app-Debug-379b519d8c0ed7679f81.json",
 					"name" : "flutter_app",
 					"projectIndex" : 1
 				},
@@ -157,10 +202,11 @@
 					"childIndexes" : 
 					[
 						1,
-						2
+						2,
+						3
 					],
 					"hasInstallRule" : true,
-					"jsonFile" : "directory-.-Profile-dbf17a14beb65336d4d2.json",
+					"jsonFile" : "directory-.-Profile-6a01ad664221015943d9.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.14"
@@ -170,7 +216,7 @@
 					"targetIndexes" : 
 					[
 						0,
-						2
+						3
 					]
 				},
 				{
@@ -185,9 +231,9 @@
 					"source" : "flutter",
 					"targetIndexes" : 
 					[
-						4,
-						5,
-						6
+						6,
+						7,
+						8
 					]
 				},
 				{
@@ -203,7 +249,23 @@
 					"targetIndexes" : 
 					[
 						1,
-						3
+						5
+					]
+				},
+				{
+					"build" : "plugins/file_selector_windows",
+					"jsonFile" : "directory-plugins.file_selector_windows-Profile-00e6fb393360b0d33738.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.14"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 2,
+					"source" : "flutter/ephemeral/.plugin_symlinks/file_selector_windows/windows",
+					"targetIndexes" : 
+					[
+						2,
+						4
 					]
 				}
 			],
@@ -213,7 +275,8 @@
 				{
 					"childIndexes" : 
 					[
-						1
+						1,
+						2
 					],
 					"directoryIndexes" : 
 					[
@@ -224,10 +287,10 @@
 					"targetIndexes" : 
 					[
 						0,
-						2,
-						4,
-						5,
-						6
+						3,
+						6,
+						7,
+						8
 					]
 				},
 				{
@@ -240,7 +303,20 @@
 					"targetIndexes" : 
 					[
 						1,
+						5
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
 						3
+					],
+					"name" : "file_selector_windows",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						2,
+						4
 					]
 				}
 			],
@@ -249,7 +325,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-ALL_BUILD-Profile-e42032e2f3f4d4f62e12.json",
+					"jsonFile" : "target-ALL_BUILD-Profile-2d3c30b0bd37decee05a.json",
 					"name" : "ALL_BUILD",
 					"projectIndex" : 0
 				},
@@ -261,6 +337,13 @@
 					"projectIndex" : 1
 				},
 				{
+					"directoryIndex" : 3,
+					"id" : "ALL_BUILD::@24329985f05541c6c489",
+					"jsonFile" : "target-ALL_BUILD-Profile-9a529fa71a1b8e88aaa9.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 2
+				},
+				{
 					"directoryIndex" : 0,
 					"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df",
 					"jsonFile" : "target-ZERO_CHECK-Profile-4d385435ba5bd39147b0.json",
@@ -268,9 +351,16 @@
 					"projectIndex" : 0
 				},
 				{
+					"directoryIndex" : 3,
+					"id" : "file_selector_windows_plugin::@24329985f05541c6c489",
+					"jsonFile" : "target-file_selector_windows_plugin-Profile-04a4e504de0c39520cbe.json",
+					"name" : "file_selector_windows_plugin",
+					"projectIndex" : 2
+				},
+				{
 					"directoryIndex" : 2,
 					"id" : "flutter_app::@056c4f61b0156d1d9b06",
-					"jsonFile" : "target-flutter_app-Profile-9ef50554d85fe81d552e.json",
+					"jsonFile" : "target-flutter_app-Profile-fe0ad39840dba704e2e4.json",
 					"name" : "flutter_app",
 					"projectIndex" : 1
 				},
@@ -305,10 +395,11 @@
 					"childIndexes" : 
 					[
 						1,
-						2
+						2,
+						3
 					],
 					"hasInstallRule" : true,
-					"jsonFile" : "directory-.-Release-6b48c4bf8b314ba93bef.json",
+					"jsonFile" : "directory-.-Release-a3acdfe7df0cffbc3b20.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.14"
@@ -318,7 +409,7 @@
 					"targetIndexes" : 
 					[
 						0,
-						2
+						3
 					]
 				},
 				{
@@ -333,9 +424,9 @@
 					"source" : "flutter",
 					"targetIndexes" : 
 					[
-						4,
-						5,
-						6
+						6,
+						7,
+						8
 					]
 				},
 				{
@@ -351,7 +442,23 @@
 					"targetIndexes" : 
 					[
 						1,
-						3
+						5
+					]
+				},
+				{
+					"build" : "plugins/file_selector_windows",
+					"jsonFile" : "directory-plugins.file_selector_windows-Release-00e6fb393360b0d33738.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.14"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 2,
+					"source" : "flutter/ephemeral/.plugin_symlinks/file_selector_windows/windows",
+					"targetIndexes" : 
+					[
+						2,
+						4
 					]
 				}
 			],
@@ -361,7 +468,8 @@
 				{
 					"childIndexes" : 
 					[
-						1
+						1,
+						2
 					],
 					"directoryIndexes" : 
 					[
@@ -372,10 +480,10 @@
 					"targetIndexes" : 
 					[
 						0,
-						2,
-						4,
-						5,
-						6
+						3,
+						6,
+						7,
+						8
 					]
 				},
 				{
@@ -388,7 +496,20 @@
 					"targetIndexes" : 
 					[
 						1,
+						5
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
 						3
+					],
+					"name" : "file_selector_windows",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						2,
+						4
 					]
 				}
 			],
@@ -397,7 +518,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "ALL_BUILD::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-ALL_BUILD-Release-e42032e2f3f4d4f62e12.json",
+					"jsonFile" : "target-ALL_BUILD-Release-2d3c30b0bd37decee05a.json",
 					"name" : "ALL_BUILD",
 					"projectIndex" : 0
 				},
@@ -409,6 +530,13 @@
 					"projectIndex" : 1
 				},
 				{
+					"directoryIndex" : 3,
+					"id" : "ALL_BUILD::@24329985f05541c6c489",
+					"jsonFile" : "target-ALL_BUILD-Release-9a529fa71a1b8e88aaa9.json",
+					"name" : "ALL_BUILD",
+					"projectIndex" : 2
+				},
+				{
 					"directoryIndex" : 0,
 					"id" : "ZERO_CHECK::@6890427a1f51a3e7e1df",
 					"jsonFile" : "target-ZERO_CHECK-Release-4d385435ba5bd39147b0.json",
@@ -416,9 +544,16 @@
 					"projectIndex" : 0
 				},
 				{
+					"directoryIndex" : 3,
+					"id" : "file_selector_windows_plugin::@24329985f05541c6c489",
+					"jsonFile" : "target-file_selector_windows_plugin-Release-0989c1e82c365dc27e3c.json",
+					"name" : "file_selector_windows_plugin",
+					"projectIndex" : 2
+				},
+				{
 					"directoryIndex" : 2,
 					"id" : "flutter_app::@056c4f61b0156d1d9b06",
-					"jsonFile" : "target-flutter_app-Release-32a91d5570ea76473f62.json",
+					"jsonFile" : "target-flutter_app-Release-1afd54b941decdede504.json",
 					"name" : "flutter_app",
 					"projectIndex" : 1
 				},
