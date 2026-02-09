@@ -140,6 +140,10 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
+    <ProjectReference Include="C:\Users\Corey\OneDrive\Desktop\SWEN661Project\team_2_project\build\plugins\file_selector_windows\file_selector_windows_plugin.vcxproj">
+      <Project>{1E302E9E-4AD6-3438-B101-E349F50DEBF4}</Project>
+      <Name>file_selector_windows_plugin</Name>
+    </ProjectReference>
     <ProjectReference Include="C:\Users\Corey\OneDrive\Desktop\SWEN661Project\team_2_project\build\runner\flutter_app.vcxproj">
       <Project>{F29E61F4-1216-3A24-B2C6-A63E86526D01}</Project>
       <Name>flutter_app</Name>

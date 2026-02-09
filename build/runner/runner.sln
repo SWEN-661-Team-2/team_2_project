@@ -17,9 +17,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ZERO_CHECK", "..\\ZERO_CHEC
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "file_selector_windows_plugin", "..\plugins\file_selector_windows\file_selector_windows_plugin.vcxproj", "{1E302E9E-4AD6-3438-B101-E349F50DEBF4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EB586636-0BE9-36F8-9437-C48CF23417E6} = {EB586636-0BE9-36F8-9437-C48CF23417E6}
+		{85A61377-17AB-3841-BF4E-1AF8D94D0516} = {85A61377-17AB-3841-BF4E-1AF8D94D0516}
+		{B0920D3A-06A3-359E-8B15-DF9EBFD4E698} = {B0920D3A-06A3-359E-8B15-DF9EBFD4E698}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "flutter_app", "flutter_app.vcxproj", "{F29E61F4-1216-3A24-B2C6-A63E86526D01}"
 	ProjectSection(ProjectDependencies) = postProject
 		{EB586636-0BE9-36F8-9437-C48CF23417E6} = {EB586636-0BE9-36F8-9437-C48CF23417E6}
+		{1E302E9E-4AD6-3438-B101-E349F50DEBF4} = {1E302E9E-4AD6-3438-B101-E349F50DEBF4}
 		{85A61377-17AB-3841-BF4E-1AF8D94D0516} = {85A61377-17AB-3841-BF4E-1AF8D94D0516}
 		{92354B52-9819-3FFB-8B2C-11FD8BF2BD72} = {92354B52-9819-3FFB-8B2C-11FD8BF2BD72}
 	EndProjectSection
@@ -30,6 +38,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "flutter_assemble", "..\flut
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "flutter_wrapper_app", "..\flutter\flutter_wrapper_app.vcxproj", "{92354B52-9819-3FFB-8B2C-11FD8BF2BD72}"
+	ProjectSection(ProjectDependencies) = postProject
+		{EB586636-0BE9-36F8-9437-C48CF23417E6} = {EB586636-0BE9-36F8-9437-C48CF23417E6}
+		{85A61377-17AB-3841-BF4E-1AF8D94D0516} = {85A61377-17AB-3841-BF4E-1AF8D94D0516}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "flutter_wrapper_plugin", "..\flutter\flutter_wrapper_plugin.vcxproj", "{B0920D3A-06A3-359E-8B15-DF9EBFD4E698}"
 	ProjectSection(ProjectDependencies) = postProject
 		{EB586636-0BE9-36F8-9437-C48CF23417E6} = {EB586636-0BE9-36F8-9437-C48CF23417E6}
 		{85A61377-17AB-3841-BF4E-1AF8D94D0516} = {85A61377-17AB-3841-BF4E-1AF8D94D0516}
@@ -57,6 +71,12 @@ Global
 		{EB586636-0BE9-36F8-9437-C48CF23417E6}.Profile|win32.Build.0 = Profile|win32
 		{EB586636-0BE9-36F8-9437-C48CF23417E6}.Release|win32.ActiveCfg = Release|win32
 		{EB586636-0BE9-36F8-9437-C48CF23417E6}.Release|win32.Build.0 = Release|win32
+		{1E302E9E-4AD6-3438-B101-E349F50DEBF4}.Debug|win32.ActiveCfg = Debug|win32
+		{1E302E9E-4AD6-3438-B101-E349F50DEBF4}.Debug|win32.Build.0 = Debug|win32
+		{1E302E9E-4AD6-3438-B101-E349F50DEBF4}.Profile|win32.ActiveCfg = Profile|win32
+		{1E302E9E-4AD6-3438-B101-E349F50DEBF4}.Profile|win32.Build.0 = Profile|win32
+		{1E302E9E-4AD6-3438-B101-E349F50DEBF4}.Release|win32.ActiveCfg = Release|win32
+		{1E302E9E-4AD6-3438-B101-E349F50DEBF4}.Release|win32.Build.0 = Release|win32
 		{F29E61F4-1216-3A24-B2C6-A63E86526D01}.Debug|win32.ActiveCfg = Debug|win32
 		{F29E61F4-1216-3A24-B2C6-A63E86526D01}.Debug|win32.Build.0 = Debug|win32
 		{F29E61F4-1216-3A24-B2C6-A63E86526D01}.Profile|win32.ActiveCfg = Profile|win32
@@ -75,6 +95,12 @@ Global
 		{92354B52-9819-3FFB-8B2C-11FD8BF2BD72}.Profile|win32.Build.0 = Profile|win32
 		{92354B52-9819-3FFB-8B2C-11FD8BF2BD72}.Release|win32.ActiveCfg = Release|win32
 		{92354B52-9819-3FFB-8B2C-11FD8BF2BD72}.Release|win32.Build.0 = Release|win32
+		{B0920D3A-06A3-359E-8B15-DF9EBFD4E698}.Debug|win32.ActiveCfg = Debug|win32
+		{B0920D3A-06A3-359E-8B15-DF9EBFD4E698}.Debug|win32.Build.0 = Debug|win32
+		{B0920D3A-06A3-359E-8B15-DF9EBFD4E698}.Profile|win32.ActiveCfg = Profile|win32
+		{B0920D3A-06A3-359E-8B15-DF9EBFD4E698}.Profile|win32.Build.0 = Profile|win32
+		{B0920D3A-06A3-359E-8B15-DF9EBFD4E698}.Release|win32.ActiveCfg = Release|win32
+		{B0920D3A-06A3-359E-8B15-DF9EBFD4E698}.Release|win32.Build.0 = Release|win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A55E5029-2782-3A68-9EB6-ACB13A4DD4B1}

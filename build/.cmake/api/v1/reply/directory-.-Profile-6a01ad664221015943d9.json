@@ -35,6 +35,12 @@
 			{
 				"command" : 0,
 				"file" : 0,
+				"line" : 85,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
 				"line" : 92,
 				"parent" : 0
 			},
@@ -49,6 +55,12 @@
 				"file" : 0,
 				"line" : 102,
 				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 106,
+				"parent" : 0
 			}
 		]
 	},
@@ -57,19 +69,19 @@
 		{
 			"backtrace" : 1,
 			"component" : "Runtime",
-			"destination" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/build/runner/Debug",
+			"destination" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/build/runner/Profile",
 			"paths" : 
 			[
-				"runner/Debug/flutter_app.exe"
+				"runner/Profile/flutter_app.exe"
 			],
 			"targetId" : "flutter_app::@056c4f61b0156d1d9b06",
-			"targetIndex" : 3,
+			"targetIndex" : 5,
 			"type" : "target"
 		},
 		{
 			"backtrace" : 2,
 			"component" : "Runtime",
-			"destination" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/build/runner/Debug/data",
+			"destination" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/build/runner/Profile/data",
 			"paths" : 
 			[
 				"flutter/ephemeral/icudtl.dat"
@@ -79,7 +91,7 @@
 		{
 			"backtrace" : 3,
 			"component" : "Runtime",
-			"destination" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/build/runner/Debug",
+			"destination" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/build/runner/Profile",
 			"paths" : 
 			[
 				"flutter/ephemeral/flutter_windows.dll"
@@ -89,7 +101,17 @@
 		{
 			"backtrace" : 4,
 			"component" : "Runtime",
-			"destination" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/build/runner/Debug",
+			"destination" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/build/runner/Profile",
+			"paths" : 
+			[
+				"C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/build/plugins/file_selector_windows/Profile/file_selector_windows_plugin.dll"
+			],
+			"type" : "file"
+		},
+		{
+			"backtrace" : 5,
+			"component" : "Runtime",
+			"destination" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/build/runner/Profile",
 			"paths" : 
 			[
 				{
@@ -100,19 +122,29 @@
 			"type" : "directory"
 		},
 		{
-			"backtrace" : 5,
+			"backtrace" : 6,
 			"component" : "Runtime",
 			"type" : "code"
 		},
 		{
-			"backtrace" : 6,
+			"backtrace" : 7,
 			"component" : "Runtime",
-			"destination" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/build/runner/Debug/data",
+			"destination" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/build/runner/Profile/data",
 			"paths" : 
 			[
 				"C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/apps/flutter/build//flutter_assets"
 			],
 			"type" : "directory"
+		},
+		{
+			"backtrace" : 8,
+			"component" : "Runtime",
+			"destination" : "C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/build/runner/Profile/data",
+			"paths" : 
+			[
+				"C:/Users/Corey/OneDrive/Desktop/SWEN661Project/team_2_project/apps/flutter/build/windows/app.so"
+			],
+			"type" : "file"
 		}
 	],
 	"paths" : 

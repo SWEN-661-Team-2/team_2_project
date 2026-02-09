@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
+  ScrollView,
   TouchableOpacity,
   StyleSheet,
-  ScrollView,
+  SafeAreaView,
   Dimensions,
   Image,
 } from 'react-native';
@@ -16,6 +17,22 @@ const { width } = Dimensions.get('window');
  * Welcome Screen with Auto-Rotating Carousel
  * Matches Flutter WelcomeScreen functionality
  */
+const CAROUSEL_IMAGES = [
+  { id: '1', uri: 'https://via.placeholder.com/800x500?text=Caregiver+1' },
+  { id: '2', uri: 'https://via.placeholder.com/800x500?text=Caregiver+2' },
+  { id: '3', uri: 'https://via.placeholder.com/800x500?text=Caregiver+3' },
+  { id: '4', uri: 'https://via.placeholder.com/800x500?text=Caregiver+4' },
+  { id: '5', uri: 'https://via.placeholder.com/800x500?text=Caregiver+5' },
+  { id: '6', uri: 'https://via.placeholder.com/800x500?text=Caregiver+6' },
+  { id: '7', uri: 'https://via.placeholder.com/800x500?text=Caregiver+7' },
+  { id: '8', uri: 'https://via.placeholder.com/800x500?text=Caregiver+8' },
+  { id: '9', uri: 'https://via.placeholder.com/800x500?text=Caregiver+9' },
+  { id: '10', uri: 'https://via.placeholder.com/800x500?text=Caregiver+10' },
+];
+
+const CAROUSEL_INTERVAL = 4000; // 4 seconds
+const ANIMATION_DURATION = 300; // milliseconds
+
 export default function WelcomeScreen({ navigation }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollViewRef = useRef(null);
@@ -121,9 +138,10 @@ export default function WelcomeScreen({ navigation }) {
           <Text style={styles.continueText}>Continue</Text>
         </TouchableOpacity>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
