@@ -7,7 +7,6 @@
  * - Needing Attention: shows patients sorted by criticality level
  * - Upcoming Visits: shows patients with upcoming appointments sorted by visit date
  */
-
 import React, { useState } from 'react';
 import {
   View,
@@ -24,6 +23,7 @@ import PriorityPatientCard, {
   PatientCard,
 } from './components/PatientCardComponents';
 import PatientFilterMenu from './components/PatientFilterMenu';
+import HandednessToggleOverlay from '../components/HandednessToggleOverlay';
 
 const PatientsListScreen = ({ navigation }) => {
   const { viewMode, setViewMode, patients } = usePatients();
@@ -120,7 +120,9 @@ const PatientsListScreen = ({ navigation }) => {
         viewMode={viewMode}
         onViewModeChange={setViewMode}
       />
+      <HandednessToggleOverlay />
     </SafeAreaView>
+    
   );
 };
 

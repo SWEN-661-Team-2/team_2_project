@@ -1,11 +1,15 @@
 import React, { createContext, useContext, useState } from 'react';
 import { AuthProvider } from './AuthContext';
-import { AppSettingsProvider } from './AppSettingsContext';
+import { AppSettingsProvider, useAppSettings as useAppSettingsContext } from './AppSettingsContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
  * App Providers for React Native
  * Equivalent to Flutter's Provider pattern
  */
+
+// Re-export useAppSettings from AppSettingsContext
+export const useAppSettings = useAppSettingsContext;
 
 // Handedness Context
 const HandednessContext = createContext();
@@ -20,13 +24,22 @@ export const useHandedness = () => {
 
 function HandednessProvider({ children }) {
   const [isLeftHanded, setIsLeftHanded] = useState(true);
+  const [handednessMode, setHandednessMode] = useState('left');
 
   const toggleHandedness = () => {
     setIsLeftHanded(prev => !prev);
   };
 
   return (
-    <HandednessContext.Provider value={{ isLeftHanded, toggleHandedness }}>
+    <HandednessContext.Provider value={{ 
+      isLeftHanded, 
+      toggleHandedness,
+      handednessMode,
+      setHandednessMode: (mode) => {
+        setHandednessMode(mode);
+        setIsLeftHanded(mode === 'left');
+      },
+    }}>
       {children}
     </HandednessContext.Provider>
   );
