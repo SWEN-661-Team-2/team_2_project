@@ -13,23 +13,26 @@ void main() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
   });
 
-  test('load() does not throw and controller has default-safe values', () async {
-    final c = AppSettingsController();
-    await c.load();
+  test(
+    'load() does not throw and controller has default-safe values',
+    () async {
+      final c = AppSettingsController();
+      await c.load();
 
-    expect(c.handednessMode, isA<HandednessMode>());
-    expect(c.a11yOverlayEnabled, isA<bool>());
-    expect(c.notificationsEnabled, isA<bool>());
-    expect(c.textSizeMode, isA<TextSizeMode>());
-    expect(c.highContrastEnabled, isA<bool>());
-    expect(c.reminderFrequency, isA<ReminderFrequency>());
+      expect(c.handednessMode, isA<HandednessMode>());
+      expect(c.a11yOverlayEnabled, isA<bool>());
+      expect(c.notificationsEnabled, isA<bool>());
+      expect(c.textSizeMode, isA<TextSizeMode>());
+      expect(c.highContrastEnabled, isA<bool>());
+      expect(c.reminderFrequency, isA<ReminderFrequency>());
 
-    // UI-only toggles (not persisted yet)
-    expect(c.lowVisionEnabled, isFalse);
-    expect(c.tremorSupportEnabled, isFalse);
-    expect(c.hearingImpairedEnabled, isFalse);
-    expect(c.guidedModeEnabled, isFalse);
-  });
+      // UI-only toggles (not persisted yet)
+      expect(c.lowVisionEnabled, isFalse);
+      expect(c.tremorSupportEnabled, isFalse);
+      expect(c.hearingImpairedEnabled, isFalse);
+      expect(c.guidedModeEnabled, isFalse);
+    },
+  );
 
   test('setHandednessMode persists + notifies', () async {
     final c = AppSettingsController();

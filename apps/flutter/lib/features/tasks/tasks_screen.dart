@@ -37,7 +37,7 @@ class _TasksScreenState extends State<TasksScreen> {
   Widget build(BuildContext context) {
     final controller = context.watch<AppSettingsController>();
     final isLeftAligned = controller.isLeftAligned;
-    
+
     final repo = TasksRepository.instance;
 
     List<CaregiverTask> tasks;
@@ -116,7 +116,7 @@ class _TasksScreenState extends State<TasksScreen> {
   void _showFilterMenu(BuildContext context) {
     final controller = context.read<AppSettingsController>();
     final isLeftAligned = controller.isLeftAligned;
-    
+
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
@@ -144,8 +144,12 @@ class _TasksScreenState extends State<TasksScreen> {
                   },
                 ),
                 ListTile(
-                  leading: isLeftAligned ? const Icon(Icons.pending_actions) : null,
-                  trailing: !isLeftAligned ? const Icon(Icons.pending_actions) : null,
+                  leading: isLeftAligned
+                      ? const Icon(Icons.pending_actions)
+                      : null,
+                  trailing: !isLeftAligned
+                      ? const Icon(Icons.pending_actions)
+                      : null,
                   title: const Text('Pending (Sorted by Priority)'),
                   selected: _currentMode == TasksViewMode.pending,
                   onTap: () {
@@ -164,8 +168,12 @@ class _TasksScreenState extends State<TasksScreen> {
                   },
                 ),
                 ListTile(
-                  leading: isLeftAligned ? const Icon(Icons.warning_amber) : null,
-                  trailing: !isLeftAligned ? const Icon(Icons.warning_amber) : null,
+                  leading: isLeftAligned
+                      ? const Icon(Icons.warning_amber)
+                      : null,
+                  trailing: !isLeftAligned
+                      ? const Icon(Icons.warning_amber)
+                      : null,
                   title: const Text('Overdue'),
                   selected: _currentMode == TasksViewMode.overdue,
                   onTap: () {
@@ -174,8 +182,12 @@ class _TasksScreenState extends State<TasksScreen> {
                   },
                 ),
                 ListTile(
-                  leading: isLeftAligned ? const Icon(Icons.check_circle) : null,
-                  trailing: !isLeftAligned ? const Icon(Icons.check_circle) : null,
+                  leading: isLeftAligned
+                      ? const Icon(Icons.check_circle)
+                      : null,
+                  trailing: !isLeftAligned
+                      ? const Icon(Icons.check_circle)
+                      : null,
                   title: const Text('Completed'),
                   selected: _currentMode == TasksViewMode.completed,
                   onTap: () {
@@ -219,13 +231,13 @@ class _TaskCard extends StatelessWidget {
       color: isOverdue
           ? Colors.red.withValues(alpha: 0.05)
           : (task.status == TaskStatus.completed
-              ? Colors.green.withValues(alpha: 0.05)
-              : Colors.white),
+                ? Colors.green.withValues(alpha: 0.05)
+                : Colors.white),
       child: InkWell(
         onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Task: ${task.title}')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Task: ${task.title}')));
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -245,7 +257,7 @@ class _TaskCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
               ],
-              
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,7 +280,10 @@ class _TaskCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: priorityColor.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(12),
@@ -288,19 +303,13 @@ class _TaskCard extends StatelessWidget {
                     if (task.patientName != null) ...[
                       Text(
                         'Patient: ${task.patientName}',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey[700],
-                        ),
+                        style: TextStyle(fontSize: 13, color: Colors.grey[700]),
                       ),
                       const SizedBox(height: 2),
                     ],
                     Text(
                       task.description,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -318,7 +327,9 @@ class _TaskCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 12,
                             color: isOverdue ? Colors.red : Colors.grey[600],
-                            fontWeight: isOverdue ? FontWeight.w600 : FontWeight.normal,
+                            fontWeight: isOverdue
+                                ? FontWeight.w600
+                                : FontWeight.normal,
                           ),
                         ),
                       ],
@@ -326,7 +337,7 @@ class _TaskCard extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               if (!isLeftAligned) ...[
                 const SizedBox(width: 12),
                 InkWell(

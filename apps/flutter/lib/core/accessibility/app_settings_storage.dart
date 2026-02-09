@@ -53,7 +53,7 @@ class AppSettingsStorage {
     final prefs = await SharedPreferences.getInstance();
     final value = prefs.getString(_keyCurrentToggleHandedness);
     if (value == null) return HandednessMode.left;
-    
+
     return HandednessMode.values.firstWhere(
       (e) => e.name == value,
       orElse: () => HandednessMode.left,

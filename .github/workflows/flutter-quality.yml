@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Locate Flutter app dir
         id: locate
@@ -74,7 +74,7 @@ jobs:
           pana --no-warning > ../reports/pana.txt || true
 
       - name: Upload pana report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: pana
           path: reports/pana.*

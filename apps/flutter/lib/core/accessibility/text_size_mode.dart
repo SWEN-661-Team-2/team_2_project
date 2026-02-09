@@ -1,9 +1,4 @@
-enum TextSizeMode {
-  small,
-  medium,
-  large,
-  extraLarge,
-}
+enum TextSizeMode { small, medium, large, extraLarge }
 
 extension TextSizeModeX on TextSizeMode {
   String get label {

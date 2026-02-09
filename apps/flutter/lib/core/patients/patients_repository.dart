@@ -161,8 +161,10 @@ class PatientsRepository {
   }
 
   /// Dashboard helpers
-  List<Patient> topNeedingAttention(int n) => needingAttentionSorted().take(n).toList();
-  List<Patient> topUpcomingVisits(int n) => upcomingVisitsSorted().take(n).toList();
+  List<Patient> topNeedingAttention(int n) =>
+      needingAttentionSorted().take(n).toList();
+  List<Patient> topUpcomingVisits(int n) =>
+      upcomingVisitsSorted().take(n).toList();
 
   // Lower number = higher priority for sort()
   int _critRank(PatientCriticality c) {

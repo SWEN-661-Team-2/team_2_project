@@ -104,10 +104,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     controller: _pageController,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: _carouselImages.length,
-                    itemBuilder: (_, i) => Image.asset(
-                      _carouselImages[i],
-                      fit: BoxFit.cover,
-                    ),
+                    itemBuilder: (_, i) =>
+                        Image.asset(_carouselImages[i], fit: BoxFit.cover),
                   ),
                 ),
 

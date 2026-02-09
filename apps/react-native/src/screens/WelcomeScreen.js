@@ -1,10 +1,3 @@
-/**
- * Welcome Screen
- * Equivalent to Flutter's WelcomeScreen
- * 
- * Displays app branding, carousel of images, and navigation to login
- */
-
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
@@ -15,15 +8,14 @@ import {
   SafeAreaView,
   Dimensions,
   Image,
-  FlatList,
-  Platform,
-  StatusBar,
 } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+
+const { width } = Dimensions.get('window');
 
 /**
- * Carousel Image Assets
- * In a real app, these would be imported from an assets folder
- * Using placeholder URLs for now
+ * Welcome Screen with Auto-Rotating Carousel
+ * Matches Flutter WelcomeScreen functionality
  */
 const CAROUSEL_IMAGES = [
   { id: '1', uri: 'https://via.placeholder.com/800x500?text=Caregiver+1' },
@@ -42,121 +34,93 @@ const CAROUSEL_INTERVAL = 4000; // 4 seconds
 const ANIMATION_DURATION = 300; // milliseconds
 
 export default function WelcomeScreen({ navigation }) {
-  const [currentIndex, setCurrentIndex] = useState(
-    Math.floor(Math.random() * CAROUSEL_IMAGES.length)
-  );
-  const flatListRef = useRef(null);
-  const timerRef = useRef(null);
-  const { width } = Dimensions.get('window');
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollViewRef = useRef(null);
 
-  // Setup carousel auto-rotation
+  // Carousel images (using placeholder URLs for now)
+  const carouselImages = [
+    'https://picsum.photos/800/500?random=1',
+    'https://picsum.photos/800/500?random=2',
+    'https://picsum.photos/800/500?random=3',
+    'https://picsum.photos/800/500?random=4',
+    'https://picsum.photos/800/500?random=5',
+    'https://picsum.photos/800/500?random=6',
+    'https://picsum.photos/800/500?random=7',
+    'https://picsum.photos/800/500?random=8',
+    'https://picsum.photos/800/500?random=9',
+    'https://picsum.photos/800/500?random=10',
+  ];
+
+  // Auto-rotate carousel every 4 seconds
   useEffect(() => {
-    // Jump to initial random index
-    if (flatListRef.current) {
-      setTimeout(() => {
-        if (flatListRef.current) {
-          flatListRef.current.scrollToIndex({
-            index: currentIndex,
-            animated: false,
-          });
-        }
-      }, 100);
-    }
-
-    // Setup timer for automatic carousel rotation
-    timerRef.current = setInterval(() => {
-      setCurrentIndex(prev => {
-        const next = (prev + 1) % CAROUSEL_IMAGES.length;
-        if (flatListRef.current) {
-          flatListRef.current.scrollToIndex({
-            index: next,
-            animated: true,
-          });
-        }
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => {
+        const next = (prev + 1) % carouselImages.length;
+        // Scroll to next image
+        scrollViewRef.current?.scrollTo({
+          x: next * width,
+          animated: true,
+        });
         return next;
       });
-    }, CAROUSEL_INTERVAL);
+    }, 4000);
 
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
+    return () => clearInterval(timer);
   }, []);
 
-  const handleNavigateToLogin = () => {
-    navigation.replace('Login');
-  };
-
-  const handleSettingsPress = () => {
-    // Settings button navigates to login (like Flutter version)
-    navigation.replace('Login');
-  };
-
-  const renderCarouselImage = ({ item }) => (
-    <View style={[styles.carouselItem, { width }]}>
-      <Image
-        source={{ uri: item.uri }}
-        style={styles.carouselImage}
-      />
-    </View>
-  );
-
-  const onViewableItemsChanged = ({ viewableItems: vItems }) => {
-    if (vItems.length > 0 && vItems[0].index !== null) {
-      setCurrentIndex(vItems[0].index);
-    }
+  const handleContinue = () => {
+    navigation.navigate('Login');
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F7FAFB" />
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Settings Button */}
-        <TouchableOpacity
-          testID="welcome_settings"
-          style={styles.settingsButton}
-          onPress={handleSettingsPress}
-        >
-          <Text style={styles.settingsIcon}>⚙️</Text>
-        </TouchableOpacity>
+    <View style={styles.container}>
+      <StatusBar style="auto" />
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Settings Icon (top right) */}
+        <View style={styles.settingsContainer}>
+          <TouchableOpacity
+            style={styles.settingsButton}
+            onPress={handleContinue}
+          >
+            <Text style={styles.settingsIcon}>⚙️</Text>
+          </TouchableOpacity>
+        </View>
 
-        {/* App Logo */}
+        {/* Logo */}
         <View style={styles.logoContainer}>
           <View style={styles.logo}>
-            <Text style={styles.logoText}>CC</Text>
+            <Text style={styles.logoText}>🏥</Text>
           </View>
         </View>
 
-        {/* App Title */}
+        {/* CareConnect Title */}
         <Text style={styles.title}>CareConnect</Text>
 
         {/* Carousel */}
         <View style={styles.carouselContainer}>
-          <FlatList
-            ref={flatListRef}
-            data={CAROUSEL_IMAGES}
-            renderItem={renderCarouselImage}
-            keyExtractor={item => item.id}
+          <ScrollView
+            ref={scrollViewRef}
             horizontal
             pagingEnabled
-            scrollEnabled={false}
             showsHorizontalScrollIndicator={false}
-            onViewableItemsChanged={onViewableItemsChanged}
-            viewabilityConfig={{
-              itemVisiblePercentThreshold: 50,
-            }}
-            scrollEventThrottle={16}
-          />
+            scrollEnabled={false}
+            style={styles.carousel}
+          >
+            {carouselImages.map((uri, index) => (
+              <Image
+                key={index}
+                source={{ uri }}
+                style={styles.carouselImage}
+                resizeMode="cover"
+              />
+            ))}
+          </ScrollView>
 
           {/* Carousel Indicators */}
-          <View style={styles.indicatorsContainer}>
-            {CAROUSEL_IMAGES.map((_, index) => (
+          <View style={styles.indicators}>
+            {carouselImages.map((_, index) => (
               <View
-                key={`indicator-${index}`}
+                key={index}
                 style={[
                   styles.indicator,
                   index === currentIndex && styles.indicatorActive,
@@ -168,12 +132,10 @@ export default function WelcomeScreen({ navigation }) {
 
         {/* Continue Button */}
         <TouchableOpacity
-          testID="welcome_continue"
           style={styles.continueButton}
-          onPress={handleNavigateToLogin}
-          activeOpacity={0.8}
+          onPress={handleContinue}
         >
-          <Text style={styles.continueButtonText}>Continue</Text>
+          <Text style={styles.continueText}>Continue</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -188,79 +150,73 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 16,
-    alignItems: 'center',
+    padding: 20,
+    paddingTop: 40,
+  },
+  settingsContainer: {
+    alignItems: 'flex-end',
+    marginBottom: 20,
   },
   settingsButton: {
-    alignSelf: 'flex-end',
-    padding: 12,
-    marginRight: -8,
+    padding: 8,
   },
   settingsIcon: {
     fontSize: 24,
   },
   logoContainer: {
-    marginVertical: 16,
+    alignItems: 'center',
+    marginBottom: 16,
   },
   logo: {
     width: 220,
     height: 220,
-    borderRadius: 16,
-    backgroundColor: '#E6F7F5',
+    borderRadius: 110,
+    backgroundColor: '#e0f2fe',
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   logoText: {
-    fontSize: 80,
-    fontWeight: '800',
-    color: '#0A7A8A',
+    fontSize: 120,
   },
   title: {
-    fontSize: 32,
+    fontSize: 48,
     fontWeight: '800',
     color: '#0A7A8A',
-    marginBottom: 24,
     textAlign: 'center',
+    marginBottom: 32,
   },
   carouselContainer: {
     width: '100%',
-    alignItems: 'center',
-    marginBottom: 32,
+    aspectRatio: 16 / 10,
+    marginBottom: 40,
+    borderRadius: 12,
+    overflow: 'hidden',
   },
-  carouselItem: {
-    justifyContent: 'center',
-    alignItems: 'center',
+  carousel: {
+    flex: 1,
   },
   carouselImage: {
-    height: Dimensions.get('window').width * (10 / 16),
-    width: '100%',
-    borderRadius: 12,
+    width: width - 40,
+    height: '100%',
   },
-  indicatorsContainer: {
+  indicators: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 12,
-    gap: 6,
+    position: 'absolute',
+    bottom: 16,
+    left: 0,
+    right: 0,
   },
   indicator: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#DDD',
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+    marginHorizontal: 4,
   },
   indicatorActive: {
-    backgroundColor: '#0A7A8A',
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    backgroundColor: '#ffffff',
+    width: 24,
   },
   continueButton: {
     width: '100%',
@@ -269,15 +225,15 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 2,
+    elevation: 4,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
-  continueButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
+  continueText: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });

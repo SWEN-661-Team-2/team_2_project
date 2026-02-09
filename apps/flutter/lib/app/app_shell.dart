@@ -79,10 +79,7 @@ class AppShellState extends State<AppShell> {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFB),
       body: SafeArea(
-        child: IndexedStack(
-          index: _index,
-          children: pages,
-        ),
+        child: IndexedStack(index: _index, children: pages),
       ),
       bottomNavigationBar: BottomNavigationBar(
         key: const Key('bottom_nav'),

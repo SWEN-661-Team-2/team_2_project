@@ -15,6 +15,8 @@ import ChangePasswordScreen from './src/screens/ChangePasswordScreen';
 // App Screens
 import CaregiverDashboardScreen from './src/screens/CaregiverDashboardScreen';
 import WelcomeScreen from './src/screens/WelcomeScreen';
+import LoginScreen from './src/screens/LoginScreen';
+import CaregiverDashboardScreen from './src/screens/CaregiverDashboardScreen';
 import TasksScreen from './src/screens/TasksScreen';
 import PatientsListScreen from './src/screens/PatientsListScreen';
 import ScheduleScreen from './src/screens/ScheduleScreen';
@@ -136,14 +138,28 @@ function RootNavigator() {
 
 /**
  * Main App Component
- * React Native equivalent of Flutter's MyApp
- * 
- * Uses React Navigation (equivalent to Flutter's Navigator)
+ * Updated with full navigation flow:
+ * Welcome → Login → Dashboard → (Patients/Tasks/Messages/Settings)
  */
 export default function App() {
   return (
     <AppProviders>
-      <RootNavigator />
+      <NavigationContainer>
+        <Stack.Navigator 
+          initialRouteName="Welcome"
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <Stack.Screen name="Welcome" component={WelcomeScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Dashboard" component={CaregiverDashboardScreen} />
+          <Stack.Screen name="Tasks" component={TasksScreen} />
+          <Stack.Screen name="Patients" component={PatientsScreen} />
+          <Stack.Screen name="Schedule" component={ScheduleScreen} />
+          <Stack.Screen name="Profile" component={ProfileScreen} />
+        </Stack.Navigator>
+      </NavigationContainer>
     </AppProviders>
   );
 }

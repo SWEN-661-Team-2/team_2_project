@@ -43,25 +43,31 @@ void main() {
     expect(back.phone, '555');
   });
 
-  test('CaregiverProfileStorage save then load returns saved profile', () async {
-    final storage = CaregiverProfileStorage();
-    const p = CaregiverProfile(name: 'Saved User', email: 'saved@test.com');
+  test(
+    'CaregiverProfileStorage save then load returns saved profile',
+    () async {
+      final storage = CaregiverProfileStorage();
+      const p = CaregiverProfile(name: 'Saved User', email: 'saved@test.com');
 
-    await storage.save(p);
-    final loaded = await storage.load();
+      await storage.save(p);
+      final loaded = await storage.load();
 
-    expect(loaded.name, 'Saved User');
-    expect(loaded.email, 'saved@test.com');
-  });
+      expect(loaded.name, 'Saved User');
+      expect(loaded.email, 'saved@test.com');
+    },
+  );
 
-  test('CaregiverProfileController updateField persists and updates profile', () async {
-    final controller = CaregiverProfileController();
+  test(
+    'CaregiverProfileController updateField persists and updates profile',
+    () async {
+      final controller = CaregiverProfileController();
 
-    await controller.load();
-    await controller.updateField(name: 'Updated Name', phone: '123');
+      await controller.load();
+      await controller.updateField(name: 'Updated Name', phone: '123');
 
-    expect(controller.profile.name, 'Updated Name');
-    expect(controller.profile.phone, '123');
-    expect(controller.loaded, true);
-  });
+      expect(controller.profile.name, 'Updated Name');
+      expect(controller.profile.phone, '123');
+      expect(controller.loaded, true);
+    },
+  );
 }

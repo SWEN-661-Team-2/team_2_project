@@ -11,10 +11,6 @@ Widget buildTestApp({String initialRoute = Routes.welcome}) {
         create: (_) => AppSettingsController(),
       ),
     ],
-    child: MaterialApp(
-      routes: Routes.map,
-      initialRoute: initialRoute,
-    ),
+    child: MaterialApp(routes: Routes.map, initialRoute: initialRoute),
   );
 }
-

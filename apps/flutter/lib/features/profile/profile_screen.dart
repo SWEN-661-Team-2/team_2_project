@@ -79,9 +79,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (!mounted) return;
     setState(() => _editing = false);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profile saved')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Profile saved')));
   }
 
   Future<void> _pickPhoto(CaregiverProfileController c) async {
@@ -114,9 +114,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     await c.updateField(photoPath: saved);
 
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Photo updated')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Photo updated')));
   }
 
   @override
@@ -161,10 +161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onTapPhoto: () => _pickPhoto(c),
                   isLeftAligned: settings.isLeftAligned,
                 )
-              : _ReadOnlyView(
-                  profile: c.profile,
-                  onEdit: () => _startEdit(c),
-                ),
+              : _ReadOnlyView(profile: c.profile, onEdit: () => _startEdit(c)),
         );
       },
     );
@@ -177,10 +174,7 @@ class _ReadOnlyView extends StatelessWidget {
   final CaregiverProfile profile;
   final VoidCallback onEdit;
 
-  const _ReadOnlyView({
-    required this.profile,
-    required this.onEdit,
-  });
+  const _ReadOnlyView({required this.profile, required this.onEdit});
 
   String _dash(String v) => v.trim().isEmpty ? '—' : v;
 
@@ -245,7 +239,9 @@ class _EditView extends StatelessWidget {
       key: const Key('profile_edit'),
       padding: const EdgeInsets.all(16),
       children: [
-        Center(child: _PhotoCircle(photoPath: profile.photoPath, onTap: onTapPhoto)),
+        Center(
+          child: _PhotoCircle(photoPath: profile.photoPath, onTap: onTapPhoto),
+        ),
         const SizedBox(height: 16),
         TextField(controller: name),
         TextField(controller: titleRole),
@@ -303,7 +299,11 @@ class _PhotoCircle extends StatelessWidget {
 
     return onTap == null
         ? circle
-        : InkWell(onTap: onTap, customBorder: const CircleBorder(), child: circle);
+        : InkWell(
+            onTap: onTap,
+            customBorder: const CircleBorder(),
+            child: circle,
+          );
   }
 }
 

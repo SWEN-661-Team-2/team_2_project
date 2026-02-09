@@ -28,10 +28,10 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   List<SingleChildWidget> baseProviders() => <SingleChildWidget>[
-        ChangeNotifierProvider<AppSettingsController>(
-          create: (_) => AppSettingsController(),
-        ),
-      ];
+    ChangeNotifierProvider<AppSettingsController>(
+      create: (_) => AppSettingsController(),
+    ),
+  ];
 
   testWidgets('AppShell builds with bottom navigation', (tester) async {
     await pumpAppWithRoutes(
