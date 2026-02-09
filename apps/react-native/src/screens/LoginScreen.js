@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useHandedness } from '../contexts/AppProviders';
+import { Image } from 'react-native';
 
 /**
  * Login Screen
@@ -36,7 +37,7 @@ export default function LoginScreen({ navigation }) {
 
     // If valid, navigate to dashboard
     if (!hasEmailError && !hasPasswordError) {
-      navigation.navigate('Dashboard');
+      navigation.navigate('MainApp');
     }
   };
 
@@ -55,7 +56,11 @@ export default function LoginScreen({ navigation }) {
         {/* Logo */}
         <View style={styles.logoContainer}>
           <View style={styles.logo}>
-            <Text style={styles.logoEmoji}>🏥</Text>
+            <Image 
+              source={require('../../assets/logo/careconnect_logo.png')}
+              style={{ width: 100, height: 100 }}
+              resizeMode="contain"
+            />
           </View>
         </View>
 

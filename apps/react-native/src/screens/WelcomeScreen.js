@@ -13,42 +13,22 @@ import { StatusBar } from 'expo-status-bar';
 
 const { width } = Dimensions.get('window');
 
-/**
- * Welcome Screen with Auto-Rotating Carousel
- * Matches Flutter WelcomeScreen functionality
- */
-const CAROUSEL_IMAGES = [
-  { id: '1', uri: 'https://via.placeholder.com/800x500?text=Caregiver+1' },
-  { id: '2', uri: 'https://via.placeholder.com/800x500?text=Caregiver+2' },
-  { id: '3', uri: 'https://via.placeholder.com/800x500?text=Caregiver+3' },
-  { id: '4', uri: 'https://via.placeholder.com/800x500?text=Caregiver+4' },
-  { id: '5', uri: 'https://via.placeholder.com/800x500?text=Caregiver+5' },
-  { id: '6', uri: 'https://via.placeholder.com/800x500?text=Caregiver+6' },
-  { id: '7', uri: 'https://via.placeholder.com/800x500?text=Caregiver+7' },
-  { id: '8', uri: 'https://via.placeholder.com/800x500?text=Caregiver+8' },
-  { id: '9', uri: 'https://via.placeholder.com/800x500?text=Caregiver+9' },
-  { id: '10', uri: 'https://via.placeholder.com/800x500?text=Caregiver+10' },
-];
-
-const CAROUSEL_INTERVAL = 4000; // 4 seconds
-const ANIMATION_DURATION = 300; // milliseconds
-
 export default function WelcomeScreen({ navigation }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollViewRef = useRef(null);
 
-  // Carousel images (using placeholder URLs for now)
+  // Carousel images - using local assets
   const carouselImages = [
-    'https://picsum.photos/800/500?random=1',
-    'https://picsum.photos/800/500?random=2',
-    'https://picsum.photos/800/500?random=3',
-    'https://picsum.photos/800/500?random=4',
-    'https://picsum.photos/800/500?random=5',
-    'https://picsum.photos/800/500?random=6',
-    'https://picsum.photos/800/500?random=7',
-    'https://picsum.photos/800/500?random=8',
-    'https://picsum.photos/800/500?random=9',
-    'https://picsum.photos/800/500?random=10',
+    require('../../assets/carousel/caregiver_pair_01.jpg'),
+    require('../../assets/carousel/caregiver_pair_02.jpg'),
+    require('../../assets/carousel/caregiver_pair_03.jpg'),
+    require('../../assets/carousel/caregiver_pair_04.jpg'),
+    require('../../assets/carousel/caregiver_pair_05.jpg'),
+    require('../../assets/carousel/caregiver_pair_06.jpg'),
+    require('../../assets/carousel/caregiver_pair_07.jpg'),
+    require('../../assets/carousel/caregiver_pair_08.jpg'),
+    require('../../assets/carousel/caregiver_pair_09.jpg'),
+    require('../../assets/carousel/caregiver_pair_10.jpg'),
   ];
 
   // Auto-rotate carousel every 4 seconds
@@ -73,7 +53,7 @@ export default function WelcomeScreen({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar style="auto" />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Settings Icon (top right) */}
@@ -87,10 +67,12 @@ export default function WelcomeScreen({ navigation }) {
         </View>
 
         {/* Logo */}
-        <View style={styles.logoContainer}>
-          <View style={styles.logo}>
-            <Text style={styles.logoText}>🏥</Text>
-          </View>
+        <View style={styles.logo}>
+          <Image 
+            source={require('../../assets/logo/careconnect_logo.png')}
+            style={{ width: 120, height: 120 }}
+            resizeMode="contain"
+          />
         </View>
 
         {/* CareConnect Title */}
@@ -109,7 +91,7 @@ export default function WelcomeScreen({ navigation }) {
             {carouselImages.map((uri, index) => (
               <Image
                 key={index}
-                source={{ uri }}
+                source={uri}
                 style={styles.carouselImage}
                 resizeMode="cover"
               />
