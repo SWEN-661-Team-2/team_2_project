@@ -53,14 +53,15 @@ class CaregiverTask {
     );
   }
 
-  bool get isOverdue => status != TaskStatus.completed && DateTime.now().isAfter(dueDate);
-    bool get isDueToday {
+  bool get isOverdue =>
+      status != TaskStatus.completed && DateTime.now().isAfter(dueDate);
+  bool get isDueToday {
     if (status == TaskStatus.completed) return false;
-    if (isOverdue) return false;  // Exclude overdue tasks
-    
+    if (isOverdue) return false; // Exclude overdue tasks
+
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final taskDay = DateTime(dueDate.year, dueDate.month, dueDate.day);
     return today == taskDay;
-    }
+  }
 }

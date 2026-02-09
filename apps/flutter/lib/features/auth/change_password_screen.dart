@@ -68,13 +68,17 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               prefixIcon: isLeftAligned
                   ? IconButton(
                       onPressed: () => setState(() => _showOld = !_showOld),
-                      icon: Icon(_showOld ? Icons.visibility_off : Icons.visibility),
+                      icon: Icon(
+                        _showOld ? Icons.visibility_off : Icons.visibility,
+                      ),
                     )
                   : null,
               suffixIcon: !isLeftAligned
                   ? IconButton(
                       onPressed: () => setState(() => _showOld = !_showOld),
-                      icon: Icon(_showOld ? Icons.visibility_off : Icons.visibility),
+                      icon: Icon(
+                        _showOld ? Icons.visibility_off : Icons.visibility,
+                      ),
                     )
                   : null,
             ),
@@ -89,13 +93,17 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               prefixIcon: isLeftAligned
                   ? IconButton(
                       onPressed: () => setState(() => _showNew = !_showNew),
-                      icon: Icon(_showNew ? Icons.visibility_off : Icons.visibility),
+                      icon: Icon(
+                        _showNew ? Icons.visibility_off : Icons.visibility,
+                      ),
                     )
                   : null,
               suffixIcon: !isLeftAligned
                   ? IconButton(
                       onPressed: () => setState(() => _showNew = !_showNew),
-                      icon: Icon(_showNew ? Icons.visibility_off : Icons.visibility),
+                      icon: Icon(
+                        _showNew ? Icons.visibility_off : Icons.visibility,
+                      ),
                     )
                   : null,
             ),
@@ -110,14 +118,20 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               errorText: _error,
               prefixIcon: isLeftAligned
                   ? IconButton(
-                      onPressed: () => setState(() => _showConfirm = !_showConfirm),
-                      icon: Icon(_showConfirm ? Icons.visibility_off : Icons.visibility),
+                      onPressed: () =>
+                          setState(() => _showConfirm = !_showConfirm),
+                      icon: Icon(
+                        _showConfirm ? Icons.visibility_off : Icons.visibility,
+                      ),
                     )
                   : null,
               suffixIcon: !isLeftAligned
                   ? IconButton(
-                      onPressed: () => setState(() => _showConfirm = !_showConfirm),
-                      icon: Icon(_showConfirm ? Icons.visibility_off : Icons.visibility),
+                      onPressed: () =>
+                          setState(() => _showConfirm = !_showConfirm),
+                      icon: Icon(
+                        _showConfirm ? Icons.visibility_off : Icons.visibility,
+                      ),
                     )
                   : null,
             ),

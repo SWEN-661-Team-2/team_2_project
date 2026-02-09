@@ -57,7 +57,7 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
   Widget build(BuildContext context) {
     final controller = context.watch<AppSettingsController>();
     final isLeftAligned = controller.isLeftAligned;
-    
+
     final repo = PatientsRepository.instance;
 
     List<Patient> patients;
@@ -86,7 +86,8 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
                   widget.showBackButton
                       ? IconButton(
                           icon: const Icon(Icons.arrow_back),
-                          onPressed: () => AppShell.of(context)?.goBackToDashboard(),
+                          onPressed: () =>
+                              AppShell.of(context)?.goBackToDashboard(),
                           tooltip: 'Back to dashboard',
                         )
                       : IconButton(
@@ -99,7 +100,8 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
                   widget.showBackButton
                       ? IconButton(
                           icon: const Icon(Icons.arrow_back),
-                          onPressed: () => AppShell.of(context)?.goBackToDashboard(),
+                          onPressed: () =>
+                              AppShell.of(context)?.goBackToDashboard(),
                           tooltip: 'Back to dashboard',
                         )
                       : IconButton(
@@ -112,8 +114,8 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
           ),
           // Patient list
           Expanded(
-            child: patients.isEmpty 
-                ? const Center(child: Text('No patients found')) 
+            child: patients.isEmpty
+                ? const Center(child: Text('No patients found'))
                 : ListView.builder(
                     key: const Key('patients_list'),
                     padding: const EdgeInsets.all(16),
@@ -131,15 +133,15 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
                           );
                         case PatientsViewMode.upcomingVisits:
                           return _VisitPatientCard(
-                            key: Key('patient_$index'), 
+                            key: Key('patient_$index'),
                             patient: patient,
-                            index: index, 
+                            index: index,
                           );
                         case PatientsViewMode.all:
                           return _PatientCard(
-                            key: Key('patient_$index'), 
+                            key: Key('patient_$index'),
                             patient: patient,
-                            index: index, 
+                            index: index,
                           );
                       }
                     },
@@ -153,7 +155,7 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
   void _showFilterMenu(BuildContext context) {
     final controller = context.read<AppSettingsController>();
     final isLeftAligned = controller.isLeftAligned;
-    
+
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
@@ -186,17 +188,25 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
                   title: const Text('Upcoming Visits'),
                   selected: _currentMode == PatientsViewMode.upcomingVisits,
                   onTap: () {
-                    setState(() => _currentMode = PatientsViewMode.upcomingVisits);
+                    setState(
+                      () => _currentMode = PatientsViewMode.upcomingVisits,
+                    );
                     Navigator.pop(ctx);
                   },
                 ),
                 ListTile(
-                  leading: isLeftAligned ? const Icon(Icons.warning_amber) : null,
-                  trailing: !isLeftAligned ? const Icon(Icons.warning_amber) : null,
+                  leading: isLeftAligned
+                      ? const Icon(Icons.warning_amber)
+                      : null,
+                  trailing: !isLeftAligned
+                      ? const Icon(Icons.warning_amber)
+                      : null,
                   title: const Text('Needing Attention'),
                   selected: _currentMode == PatientsViewMode.needingAttention,
                   onTap: () {
-                    setState(() => _currentMode = PatientsViewMode.needingAttention);
+                    setState(
+                      () => _currentMode = PatientsViewMode.needingAttention,
+                    );
                     Navigator.pop(ctx);
                   },
                 ),
@@ -218,12 +228,12 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
 // _PriorityPatientCard
 class _PriorityPatientCard extends StatelessWidget {
   final Patient patient;
-  final int index; 
+  final int index;
 
   const _PriorityPatientCard({
-    super.key, 
+    super.key,
     required this.patient,
-    required this.index, 
+    required this.index,
   });
 
   @override
@@ -238,7 +248,7 @@ class _PriorityPatientCard extends StatelessWidget {
     // Build the tag widget (only if there's a criticality)
     final tagWidget = critTag.isNotEmpty
         ? Container(
-            key: Key('patient_tag_$index'), 
+            key: Key('patient_tag_$index'),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: critColor.withValues(alpha: 0.15),
@@ -287,12 +297,9 @@ class _PriorityPatientCard extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Tag ALWAYS on right
-              if (tagWidget != null) ...[
-                const SizedBox(width: 12),
-                tagWidget,
-              ],
+              if (tagWidget != null) ...[const SizedBox(width: 12), tagWidget],
             ],
           ),
         ),
@@ -355,7 +362,7 @@ class _VisitPatientCard extends StatelessWidget {
     super.key,
     required this.patient,
     required this.index,
-    });
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -369,7 +376,7 @@ class _VisitPatientCard extends StatelessWidget {
     // Build the tag widget (only if there's a criticality)
     final tagWidget = critTag.isNotEmpty
         ? Container(
-          key: Key('patient_tag_$index'),
+            key: Key('patient_tag_$index'),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: critColor.withValues(alpha: 0.15),
@@ -411,19 +418,13 @@ class _VisitPatientCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      visitText,
-                      style: const TextStyle(color: Colors.grey),
-                    ),
+                    Text(visitText, style: const TextStyle(color: Colors.grey)),
                   ],
                 ),
               ),
-              
+
               // Tag ALWAYS on right
-              if (tagWidget != null) ...[
-                const SizedBox(width: 12),
-                tagWidget,
-              ],
+              if (tagWidget != null) ...[const SizedBox(width: 12), tagWidget],
             ],
           ),
         ),
@@ -469,11 +470,7 @@ class _PatientCard extends StatelessWidget {
   final Patient patient;
   final int index;
 
-  const _PatientCard({
-    super.key,
-    required this.patient,
-    required this.index,
-    });
+  const _PatientCard({super.key, required this.patient, required this.index});
 
   @override
   Widget build(BuildContext context) {
@@ -491,7 +488,7 @@ class _PatientCard extends StatelessWidget {
     // Build the tag widget (only if there's a criticality)
     final tagWidget = critTag.isNotEmpty
         ? Container(
-          key: Key('patient_tag_$index'),
+            key: Key('patient_tag_$index'),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: critColor.withValues(alpha: 0.15),
@@ -544,12 +541,9 @@ class _PatientCard extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Tag ALWAYS on right
-              if (tagWidget != null) ...[
-                const SizedBox(width: 12),
-                tagWidget,
-              ],
+              if (tagWidget != null) ...[const SizedBox(width: 12), tagWidget],
             ],
           ),
         ),
@@ -598,4 +592,3 @@ class _PatientCard extends StatelessWidget {
     }
   }
 }
-

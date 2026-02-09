@@ -56,7 +56,7 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
   Widget build(BuildContext context) {
     final controller = context.watch<AppSettingsController>();
     final isLeftAligned = controller.isLeftAligned;
-    
+
     final repo = MessagesRepository.instance;
     final messages = _currentMode == MessagesViewMode.all
         ? repo.all()
@@ -75,7 +75,8 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
                   widget.showBackButton
                       ? IconButton(
                           icon: const Icon(Icons.arrow_back),
-                          onPressed: () => AppShell.of(context)?.goBackToDashboard(),
+                          onPressed: () =>
+                              AppShell.of(context)?.goBackToDashboard(),
                           tooltip: 'Back to dashboard',
                         )
                       : IconButton(
@@ -88,7 +89,8 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
                   widget.showBackButton
                       ? IconButton(
                           icon: const Icon(Icons.arrow_back),
-                          onPressed: () => AppShell.of(context)?.goBackToDashboard(),
+                          onPressed: () =>
+                              AppShell.of(context)?.goBackToDashboard(),
                           tooltip: 'Back to dashboard',
                         )
                       : IconButton(
@@ -125,7 +127,7 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
   void _showFilterMenu(BuildContext context) {
     final controller = context.read<AppSettingsController>();
     final isLeftAligned = controller.isLeftAligned;
-    
+
     showModalBottomSheet(
       context: context,
       showDragHandle: true,
@@ -153,8 +155,12 @@ class _MessagesListScreenState extends State<MessagesListScreen> {
                   },
                 ),
                 ListTile(
-                  leading: isLeftAligned ? const Icon(Icons.mark_email_unread) : null,
-                  trailing: !isLeftAligned ? const Icon(Icons.mark_email_unread) : null,
+                  leading: isLeftAligned
+                      ? const Icon(Icons.mark_email_unread)
+                      : null,
+                  trailing: !isLeftAligned
+                      ? const Icon(Icons.mark_email_unread)
+                      : null,
                   title: const Text('Unread Only'),
                   selected: _currentMode == MessagesViewMode.unread,
                   onTap: () {
@@ -185,13 +191,9 @@ class _MessageCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final timestampText = formatDtYmdHmm(message.sentAt.toLocal());
-    
+
     final unreadIndicator = message.unread
-        ? const Icon(
-            Icons.circle,
-            color: Colors.blue,
-            size: 12,
-          )
+        ? const Icon(Icons.circle, color: Colors.blue, size: 12)
         : const SizedBox(width: 12);
 
     return Card(
@@ -218,7 +220,7 @@ class _MessageCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 12),
               ],
-              
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,7 +234,7 @@ class _MessageCard extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: message.unread
-                                  ? FontWeight.bold 
+                                  ? FontWeight.bold
                                   : FontWeight.w600,
                             ),
                             maxLines: 1,
@@ -255,7 +257,7 @@ class _MessageCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: message.unread
-                            ? FontWeight.w600 
+                            ? FontWeight.w600
                             : FontWeight.normal,
                         color: Colors.grey[700],
                       ),
@@ -265,17 +267,14 @@ class _MessageCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       message.preview,
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
               ),
-              
+
               if (!isLeftAligned) ...[
                 const SizedBox(width: 12),
                 Padding(

@@ -14,11 +14,10 @@ class Routes {
   static const changePassword = '/change-password';
 
   static Map<String, WidgetBuilder> get map => {
-        welcome: (_) => const WelcomeScreen(),
-        login: (_) => const LoginScreen(),
-        app: (_) => const AppShell(),
-        profile: (_) => const ProfileScreen(),
-        changePassword: (_) => const ChangePasswordScreen(),
-      };
+    welcome: (_) => const WelcomeScreen(),
+    login: (_) => const LoginScreen(),
+    app: (_) => const AppShell(),
+    profile: (_) => const ProfileScreen(),
+    changePassword: (_) => const ChangePasswordScreen(),
+  };
 }
-

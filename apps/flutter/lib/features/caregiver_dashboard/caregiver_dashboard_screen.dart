@@ -20,7 +20,7 @@ class CaregiverDashboardScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = context.watch<AppSettingsController>();
     final isLeftAligned = controller.isLeftAligned;
-    
+
     final repo = PatientsRepository.instance;
     final msgRepo = MessagesRepository.instance;
 
@@ -37,58 +37,65 @@ class CaregiverDashboardScreen extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             maxLines: 1,
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-        ),
+          ),
         ),
         IconButton(
           tooltip: 'App information',
           icon: const Icon(Icons.info_outline),
           onPressed: () {},
         ),
-      ]
+      ],
     );
 
-    Widget kpiGrid({required int crossAxisCount, required double mainAxisExtent}) =>
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: crossAxisCount,
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            mainAxisExtent: mainAxisExtent,
+    Widget kpiGrid({
+      required int crossAxisCount,
+      required double mainAxisExtent,
+    }) => GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        mainAxisSpacing: 12,
+        crossAxisSpacing: 12,
+        mainAxisExtent: mainAxisExtent,
+      ),
+      itemCount: 4,
+      itemBuilder: (context, index) {
+        final cards = [
+          _StatCard(
+            icon: Icons.people,
+            value: '${repo.allPatients().length}',
+            label: 'Active Patients',
+            onTap: () =>
+                AppShell.of(context)?.openPatients(PatientsViewMode.all),
           ),
-          itemCount: 4,
-          itemBuilder: (context, index) {
-            final cards = [
-              _StatCard(
-                icon: Icons.people,
-                value: '${repo.allPatients().length}',
-                label: 'Active Patients',
-                onTap: () => AppShell.of(context)?.openPatients(PatientsViewMode.all),
-              ),
-              _StatCard(
-                icon: Icons.schedule,
-                value: '${repo.upcomingVisitsSorted().length}',
-                label: 'Upcoming Visits',
-                onTap: () => AppShell.of(context)?.openPatients(PatientsViewMode.upcomingVisits),
-              ),
-              _StatCard(
-                icon: Icons.warning_amber,
-                value: '${repo.needingAttentionSorted().length}',
-                label: 'Patients Needing Attention',
-                onTap: () =>
-                    AppShell.of(context)?.openPatients(PatientsViewMode.needingAttention),
-              ),
-              _StatCard(
-                icon: Icons.chat_bubble_outline,
-                value: '${msgRepo.unreadCount()}',
-                label: 'Messages / Unread',
-                onTap: () => AppShell.of(context)?.openMessages(MessagesViewMode.unread),
-              ),
-            ];
-            return cards[index];
-          },
-        );
+          _StatCard(
+            icon: Icons.schedule,
+            value: '${repo.upcomingVisitsSorted().length}',
+            label: 'Upcoming Visits',
+            onTap: () => AppShell.of(
+              context,
+            )?.openPatients(PatientsViewMode.upcomingVisits),
+          ),
+          _StatCard(
+            icon: Icons.warning_amber,
+            value: '${repo.needingAttentionSorted().length}',
+            label: 'Patients Needing Attention',
+            onTap: () => AppShell.of(
+              context,
+            )?.openPatients(PatientsViewMode.needingAttention),
+          ),
+          _StatCard(
+            icon: Icons.chat_bubble_outline,
+            value: '${msgRepo.unreadCount()}',
+            label: 'Messages / Unread',
+            onTap: () =>
+                AppShell.of(context)?.openMessages(MessagesViewMode.unread),
+          ),
+        ];
+        return cards[index];
+      },
+    );
 
     Widget needingSection() => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,13 +110,16 @@ class CaregiverDashboardScreen extends StatelessWidget {
           ),
 
         Align(
-          alignment: isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
+          alignment: isLeftAligned
+              ? Alignment.centerLeft
+              : Alignment.centerRight,
           child: Semantics(
             button: true,
             label: 'View all patients needing attention',
             child: TextButton(
-              onPressed: () =>
-                  AppShell.of(context)?.openPatients(PatientsViewMode.needingAttention),
+              onPressed: () => AppShell.of(
+                context,
+              )?.openPatients(PatientsViewMode.needingAttention),
               child: const Text('View All'),
             ),
           ),
@@ -132,13 +142,16 @@ class CaregiverDashboardScreen extends StatelessWidget {
           ),
 
         Align(
-          alignment: isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
+          alignment: isLeftAligned
+              ? Alignment.centerLeft
+              : Alignment.centerRight,
           child: Semantics(
             button: true,
             label: 'View all upcoming visits',
             child: TextButton(
-              onPressed: () =>
-                  AppShell.of(context)?.openPatients(PatientsViewMode.upcomingVisits),
+              onPressed: () => AppShell.of(
+                context,
+              )?.openPatients(PatientsViewMode.upcomingVisits),
               child: const Text('View All'),
             ),
           ),
@@ -296,7 +309,10 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      ),
     );
   }
 }
@@ -433,15 +449,11 @@ class _PatientRow extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  Text(
-                    subtitle,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+                  Text(subtitle, maxLines: 2, overflow: TextOverflow.ellipsis),
                 ],
               ),
             ),
-            
+
             // Tag ALWAYS on right
             if (tagWidget != null) ...[
               const SizedBox(width: 12),
