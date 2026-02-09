@@ -1,10 +1,3 @@
-/**
- * Messages List Screen
- * Equivalent to Flutter's MessagesListScreen
- * 
- * Displays messages with filtering options (all/unread)
- */
-
 import React, { useState } from 'react';
 import {
   View,
@@ -20,6 +13,7 @@ import { useMessages } from '../contexts/MessagesContext';
 import { useHandedness } from '../contexts/AppProviders';
 import MessageCard from './components/MessageCard';
 import FilterMenu from './components/FilterMenu';
+import HandednessToggleOverlay from '../components/HandednessToggleOverlay';
 
 export default function MessagesListScreen({ navigation, route }) {
   const { messages, viewMode, setViewMode, unreadCount } = useMessages();
@@ -109,7 +103,9 @@ export default function MessagesListScreen({ navigation, route }) {
         onClose={() => setFilterModalVisible(false)}
         isLeftHanded={isLeftHanded}
       />
+      <HandednessToggleOverlay />
     </SafeAreaView>
+    
   );
 }
 

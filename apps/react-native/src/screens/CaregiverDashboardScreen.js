@@ -10,7 +10,7 @@ import {
 import { useHandedness } from '../contexts/AppProviders';
 import { PatientsRepository, getCriticalityText, getCriticalityTag, getCriticalityColor } from '../data/PatientsRepository';
 import { MessagesRepository } from '../data/MessagesRepository';
-
+import HandednessToggleOverlay from '../components/HandednessToggleOverlay';
 const { width } = Dimensions.get('window');
 const TABLET_BREAKPOINT = 600;
 
@@ -76,132 +76,54 @@ export default function CaregiverDashboardScreen({ navigation }) {
         </View>
 
         {/* KPI Tiles Grid */}
-        <View style={[
-          styles.kpiGrid,
-          isTablet && styles.kpiGridTablet,
-        ]}>
-          {/* Active Patients */}
-          <StatCard
-            icon="👥"
-            value={String(allPatients.length)}
-            label="Active Patients"
-            onPress={handleActivePatients}
-          />
-
-          {/* Upcoming Visits */}
-          <StatCard
-            icon="📅"
-            value={String(upcomingVisits.length)}
-            label="Upcoming Visits"
-            onPress={handleUpcomingVisits}
-          />
-
-          {/* Patients Needing Attention */}
-          <StatCard
-            icon="⚠️"
-            value={String(needingAttention.length)}
-            label="Patients Needing Attention"
-            onPress={handleNeedingAttention}
-          />
-
-          {/* Unread Messages */}
-          <StatCard
-            icon="💬"
-            value={String(unreadMessages)}
-            label="Messages / Unread"
-            onPress={handleMessages}
-          />
+        <View style={[styles.kpiGrid, isTablet && styles.kpiGridTablet]}>
+          <StatCard icon="👥" value={String(allPatients.length)} label="Active Patients" onPress={handleActivePatients} />
+          <StatCard icon="📅" value={String(upcomingVisits.length)} label="Upcoming Visits" onPress={handleUpcomingVisits} />
+          <StatCard icon="⚠️" value={String(needingAttention.length)} label="Patients Needing Attention" onPress={handleNeedingAttention} />
+          <StatCard icon="💬" value={String(unreadMessages)} label="Messages / Unread" onPress={handleMessages} />
         </View>
 
         {/* Patient Lists Section */}
         {isTablet ? (
-          // Tablet: Side by side
           <View style={styles.sectionsRow}>
             <View style={styles.sectionHalf}>
               <SectionHeader title="Patients Needing Attention" />
               {needingTop3.map((patient) => (
-                <PatientRow
-                  key={patient.id}
-                  name={patient.fullName}
-                  subtitle={`Priority: ${getCriticalityText(patient.criticality)}`}
-                  tag={getCriticalityTag(patient.criticality)}
-                  color={getCriticalityColor(patient.criticality)}
-                  isLeftAligned={isLeftHanded}
-                />
+                <PatientRow key={patient.id} name={patient.fullName} subtitle={`Priority: ${getCriticalityText(patient.criticality)}`} tag={getCriticalityTag(patient.criticality)} color={getCriticalityColor(patient.criticality)} isLeftAligned={isLeftHanded} />
               ))}
-              <ViewAllButton
-                onPress={handleNeedingAttention}
-                isLeftAligned={isLeftHanded}
-              />
+              <ViewAllButton onPress={handleNeedingAttention} isLeftAligned={isLeftHanded} />
             </View>
 
             <View style={styles.sectionHalf}>
               <SectionHeader title="Upcoming Visits" />
               {upcomingTop3.map((patient) => (
-                <PatientRow
-                  key={patient.id}
-                  name={patient.fullName}
-                  subtitle={
-                    patient.nextVisit
-                      ? `Visit: ${formatDateTime(patient.nextVisit)}`
-                      : 'No visit scheduled'
-                  }
-                  tag={getCriticalityTag(patient.criticality)}
-                  color={getCriticalityColor(patient.criticality)}
-                  isLeftAligned={isLeftHanded}
-                />
+                <PatientRow key={patient.id} name={patient.fullName} subtitle={patient.nextVisit ? `Visit: ${formatDateTime(patient.nextVisit)}` : 'No visit scheduled'} tag={getCriticalityTag(patient.criticality)} color={getCriticalityColor(patient.criticality)} isLeftAligned={isLeftHanded} />
               ))}
-              <ViewAllButton
-                onPress={handleUpcomingVisits}
-                isLeftAligned={isLeftHanded}
-              />
+              <ViewAllButton onPress={handleUpcomingVisits} isLeftAligned={isLeftHanded} />
             </View>
           </View>
         ) : (
-          // Mobile: Stacked
           <>
             <View style={styles.section}>
               <SectionHeader title="Patients Needing Attention" />
               {needingTop3.map((patient) => (
-                <PatientRow
-                  key={patient.id}
-                  name={patient.fullName}
-                  subtitle={`Priority: ${getCriticalityText(patient.criticality)}`}
-                  tag={getCriticalityTag(patient.criticality)}
-                  color={getCriticalityColor(patient.criticality)}
-                  isLeftAligned={isLeftHanded}
-                />
+                <PatientRow key={patient.id} name={patient.fullName} subtitle={`Priority: ${getCriticalityText(patient.criticality)}`} tag={getCriticalityTag(patient.criticality)} color={getCriticalityColor(patient.criticality)} isLeftAligned={isLeftHanded} />
               ))}
-              <ViewAllButton
-                onPress={handleNeedingAttention}
-                isLeftAligned={isLeftHanded}
-              />
+              <ViewAllButton onPress={handleNeedingAttention} isLeftAligned={isLeftHanded} />
             </View>
 
             <View style={styles.section}>
               <SectionHeader title="Upcoming Visits" />
               {upcomingTop3.map((patient) => (
-                <PatientRow
-                  key={patient.id}
-                  name={patient.fullName}
-                  subtitle={
-                    patient.nextVisit
-                      ? `Visit: ${formatDateTime(patient.nextVisit)}`
-                      : 'No visit scheduled'
-                  }
-                  tag={getCriticalityTag(patient.criticality)}
-                  color={getCriticalityColor(patient.criticality)}
-                  isLeftAligned={isLeftHanded}
-                />
+                <PatientRow key={patient.id} name={patient.fullName} subtitle={patient.nextVisit ? `Visit: ${formatDateTime(patient.nextVisit)}` : 'No visit scheduled'} tag={getCriticalityTag(patient.criticality)} color={getCriticalityColor(patient.criticality)} isLeftAligned={isLeftHanded} />
               ))}
-              <ViewAllButton
-                onPress={handleUpcomingVisits}
-                isLeftAligned={isLeftHanded}
-              />
+              <ViewAllButton onPress={handleUpcomingVisits} isLeftAligned={isLeftHanded} />
             </View>
           </>
         )}
       </ScrollView>
+      
+      <HandednessToggleOverlay />  
     </View>
   );
 }
@@ -242,7 +164,7 @@ function PatientRow({ name, subtitle, tag, color, isLeftAligned }) {
         <View
           style={[
             styles.patientTag,
-            { backgroundColor: `${color}26` }, // 15% opacity
+            { backgroundColor: `${color}26` },
           ]}
         >
           <Text style={[styles.patientTagText, { color }]}>{tag}</Text>

@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { useProfile, ProfileProvider } from '../contexts/ProfileContext';
 import * as ImagePicker from 'expo-image-picker';
+import HandednessToggleOverlay from '../components/HandednessToggleOverlay';
 
 function ProfileInner({ navigation }) {
   const { profile, loaded, updateField, savePhoto, load } = useProfile();
@@ -134,6 +135,8 @@ function ProfileInner({ navigation }) {
           </TouchableOpacity>
         </View>
       )}
+      <HandednessToggleOverlay />
+        <HandednessToggleOverlay />
     </ScrollView>
   );
 }
