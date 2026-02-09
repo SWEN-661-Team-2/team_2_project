@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   FlatList,
 } from 'react-native';
 import { useHandedness, useTheme } from '../contexts/AppProviders';
+import TasksRepository from '../repositories/TasksRepository';
 
 /**
  * Tasks Screen
@@ -18,22 +19,28 @@ export default function TasksScreen({ navigation }) {
   const { isLeftHanded } = useHandedness();
   const { colors } = useTheme();
   const [filter, setFilter] = useState('all');
+  const repo = TasksRepository;
 
-  const [tasks] = useState([
-    { id: '1', title: 'Check patient vitals', status: 'pending', priority: 'high', patient: 'John Doe' },
-    { id: '2', title: 'Update medication log', status: 'completed', priority: 'medium', patient: 'Jane Smith' },
-    { id: '3', title: 'Schedule follow-up', status: 'pending', priority: 'low', patient: 'Bob Johnson' },
-    { id: '4', title: 'Document consultation', status: 'pending', priority: 'high', patient: 'Alice Williams' },
-    { id: '5', title: 'Review test results', status: 'completed', priority: 'medium', patient: 'Charlie Brown' },
-  ]);
+  const tasks = useMemo(() => repo.all(), [repo]);
 
-  const filteredTasks = tasks.filter(task => {
-    if (filter === 'all') return true;
-    if (filter === 'pending') return task.status === 'pending';
-    if (filter === 'completed') return task.status === 'completed';
-    if (filter === 'high') return task.priority === 'high';
-    return true;
-  });
+  const filteredTasks = useMemo(() => {
+    switch (filter) {
+      case 'all':
+        return tasks;
+      case 'pending':
+        return repo.pending();
+      case 'completed':
+        return repo.completed();
+      case 'high':
+        return tasks.filter(t => t.priority === 'high');
+      case 'overdue':
+        return repo.overdue();
+      case 'dueToday':
+        return repo.dueToday();
+      default:
+        return tasks;
+    }
+  }, [filter, repo, tasks]);
 
   const FilterButton = ({ filterValue, label, count }) => (
     <TouchableOpacity
@@ -114,17 +121,27 @@ export default function TasksScreen({ navigation }) {
         <FilterButton
           filterValue="pending"
           label="Pending"
-          count={tasks.filter(t => t.status === 'pending').length}
+          count={repo.pending().length}
         />
         <FilterButton
           filterValue="completed"
           label="Completed"
-          count={tasks.filter(t => t.status === 'completed').length}
+          count={repo.completed().length}
         />
         <FilterButton
           filterValue="high"
           label="High Priority"
           count={tasks.filter(t => t.priority === 'high').length}
+        />
+        <FilterButton
+          filterValue="dueToday"
+          label="Due Today"
+          count={repo.dueToday().length}
+        />
+        <FilterButton
+          filterValue="overdue"
+          label="Overdue"
+          count={repo.overdue().length}
         />
       </ScrollView>
 
