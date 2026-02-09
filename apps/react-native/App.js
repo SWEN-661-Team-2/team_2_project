@@ -1,4 +1,5 @@
 import React from 'react';
+import { View, Text, SafeAreaView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AppProviders } from './src/contexts/AppProviders';
@@ -31,10 +32,12 @@ const Stack = createNativeStackNavigator();
 function AuthStack() {
   return (
     <Stack.Navigator
+      initialRouteName="Welcome"
       screenOptions={{
         headerShown: false,
       }}
     >
+      <Stack.Screen name="Welcome" component={WelcomeScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
     </Stack.Navigator>
   );
@@ -46,47 +49,53 @@ function AuthStack() {
  */
 function AppStack() {
   return (
-    <Stack.Navigator
-      initialRouteName="Dashboard"
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Stack.Screen name="Dashboard" component={CaregiverDashboardScreen} />
-      <Stack.Screen name="Home" component={WelcomeScreen} />
-      <Stack.Screen name="Tasks" component={TasksScreen} />
-      <Stack.Screen 
-        name="Patients" 
-        component={PatientsListScreen}
-        options={{
-          animationEnabled: true,
-        }}
-      />
-      <Stack.Screen name="Schedule" component={ScheduleScreen} />
-      <Stack.Screen name="Profile" component={ProfileScreen} />
-      <Stack.Screen name="Settings" component={SettingsScreen} />
-      <Stack.Screen 
-        name="Messages" 
-        component={MessagesListScreen}
-        options={{
-          animationEnabled: true,
-        }}
-      />
-      <Stack.Screen 
-        name="MessageDetail" 
-        component={MessageDetailScreen}
-        options={{
-          animationEnabled: true,
-        }}
-      />
-      <Stack.Screen 
-        name="ChangePassword" 
-        component={ChangePasswordScreen}
-        options={{
-          animationEnabled: true,
-        }}
-      />
-    </Stack.Navigator>
+    <DashboardProvider>
+      <MessagesProvider>
+        <PatientsProvider>
+          <Stack.Navigator
+            initialRouteName="Dashboard"
+            screenOptions={{
+              headerShown: false,
+            }}
+          >
+            <Stack.Screen name="Dashboard" component={CaregiverDashboardScreen} />
+            <Stack.Screen name="Home" component={WelcomeScreen} />
+            <Stack.Screen name="Tasks" component={TasksScreen} />
+            <Stack.Screen 
+              name="Patients" 
+              component={PatientsListScreen}
+              options={{
+                animationEnabled: true,
+              }}
+            />
+            <Stack.Screen name="Schedule" component={ScheduleScreen} />
+            <Stack.Screen name="Profile" component={ProfileScreen} />
+            <Stack.Screen name="Settings" component={SettingsScreen} />
+            <Stack.Screen 
+              name="Messages" 
+              component={MessagesListScreen}
+              options={{
+                animationEnabled: true,
+              }}
+            />
+            <Stack.Screen 
+              name="MessageDetail" 
+              component={MessageDetailScreen}
+              options={{
+                animationEnabled: true,
+              }}
+            />
+            <Stack.Screen 
+              name="ChangePassword" 
+              component={ChangePasswordScreen}
+              options={{
+                animationEnabled: true,
+              }}
+            />
+          </Stack.Navigator>
+        </PatientsProvider>
+      </MessagesProvider>
+    </DashboardProvider>
   );
 }
 
@@ -97,16 +106,32 @@ function AppStack() {
 function RootNavigator() {
   const { isAuthenticated, loading } = useAuth();
 
-  if (loading) {
-    // Could show a splash screen here
-    return null;
-  }
+  console.log('[RootNavigator] AUTH STATE:', { isAuthenticated, loading });
 
-  return (
-    <NavigationContainer>
-      {isAuthenticated ? <AppStack /> : <AuthStack />}
-    </NavigationContainer>
-  );
+  try {
+    if (loading) {
+      return (
+        <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F7FAFB' }}>
+          <Text style={{ fontSize: 16, color: '#333' }}>Loading...</Text>
+        </SafeAreaView>
+      );
+    }
+
+    console.log('[RootNavigator] Rendering:', isAuthenticated ? 'AppStack' : 'AuthStack');
+
+    return (
+      <NavigationContainer>
+        {isAuthenticated ? <AppStack /> : <AuthStack />}
+      </NavigationContainer>
+    );
+  } catch (error) {
+    console.error('[RootNavigator] Error:', error);
+    return (
+      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F7FAFB' }}>
+        <Text style={{ fontSize: 16, color: '#d32f2f' }}>Error: {error.message}</Text>
+      </SafeAreaView>
+    );
+  }
 }
 
 /**
@@ -118,13 +143,7 @@ function RootNavigator() {
 export default function App() {
   return (
     <AppProviders>
-      <DashboardProvider>
-        <MessagesProvider>
-          <PatientsProvider>
-            <RootNavigator />
-          </PatientsProvider>
-        </MessagesProvider>
-      </DashboardProvider>
+      <RootNavigator />
     </AppProviders>
   );
 }

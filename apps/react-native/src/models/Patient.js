@@ -15,7 +15,8 @@ export class Patient {
     this.firstName = firstName;
     this.lastName = lastName;
     this.criticality = criticality;
-    this.nextVisit = nextVisit;
+    // Ensure nextVisit is always a Date object, not a string
+    this.nextVisit = nextVisit ? (nextVisit instanceof Date ? nextVisit : new Date(nextVisit)) : null;
   }
 
   get fullName() {

@@ -79,7 +79,9 @@ class PatientsRepository {
 
       // If both have visits, sort by visit time
       if (a.nextVisit && b.nextVisit) {
-        const visitCompare = a.nextVisit.getTime() - b.nextVisit.getTime();
+        const aTime = a.nextVisit instanceof Date ? a.nextVisit.getTime() : new Date(a.nextVisit).getTime();
+        const bTime = b.nextVisit instanceof Date ? b.nextVisit.getTime() : new Date(b.nextVisit).getTime();
+        const visitCompare = aTime - bTime;
         if (visitCompare !== 0) return visitCompare;
       } else if (a.nextVisit && !b.nextVisit) {
         return -1;
@@ -100,7 +102,9 @@ class PatientsRepository {
     const items = this._patients.filter(p => p.nextVisit !== null);
 
     items.sort((a, b) => {
-      const visitCompare = a.nextVisit.getTime() - b.nextVisit.getTime();
+      const aTime = a.nextVisit instanceof Date ? a.nextVisit.getTime() : new Date(a.nextVisit).getTime();
+      const bTime = b.nextVisit instanceof Date ? b.nextVisit.getTime() : new Date(b.nextVisit).getTime();
+      const visitCompare = aTime - bTime;
       if (visitCompare !== 0) return visitCompare;
 
       const lastNameCompare = a.lastName.localeCompare(b.lastName);

@@ -52,6 +52,7 @@ export const AppSettingsProvider = ({ children }) => {
   const [hearingImpairedEnabled, setHearingImpairedEnabled] = useState(false);
   const [guidedModeEnabled, setGuidedModeEnabled] = useState(false);
 
+  // Load async without blocking render
   useEffect(() => {
     (async () => {
       try {

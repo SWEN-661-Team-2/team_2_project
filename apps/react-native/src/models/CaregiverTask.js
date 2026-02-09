@@ -11,8 +11,10 @@ export default class CaregiverTask {
     this.status = status;
     this.priority = priority;
     this.patient = patient;
-    this.dueDate = dueDate ? new Date(dueDate) : null;
-    this.completedAt = completedAt ? new Date(completedAt) : null;
+    // Ensure dueDate is always a Date object, not a string
+    this.dueDate = dueDate ? (dueDate instanceof Date ? dueDate : new Date(dueDate)) : null;
+    // Ensure completedAt is always a Date object, not a string
+    this.completedAt = completedAt ? (completedAt instanceof Date ? completedAt : new Date(completedAt)) : null;
   }
 
   toJson() {
@@ -34,8 +36,8 @@ export default class CaregiverTask {
       status: raw.status,
       priority: raw.priority,
       patient: raw.patient,
-      dueDate: raw.dueDate,
-      completedAt: raw.completedAt,
+      dueDate: raw.dueDate ? new Date(raw.dueDate) : null,
+      completedAt: raw.completedAt ? new Date(raw.completedAt) : null,
     });
   }
 
