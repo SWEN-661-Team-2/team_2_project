@@ -22,17 +22,17 @@ export default function WelcomeScreen({ navigation }) {
 
   // Carousel images (using placeholder URLs for now)
   const carouselImages = [
-    'https://picsum.photos/800/500?random=1',
-    'https://picsum.photos/800/500?random=2',
-    'https://picsum.photos/800/500?random=3',
-    'https://picsum.photos/800/500?random=4',
-    'https://picsum.photos/800/500?random=5',
-    'https://picsum.photos/800/500?random=6',
-    'https://picsum.photos/800/500?random=7',
-    'https://picsum.photos/800/500?random=8',
-    'https://picsum.photos/800/500?random=9',
-    'https://picsum.photos/800/500?random=10',
-  ];
+  require('../../assets/carousel/caregiver_pair_01.jpg'),
+  require('../../assets/carousel/caregiver_pair_02.jpg'),
+  require('../../assets/carousel/caregiver_pair_03.jpg'),
+  require('../../assets/carousel/caregiver_pair_04.jpg'),
+  require('../../assets/carousel/caregiver_pair_05.jpg'),
+  require('../../assets/carousel/caregiver_pair_06.jpg'),
+  require('../../assets/carousel/caregiver_pair_07.jpg'),
+  require('../../assets/carousel/caregiver_pair_08.jpg'),
+  require('../../assets/carousel/caregiver_pair_09.jpg'),
+  require('../../assets/carousel/caregiver_pair_10.jpg'),
+];
 
   // Auto-rotate carousel every 4 seconds
   useEffect(() => {
@@ -92,7 +92,7 @@ export default function WelcomeScreen({ navigation }) {
             {carouselImages.map((uri, index) => (
               <Image
                 key={index}
-                source={{ uri }}
+                source={uri}
                 style={styles.carouselImage}
                 resizeMode="cover"
               />

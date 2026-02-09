@@ -6,18 +6,13 @@ import { AppProviders } from './src/contexts/AppProviders';
 // Screens
 import WelcomeScreen from './src/screens/WelcomeScreen';
 import LoginScreen from './src/screens/LoginScreen';
-import CaregiverDashboardScreen from './src/screens/CaregiverDashboardScreen';
-import TasksScreen from './src/screens/TasksScreen';
-import PatientsScreen from './src/screens/PatientsScreen';
-import ScheduleScreen from './src/screens/ScheduleScreen';
-import ProfileScreen from './src/screens/ProfileScreen';
+import MainTabNavigator from './src/navigation/MainTabNavigator';
 
 const Stack = createNativeStackNavigator();
 
 /**
  * Main App Component
- * Updated with full navigation flow:
- * Welcome → Login → Dashboard → (Patients/Tasks/Messages/Settings)
+ * Navigation: Welcome → Login → Main App (with bottom tabs)
  */
 export default function App() {
   return (
@@ -31,11 +26,7 @@ export default function App() {
         >
           <Stack.Screen name="Welcome" component={WelcomeScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Dashboard" component={CaregiverDashboardScreen} />
-          <Stack.Screen name="Tasks" component={TasksScreen} />
-          <Stack.Screen name="Patients" component={PatientsScreen} />
-          <Stack.Screen name="Schedule" component={ScheduleScreen} />
-          <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Screen name="MainApp" component={MainTabNavigator} />
         </Stack.Navigator>
       </NavigationContainer>
     </AppProviders>
