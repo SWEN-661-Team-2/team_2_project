@@ -4,80 +4,48 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  StyleSheet,
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  StyleSheet,
-  Alert,
 } from 'react-native';
-import { useAuth } from '../contexts/AuthContext';
+import { StatusBar } from 'expo-status-bar';
 import { useHandedness } from '../contexts/AppProviders';
+import { Image } from 'react-native';
 
 /**
- * Login Screen for React Native
- * Equivalent to Flutter's LoginScreen
- * 
- * Provides email/password authentication with security messaging
+ * Login Screen
+ * Matches Flutter LoginScreen functionality
  */
 export default function LoginScreen({ navigation }) {
+  const { isLeftHanded } = useHandedness();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
 
-  const { login, loading } = useAuth();
-  const { isLeftHanded } = useHandedness();
-
-  const handleLogin = async () => {
+  const handleLogin = () => {
     const trimmedEmail = email.trim();
-    let hasError = false;
-
+    
     // Validate
-    if (!trimmedEmail) {
-      setEmailError(true);
-      hasError = true;
-    } else {
-      setEmailError(false);
-    }
+    const hasEmailError = trimmedEmail === '';
+    const hasPasswordError = password === '';
+    
+    setEmailError(hasEmailError);
+    setPasswordError(hasPasswordError);
 
-    if (!password) {
-      setPasswordError(true);
-      hasError = true;
-    } else {
-      setPasswordError(false);
-    }
-
-    if (hasError) {
-      return;
-    }
-
-    // Attempt login
-    const success = await login(trimmedEmail, password);
-    if (success) {
-      // Navigation will be handled by auth state in App.js
-      navigation.replace('Home');
-    } else {
-      Alert.alert('Login Failed', 'Invalid email or password');
+    // If valid, navigate to dashboard
+    if (!hasEmailError && !hasPasswordError) {
+      navigation.navigate('MainApp');
+      setEmail('');
+      setPassword('');
     }
   };
 
-  const handleEmailChange = (text) => {
-    setEmail(text);
-    if (emailError) {
-      setEmailError(false);
-    }
-  };
-
-  const handlePasswordChange = (text) => {
-    setPassword(text);
-    if (passwordError) {
-      setPasswordError(false);
-    }
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+  const handleForgotPassword = () => {
+    // TODO: Implement forgot password
+    console.log('Forgot password clicked');
   };
 
   return (
@@ -85,69 +53,68 @@ export default function LoginScreen({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Logo Area */}
+      <StatusBar style="auto" />
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Logo */}
         <View style={styles.logoContainer}>
-          <View style={styles.logo} testID="login_logo">
-            {/* Placeholder for app logo */}
-            <Text style={styles.logoText}>CC</Text>
+          <View style={styles.logo}>
+            <Image 
+              source={require('../../assets/logo/careconnect_logo.png')}
+              style={{ width: 100, height: 100 }}
+              resizeMode="contain"
+            />
           </View>
         </View>
 
         {/* Title */}
-        <Text
-          testID="login_title"
-          style={[styles.title, { textAlign: 'center' }]}
-        >
-          CareConnect
-        </Text>
+        <Text style={styles.title}>CareConnect</Text>
 
         {/* Subtitle */}
         <Text style={styles.subtitle}>
           Access your information securely{'\n'}Sign in to your account
         </Text>
 
-        {/* Email Field */}
+        {/* Email */}
         <Text style={styles.label}>Email address</Text>
         <TextInput
-          testID="login_email"
-          style={[
-            styles.input,
-            emailError && styles.inputError,
-            isLeftHanded && styles.rtlText,
-          ]}
+          style={[styles.input, emailError && styles.inputError]}
           placeholder="Enter your email"
-          keyboardType="email-address"
           value={email}
-          onChangeText={handleEmailChange}
+          onChangeText={(text) => {
+            setEmail(text);
+            if (emailError) setEmailError(false);
+          }}
+          keyboardType="email-address"
           autoCapitalize="none"
-          editable={!loading}
+          autoCorrect={false}
         />
         {emailError && <Text style={styles.errorText}>Email is required</Text>}
 
-        {/* Password Field */}
-        <Text style={[styles.label, { marginTop: 20 }]}>Password</Text>
-        <View
-          style={[
-            styles.passwordContainer,
-            passwordError && styles.inputError,
-          ]}
-        >
+        {/* Password */}
+        <Text style={[styles.label, styles.labelMarginTop]}>Password</Text>
+        <View style={styles.passwordContainer}>
           <TextInput
-            testID="login_password"
-            style={[styles.passwordInput, isLeftHanded && styles.rtlText]}
+            style={[
+              styles.input,
+              styles.passwordInput,
+              passwordError && styles.inputError,
+            ]}
             placeholder="Enter your password"
-            secureTextEntry={!showPassword}
             value={password}
-            onChangeText={handlePasswordChange}
-            editable={!loading}
+            onChangeText={(text) => {
+              setPassword(text);
+              if (passwordError) setPasswordError(false);
+            }}
+            secureTextEntry={!showPassword}
+            autoCapitalize="none"
+            autoCorrect={false}
           />
           <TouchableOpacity
-            onPress={togglePasswordVisibility}
-            style={isLeftHanded ? styles.eyeIconLeft : styles.eyeIconRight}
+            style={[
+              styles.eyeButton,
+              isLeftHanded ? styles.eyeButtonLeft : styles.eyeButtonRight,
+            ]}
+            onPress={() => setShowPassword(!showPassword)}
           >
             <Text style={styles.eyeIcon}>
               {showPassword ? '👁️' : '👁️‍🗨️'}
@@ -159,27 +126,26 @@ export default function LoginScreen({ navigation }) {
         )}
 
         {/* Forgot Password */}
-        <TouchableOpacity
-          testID="login_forgot"
-          style={isLeftHanded ? styles.forgotLeft : styles.forgotRight}
+        <View
+          style={[
+            styles.forgotContainer,
+            isLeftHanded
+              ? { alignItems: 'flex-start' }
+              : { alignItems: 'flex-end' },
+          ]}
         >
-          <Text style={styles.forgotText}>Forgot your password?</Text>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={handleForgotPassword}>
+            <Text style={styles.forgotText}>Forgot your password?</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Sign In Button */}
-        <TouchableOpacity
-          testID="login_submit"
-          style={[styles.button, loading && styles.buttonDisabled]}
-          onPress={handleLogin}
-          disabled={loading}
-        >
-          <Text style={styles.buttonText}>
-            {loading ? 'Signing in...' : 'Sign In'}
-          </Text>
+        <TouchableOpacity style={styles.signInButton} onPress={handleLogin}>
+          <Text style={styles.signInText}>Sign In</Text>
         </TouchableOpacity>
 
-        {/* Security Message */}
-        <View style={styles.securityBox}>
+        {/* Security Info */}
+        <View style={styles.securityContainer}>
           <Text style={styles.securityIcon}>🛡️</Text>
           <Text style={styles.securityText}>
             We use bank-level encryption to keep your health information safe
@@ -198,9 +164,8 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 16,
-    justifyContent: 'flex-start',
-    paddingTop: 24,
+    padding: 24,
+    paddingTop: 60,
   },
   logoContainer: {
     alignItems: 'center',
@@ -210,123 +175,114 @@ const styles = StyleSheet.create({
     width: 140,
     height: 140,
     borderRadius: 70,
-    backgroundColor: '#E6F7F5',
+    backgroundColor: '#e0f2fe',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  logoText: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#0A7A8A',
+  logoEmoji: {
+    fontSize: 80,
   },
   title: {
-    fontSize: 28,
+    fontSize: 36,
     fontWeight: '800',
     color: '#0A7A8A',
+    textAlign: 'center',
     marginBottom: 12,
   },
   subtitle: {
     fontSize: 16,
-    color: '#666',
     textAlign: 'center',
+    color: '#6b7280',
     marginBottom: 32,
+    lineHeight: 24,
   },
   label: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '600',
-    color: '#333',
     marginBottom: 6,
+    color: '#374151',
+  },
+  labelMarginTop: {
+    marginTop: 20,
   },
   input: {
-    backgroundColor: '#FFF',
+    height: 48,
     borderWidth: 1,
-    borderColor: '#DDD',
+    borderColor: '#d1d5db',
     borderRadius: 8,
-    padding: 12,
+    paddingHorizontal: 16,
     fontSize: 16,
-    marginBottom: 12,
+    backgroundColor: '#ffffff',
   },
   inputError: {
-    borderColor: '#E74C3C',
+    borderColor: '#ef4444',
   },
   errorText: {
-    color: '#E74C3C',
-    fontSize: 12,
-    marginTop: -10,
-    marginBottom: 12,
+    color: '#ef4444',
+    fontSize: 14,
+    marginTop: 4,
   },
   passwordContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFF',
-    borderWidth: 1,
-    borderColor: '#DDD',
-    borderRadius: 8,
-    paddingRight: 8,
+    position: 'relative',
   },
   passwordInput: {
-    flex: 1,
-    padding: 12,
-    fontSize: 16,
+    paddingRight: 50,
   },
-  rtlText: {
-    textAlign: 'right',
+  eyeButton: {
+    position: 'absolute',
+    top: 12,
+    padding: 8,
   },
-  eyeIconLeft: {
-    paddingLeft: 8,
-    paddingRight: 4,
+  eyeButtonLeft: {
+    left: 8,
   },
-  eyeIconRight: {
-    paddingLeft: 4,
-    paddingRight: 8,
+  eyeButtonRight: {
+    right: 8,
   },
   eyeIcon: {
     fontSize: 20,
   },
-  forgotLeft: {
-    alignSelf: 'flex-start',
-    marginTop: 12,
-    marginBottom: 20,
-  },
-  forgotRight: {
-    alignSelf: 'flex-end',
+  forgotContainer: {
     marginTop: 12,
     marginBottom: 20,
   },
   forgotText: {
     color: '#0A7A8A',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  button: {
-    backgroundColor: '#0A7A8A',
-    paddingVertical: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginVertical: 20,
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-  },
-  buttonText: {
-    color: '#FFF',
     fontSize: 16,
     fontWeight: '600',
   },
-  securityBox: {
+  signInButton: {
+    height: 56,
+    backgroundColor: '#0A7A8A',
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 20,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  signInText: {
+    color: '#ffffff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  securityContainer: {
+    marginTop: 32,
+    padding: 20,
     backgroundColor: '#E6F7F5',
     borderRadius: 16,
-    padding: 20,
     alignItems: 'center',
-    marginTop: 12,
   },
   securityIcon: {
     fontSize: 36,
     marginBottom: 12,
   },
   securityText: {
-    fontSize: 14,
-    color: '#333',
     textAlign: 'center',
+    color: '#374151',
+    lineHeight: 20,
   },
 });

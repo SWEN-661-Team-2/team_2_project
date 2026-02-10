@@ -18,7 +18,7 @@ jobs:
     name: SBOM + Grype Scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Install Syft + Grype
         shell: bash
@@ -49,7 +49,7 @@ jobs:
           category: grype-vulnerabilities
     
       - name: Upload SBOM artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: sbom-and-grype
           path: reports/sbom/
@@ -58,7 +58,7 @@ jobs:
     name: Trivy Scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
   
       - name: Trivy filesystem scan
         uses: aquasecurity/trivy-action@0.24.0
@@ -94,7 +94,7 @@ jobs:
     name: Secret Scanning
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
   
@@ -129,7 +129,7 @@ jobs:
           detect-secrets scan --all-files --exclude-files '\.git/|build/|\.dart_tool/|\.idea/|\.vscode/|Pods/|\.syft/|coverage/' > detect-secrets.json
     
       - name: Upload detect-secrets artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: detect-secrets
           path: detect-secrets.json
@@ -138,7 +138,7 @@ jobs:
     name: Semgrep SAST
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: returntocorp/semgrep-action@v1
         with:
           config: p/ci

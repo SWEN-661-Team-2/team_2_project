@@ -73,7 +73,9 @@ void main() {
     expect(cancelBtn(), findsOneWidget);
   });
 
-  testWidgets('Edit → Save updates profile and exits edit mode', (tester) async {
+  testWidgets('Edit → Save updates profile and exits edit mode', (
+    tester,
+  ) async {
     await pumpWidgetWithApp(tester, const ProfileScreen());
     await tester.pump();
 

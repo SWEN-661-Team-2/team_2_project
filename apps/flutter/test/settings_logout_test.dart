@@ -13,7 +13,9 @@ import 'package:flutter_app/features/settings/settings_screen.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('Logout navigates to login (and may show snackbar)', (tester) async {
+  testWidgets('Logout navigates to login (and may show snackbar)', (
+    tester,
+  ) async {
     SharedPreferences.setMockInitialValues(<String, Object>{});
 
     final controller = AppSettingsController();
@@ -39,7 +41,10 @@ void main() {
     await tester.pumpAndSettle();
 
     final settingsScroll = find
-        .descendant(of: find.byType(SettingsScreen), matching: find.byType(Scrollable))
+        .descendant(
+          of: find.byType(SettingsScreen),
+          matching: find.byType(Scrollable),
+        )
         .first;
 
     await tester.scrollUntilVisible(

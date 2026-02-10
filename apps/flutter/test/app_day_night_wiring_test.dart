@@ -18,10 +18,7 @@ void main() {
     await c.load();
 
     await tester.pumpWidget(
-      ChangeNotifierProvider.value(
-        value: c,
-        child: const CareConnectApp(),
-      ),
+      ChangeNotifierProvider.value(value: c, child: const CareConnectApp()),
     );
 
     await tester.pumpAndSettle();
@@ -30,17 +27,16 @@ void main() {
     expect(app.themeMode, ThemeMode.light);
   });
 
-  testWidgets('CareConnectApp switches to dark when highContrastEnabled=true', (tester) async {
+  testWidgets('CareConnectApp switches to dark when highContrastEnabled=true', (
+    tester,
+  ) async {
     final c = AppSettingsController();
     await c.load();
 
     await c.setHighContrastEnabled(true);
 
     await tester.pumpWidget(
-      ChangeNotifierProvider.value(
-        value: c,
-        child: const CareConnectApp(),
-      ),
+      ChangeNotifierProvider.value(value: c, child: const CareConnectApp()),
     );
 
     await tester.pumpAndSettle();

@@ -8,6 +8,7 @@ import { useAuth } from './src/contexts/AuthContext';
 import { DashboardProvider } from './src/contexts/DashboardContext';
 import { MessagesProvider } from './src/contexts/MessagesContext';
 import { PatientsProvider } from './src/contexts/PatientsContext';
+import MainTabNavigator from './src/navigation/MainTabNavigator';
 
 // Auth Screens
 import LoginScreen from './src/screens/LoginScreen';
@@ -23,6 +24,7 @@ import ProfileScreen from './src/screens/ProfileScreen';
 import MessagesListScreen from './src/screens/MessagesListScreen';
 import MessageDetailScreen from './src/screens/MessageDetailScreen';
 import SettingsScreen from './src/screens/SettingsScreen';
+import AccessibilityDetailScreen from './src/screens/AccessibilityDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -59,7 +61,17 @@ function AppStack() {
               headerShown: false,
             }}
           >
-            <Stack.Screen name="Dashboard" component={CaregiverDashboardScreen} />
+            <Stack.Screen name="MainApp">
+              {() => (
+                <DashboardProvider>
+                  <MessagesProvider>
+                    <PatientsProvider>
+                      <MainTabNavigator />
+                    </PatientsProvider>
+                  </MessagesProvider>
+                </DashboardProvider>
+              )}
+            </Stack.Screen>
             <Stack.Screen name="Home" component={WelcomeScreen} />
             <Stack.Screen name="Tasks" component={TasksScreen} />
             <Stack.Screen 
@@ -71,6 +83,8 @@ function AppStack() {
             />
             <Stack.Screen name="Schedule" component={ScheduleScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />
+            <Stack.Screen name="AccessibilityDetail" component={AccessibilityDetailScreen} />
+            <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
             <Stack.Screen name="Settings" component={SettingsScreen} />
             <Stack.Screen 
               name="Messages" 
@@ -137,9 +151,8 @@ function RootNavigator() {
 
 /**
  * Main App Component
- * React Native equivalent of Flutter's MyApp
- * 
- * Uses React Navigation (equivalent to Flutter's Navigator)
+ * Updated with full navigation flow:
+ * Welcome → Login → Dashboard → (Patients/Tasks/Messages/Settings)
  */
 export default function App() {
   return (

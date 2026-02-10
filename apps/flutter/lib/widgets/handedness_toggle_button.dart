@@ -17,7 +17,8 @@ class HandednessToggleButton extends StatelessWidget {
     }
 
     // Determine current effective handedness (starts with left by default in toggle mode)
-    final isLeftActive = controller.currentToggleHandedness == HandednessMode.left;  // Changed
+    final isLeftActive =
+        controller.currentToggleHandedness == HandednessMode.left; // Changed
 
     return Positioned(
       bottom: 80, // Above bottom navigation bar
@@ -31,9 +32,10 @@ class HandednessToggleButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(30),
             onTap: () {
               // Toggle between left and right
-              final newMode = isLeftActive 
-                  ? HandednessMode.right   // Changed
-                  : HandednessMode.left;   // Changed
+              final newMode = isLeftActive
+                  ? HandednessMode
+                        .right // Changed
+                  : HandednessMode.left; // Changed
               controller.setCurrentToggleHandedness(newMode);
             },
             child: Container(
@@ -48,7 +50,7 @@ class HandednessToggleButton extends StatelessWidget {
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: isLeftActive 
+                        color: isLeftActive
                             ? const Color(0xFF4CAF50) // Green when active
                             : const Color(0xFF9E9E9E), // Gray when inactive
                         borderRadius: const BorderRadius.only(
@@ -71,7 +73,7 @@ class HandednessToggleButton extends StatelessWidget {
                   Expanded(
                     child: Container(
                       decoration: BoxDecoration(
-                        color: isLeftActive 
+                        color: isLeftActive
                             ? const Color(0xFF9E9E9E) // Gray when inactive
                             : const Color(0xFF4CAF50), // Green when active
                         borderRadius: const BorderRadius.only(

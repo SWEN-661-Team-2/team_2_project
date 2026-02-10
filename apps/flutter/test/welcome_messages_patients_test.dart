@@ -56,24 +56,38 @@ void main() {
     expect(find.byKey(const Key('message_0')), findsOneWidget);
 
     // The first message is unread in the repository; assert icon inside first tile
-    expect(find.descendant(of: find.byKey(const Key('message_0')), matching: find.byIcon(Icons.circle)), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('message_0')),
+        matching: find.byIcon(Icons.circle),
+      ),
+      findsOneWidget,
+    );
   });
 
-  testWidgets('Messages unreadCount matches visible unread icons', (tester) async {
+  testWidgets('Messages unreadCount matches visible unread icons', (
+    tester,
+  ) async {
     await pumpWidgetWithApp(tester, const MessagesListScreen());
     final repo = MessagesRepository.instance;
     final unread = repo.unreadCount();
 
     // Ensure repository reports unread and first tile shows the unread icon
     expect(unread, greaterThan(0));
-    expect(find.descendant(of: find.byKey(const Key('message_0')), matching: find.byIcon(Icons.circle)), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byKey(const Key('message_0')),
+        matching: find.byIcon(Icons.circle),
+      ),
+      findsOneWidget,
+    );
   });
 
- testWidgets('Patients list renders for different modes', (tester) async {
+  testWidgets('Patients list renders for different modes', (tester) async {
     await pumpWidgetWithApp(
-      tester, 
+      tester,
       const PatientsListScreen(
-        key: Key('patients_all'),  // Added unique key
+        key: Key('patients_all'), // Added unique key
         mode: PatientsViewMode.all,
       ),
     );
@@ -84,25 +98,22 @@ void main() {
     await pumpWidgetWithApp(
       tester,
       const PatientsListScreen(
-        key: Key('patients_needing_attention'),  // Added unique key
+        key: Key('patients_needing_attention'), // Added unique key
         mode: PatientsViewMode.needingAttention,
       ),
     );
-    
+
     expect(find.text('Patients Needing Attention'), findsOneWidget);
     expect(find.byKey(const Key('patient_tag_0')), findsOneWidget);
 
     await pumpWidgetWithApp(
       tester,
       const PatientsListScreen(
-        key: Key('patients_upcoming'),  // Added unique key
+        key: Key('patients_upcoming'), // Added unique key
         mode: PatientsViewMode.upcomingVisits,
       ),
     );
-    
+
     expect(find.text('Upcoming Visits'), findsOneWidget);
   });
-
 }
-
-
