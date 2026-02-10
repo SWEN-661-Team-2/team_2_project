@@ -11,8 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDashboard } from '../contexts/DashboardContext';
 import { useHandedness } from '../contexts/AppProviders';
-import { PatientsRepository, getCriticalityText, getCriticalityTag, getCriticalityColor } from '../data/PatientsRepository';
-import { MessagesRepository } from '../data/MessagesRepository';
+import { getCriticalityText, getCriticalityTag, getCriticalityColor } from '../repositories/PatientsRepository';
 import HandednessToggleOverlay from '../components/HandednessToggleOverlay';
 const { width } = Dimensions.get('window');
 const TABLET_BREAKPOINT = 600;
@@ -23,19 +22,36 @@ const TABLET_BREAKPOINT = 600;
  */
 export default function CaregiverDashboardScreen({ navigation }) {
   const { isLeftHanded } = useHandedness();
-  const patientsRepo = PatientsRepository.instance;
-  const messagesRepo = MessagesRepository.instance;
-
+  
   const isTablet = width >= TABLET_BREAKPOINT;
+  
+  const {
+    allPatients = [],
+    upcomingVisits = [],
+    needingAttention = [],
+    unreadMessageCount = 0,
+    needingTop3 = [],
+  } = useDashboard();
 
-  // Data
-  const allPatients = patientsRepo.allPatients();
-  const upcomingVisits = patientsRepo.upcomingVisitsSorted();
-  const needingAttention = patientsRepo.needingAttentionSorted();
-  const unreadMessages = messagesRepo.unreadCount();
 
-  const needingTop3 = patientsRepo.topNeedingAttention(3);
-  const upcomingTop3 = patientsRepo.topUpcomingVisits(3);
+
+  console.log('dashboard:', {
+    allPatients,
+    upcomingVisits,
+    needingAttention,
+    unreadMessageCount,
+    needingTop3,
+  });
+
+
+
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const upcomingTop3 = upcomingVisits
+    .filter(p => p.nextVisit && p.nextVisit >= today)
+    .slice(0, 3);
 
   // Format date/time
   const formatDateTime = (date) => {
@@ -49,15 +65,15 @@ export default function CaregiverDashboardScreen({ navigation }) {
 
   // Navigate handlers
   const handleActivePatients = () => {
-    navigation.navigate('Patients', { mode: 'all' });
+    navigation.push('Patients', { mode: 'active' });
   };
 
   const handleUpcomingVisits = () => {
-    navigation.navigate('Patients', { mode: 'upcomingVisits' });
+    navigation.push('Patients', { mode: 'upcomingVisits' });
   };
 
   const handleNeedingAttention = () => {
-    navigation.navigate('Patients', { mode: 'needingAttention' });
+    navigation.push('Patients', { mode: 'needingAttention' });
   };
 
   const handleMessages = () => {
@@ -83,7 +99,7 @@ export default function CaregiverDashboardScreen({ navigation }) {
           <StatCard icon="👥" value={String(allPatients.length)} label="Active Patients" onPress={handleActivePatients} />
           <StatCard icon="📅" value={String(upcomingVisits.length)} label="Upcoming Visits" onPress={handleUpcomingVisits} />
           <StatCard icon="⚠️" value={String(needingAttention.length)} label="Patients Needing Attention" onPress={handleNeedingAttention} />
-          <StatCard icon="💬" value={String(unreadMessages)} label="Messages / Unread" onPress={handleMessages} />
+          <StatCard icon="💬" value={String(unreadMessageCount)} label="Unread Messages" onPress={handleMessages} />
         </View>
 
         {/* Patient Lists Section */}
@@ -124,8 +140,7 @@ export default function CaregiverDashboardScreen({ navigation }) {
             </View>
           </>
         )}
-      </ScrollView>
-      
+      </ScrollView>  
       <HandednessToggleOverlay />  
     </View>
   );

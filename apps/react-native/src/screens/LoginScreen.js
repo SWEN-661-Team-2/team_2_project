@@ -9,8 +9,9 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar } from 'react-native';
 import { useHandedness } from '../contexts/AppProviders';
+import { useAuth } from '../contexts/AuthContext';
 import { Image } from 'react-native';
 
 /**
@@ -19,13 +20,15 @@ import { Image } from 'react-native';
  */
 export default function LoginScreen({ navigation }) {
   const { isLeftHanded } = useHandedness();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [emailError, setEmailError] = useState(false);
   const [passwordError, setPasswordError] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
+    console.log('handleLogin called', { email, password });
     const trimmedEmail = email.trim();
     
     // Validate
@@ -37,7 +40,8 @@ export default function LoginScreen({ navigation }) {
 
     // If valid, navigate to dashboard
     if (!hasEmailError && !hasPasswordError) {
-      navigation.navigate('MainApp');
+      const result = await login(email, password);
+      console.log('login result:', result);
       setEmail('');
       setPassword('');
     }
@@ -53,32 +57,29 @@ export default function LoginScreen({ navigation }) {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <StatusBar style="auto" />
+      <StatusBar style="default" />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Logo */}
         <View style={styles.logoContainer}>
-          <View style={styles.logo}>
-            <Image 
-              source={require('../../assets/logo/careconnect_logo.png')}
-              style={{ width: 100, height: 100 }}
-              resizeMode="contain"
-            />
-          </View>
+          <Image 
+            source={require('../../assets/logo/careconnect_logo.png')}
+            style={{ width: 150, height: 150 }}
+            resizeMode="contain"
+          />
         </View>
 
         {/* Title */}
         <Text style={styles.title}>CareConnect</Text>
 
         {/* Subtitle */}
-        <Text style={styles.subtitle}>
-          Access your information securely{'\n'}Sign in to your account
-        </Text>
+        <Text style={styles.subtitleSecure}>Access your information securely</Text>
+        <Text style={styles.subtitleSignIn}>Sign in to your account</Text>
 
         {/* Email */}
-        <Text style={styles.label}>Email address</Text>
+        <Text style={[styles.label, isLeftHanded ? { textAlign: 'left' } : { textAlign: 'right' }]}>Email address</Text>
         <TextInput
           style={[styles.input, emailError && styles.inputError]}
-          placeholder="Enter your email"
+          placeholder="you@example.com"
           value={email}
           onChangeText={(text) => {
             setEmail(text);
@@ -91,7 +92,7 @@ export default function LoginScreen({ navigation }) {
         {emailError && <Text style={styles.errorText}>Email is required</Text>}
 
         {/* Password */}
-        <Text style={[styles.label, styles.labelMarginTop]}>Password</Text>
+        <Text style={[styles.label, styles.labelMarginTop, isLeftHanded ? { textAlign: 'left' } : { textAlign: 'right' }]}>Password</Text>
         <View style={styles.passwordContainer}>
           <TextInput
             style={[
@@ -99,7 +100,7 @@ export default function LoginScreen({ navigation }) {
               styles.passwordInput,
               passwordError && styles.inputError,
             ]}
-            placeholder="Enter your password"
+            placeholder="password"
             value={password}
             onChangeText={(text) => {
               setPassword(text);
@@ -112,7 +113,7 @@ export default function LoginScreen({ navigation }) {
           <TouchableOpacity
             style={[
               styles.eyeButton,
-              isLeftHanded ? styles.eyeButtonLeft : styles.eyeButtonRight,
+              isLeftHanded ? styles.eyeButtonRight : styles.eyeButtonLeft,
             ]}
             onPress={() => setShowPassword(!showPassword)}
           >
@@ -204,6 +205,19 @@ const styles = StyleSheet.create({
   },
   labelMarginTop: {
     marginTop: 20,
+  },
+  subtitleSecure: {
+    fontSize: 15,
+    textAlign: 'center',
+    color: '#6b7280',
+    marginBottom: 4,
+  },
+  subtitleSignIn: {
+    fontSize: 16,
+    fontWeight: '600',
+    textAlign: 'center',
+    color: '#111827',
+    marginBottom: 32,
   },
   input: {
     height: 48,

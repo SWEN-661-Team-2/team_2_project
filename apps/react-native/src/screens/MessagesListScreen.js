@@ -65,6 +65,7 @@ export default function MessagesListScreen({ navigation, route }) {
 
   return (
     <SafeAreaView style={styles.container}>
+
       {/* Header with filter/back button */}
       <View
         style={[
@@ -72,6 +73,12 @@ export default function MessagesListScreen({ navigation, route }) {
           isLeftHanded && styles.headerReversed,
         ]}
       >
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={handleBackPress}
+        >
+          <Text style={styles.backIcon}>←</Text>
+        </TouchableOpacity>
         <Text style={styles.title}>{getTitle()}</Text>
         <TouchableOpacity
           style={styles.filterButton}
@@ -126,6 +133,13 @@ const styles = StyleSheet.create({
   },
   headerReversed: {
     flexDirection: 'row-reverse',
+  },
+  backButton: {
+    padding: 8,
+  },
+  backIcon: {
+    fontSize: 22,
+    color: '#0A7A8A',
   },
   title: {
     fontSize: 18,

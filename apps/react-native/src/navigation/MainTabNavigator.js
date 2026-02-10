@@ -1,6 +1,7 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from 'react-native';
+import { messagesRepository } from '../repositories/MessagesRepository';
 
 // Screens
 import CaregiverDashboardScreen from '../screens/CaregiverDashboardScreen';
@@ -10,6 +11,7 @@ import MessagesListScreen from '../screens/MessagesListScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
+const unreadCount = messagesRepository.unreadCount();
 
 /**
  * Main Tab Navigator
@@ -59,7 +61,7 @@ export default function MainTabNavigator() {
         component={MessagesListScreen}
         options={{
           tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>💬</Text>,
-          tabBarBadge: 3, // TODO: Make dynamic based on unread count
+          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
         }}
       />
       <Tab.Screen
