@@ -38,6 +38,8 @@ export default function LoginScreen({ navigation }) {
     // If valid, navigate to dashboard
     if (!hasEmailError && !hasPasswordError) {
       navigation.navigate('MainApp');
+      setEmail('');
+      setPassword('');
     }
   };
 
