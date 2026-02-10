@@ -44,14 +44,9 @@ apply plugin: "com.facebook.react.rootproject"
 
 // Disable all CMake configuration tasks across all subprojects
 subprojects {
-    tasks.configureEach { task ->
-        if (task.name.contains("configureCMake")) {
-            task.enabled = false
-        }
-    }
-    afterEvaluate {
+    pluginManager.withPlugin('com.android.library') {
         tasks.configureEach { task ->
-            if (task.name.contains("configureCMake")) {
+            if (task.name.contains("configureCMake") || task.name.contains("buildCMake") || task.name.contains("CMake")) {
                 task.enabled = false
             }
         }
