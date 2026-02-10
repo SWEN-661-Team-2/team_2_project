@@ -17,8 +17,8 @@ import {
   TouchableOpacity,
   Dimensions,
   Platform,
-  SafeAreaView,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDashboard } from '../contexts/DashboardContext';
 import { useHandedness } from '../contexts/AppProviders';
 import { PatientCriticality } from '../models/Patient';

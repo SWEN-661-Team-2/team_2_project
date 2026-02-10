@@ -12,30 +12,30 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   Dimensions,
   Image,
   FlatList,
   Platform,
   StatusBar,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 /**
  * Carousel Image Assets
  * In a real app, these would be imported from an assets folder
- * Using placeholder URLs for now
+ * Using placeholder data for now (removed external image URLs to prevent loading issues)
  */
 const CAROUSEL_IMAGES = [
-  { id: '1', uri: 'https://via.placeholder.com/800x500?text=Caregiver+1' },
-  { id: '2', uri: 'https://via.placeholder.com/800x500?text=Caregiver+2' },
-  { id: '3', uri: 'https://via.placeholder.com/800x500?text=Caregiver+3' },
-  { id: '4', uri: 'https://via.placeholder.com/800x500?text=Caregiver+4' },
-  { id: '5', uri: 'https://via.placeholder.com/800x500?text=Caregiver+5' },
-  { id: '6', uri: 'https://via.placeholder.com/800x500?text=Caregiver+6' },
-  { id: '7', uri: 'https://via.placeholder.com/800x500?text=Caregiver+7' },
-  { id: '8', uri: 'https://via.placeholder.com/800x500?text=Caregiver+8' },
-  { id: '9', uri: 'https://via.placeholder.com/800x500?text=Caregiver+9' },
-  { id: '10', uri: 'https://via.placeholder.com/800x500?text=Caregiver+10' },
+  { id: '1', color: '#4A90E2', text: 'Compassionate Care' },
+  { id: '2', color: '#7B68EE', text: 'Professional Support' },
+  { id: '3', color: '#50C878', text: 'Dedicated Service' },
+  { id: '4', color: '#FF6B6B', text: 'Patient-Centered' },
+  { id: '5', color: '#4ECDC4', text: 'Quality Healthcare' },
+  { id: '6', color: '#FFD93D', text: 'Reliable Care' },
+  { id: '7', color: '#95E1D3', text: 'Expert Guidance' },
+  { id: '8', color: '#F38181', text: 'Trusted Partners' },
+  { id: '9', color: '#AA96DA', text: 'Caring Hearts' },
+  { id: '10', color: '#FCBAD3', text: 'Professional Excellence' },
 ];
 
 const CAROUSEL_INTERVAL = 4000; // 4 seconds
@@ -95,10 +95,9 @@ export default function WelcomeScreen({ navigation }) {
 
   const renderCarouselImage = ({ item }) => (
     <View style={[styles.carouselItem, { width }]}>
-      <Image
-        source={{ uri: item.uri }}
-        style={styles.carouselImage}
-      />
+      <View style={[styles.carouselImage, { backgroundColor: item.color }]}>
+        <Text style={styles.carouselText}>{item.text}</Text>
+      </View>
     </View>
   );
 
@@ -242,6 +241,17 @@ const styles = StyleSheet.create({
     height: Dimensions.get('window').width * (10 / 16),
     width: '100%',
     borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  carouselText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    textShadowColor: 'rgba(0, 0, 0, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
   },
   indicatorsContainer: {
     flexDirection: 'row',

@@ -15,9 +15,9 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePatients, PatientViewMode } from '../contexts/PatientsContext';
 import PriorityPatientCard, {
   VisitPatientCard,

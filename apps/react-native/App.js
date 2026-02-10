@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, SafeAreaView } from 'react-native';
+import { View, Text } from 'react-native';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AppProviders } from './src/contexts/AppProviders';
@@ -142,8 +143,10 @@ function RootNavigator() {
  */
 export default function App() {
   return (
-    <AppProviders>
-      <RootNavigator />
-    </AppProviders>
+    <SafeAreaProvider>
+      <AppProviders>
+        <RootNavigator />
+      </AppProviders>
+    </SafeAreaProvider>
   );
 }
