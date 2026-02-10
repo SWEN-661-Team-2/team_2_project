@@ -39,6 +39,9 @@ allprojects {
     }
 }
 
+apply plugin: "expo-root-project"
+apply plugin: "com.facebook.react.rootproject"
+
 // Disable all CMake configuration tasks across all subprojects
 subprojects {
     tasks.configureEach { task ->

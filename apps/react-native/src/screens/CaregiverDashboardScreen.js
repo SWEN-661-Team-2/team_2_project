@@ -6,7 +6,10 @@ import {
   StyleSheet,
   ScrollView,
   Dimensions,
+  Platform,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDashboard } from '../contexts/DashboardContext';
 import { useHandedness } from '../contexts/AppProviders';
 import { PatientsRepository, getCriticalityText, getCriticalityTag, getCriticalityColor } from '../data/PatientsRepository';
 import { MessagesRepository } from '../data/MessagesRepository';
