@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { useHandedness, useTheme } from '../contexts/AppProviders';
 import TasksRepository from '../repositories/TasksRepository';
+import HandednessToggleOverlay from '../components/HandednessToggleOverlay';
 
 /**
  * Tasks Screen
@@ -99,6 +100,7 @@ export default function TasksScreen({ navigation }) {
         </View>
       </View>
     </View>
+    // NO overlay here!
   );
 
   return (
@@ -157,6 +159,8 @@ export default function TasksScreen({ navigation }) {
           </Text>
         }
       />
+      
+      <HandednessToggleOverlay />  
     </View>
   );
 }
