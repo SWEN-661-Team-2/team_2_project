@@ -5,10 +5,10 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  SafeAreaView,
   Modal,
   Alert,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useMessages } from '../contexts/MessagesContext';
 import { useHandedness } from '../contexts/AppProviders';
 import MessageCard from './components/MessageCard';
