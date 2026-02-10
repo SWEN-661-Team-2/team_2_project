@@ -51,7 +51,12 @@ export default function MessagesListScreen({ navigation, route }) {
   };
 
   const handleMessagePress = (message) => {
-    navigation.navigate('MessageDetail', { message });
+    // Serialize the message to avoid non-serializable warning
+    const serializedMessage = {
+      ...message,
+      sentAt: message.sentAt?.toISOString(),
+    };
+    navigation.navigate('MessageDetail', { message: serializedMessage });
   };
 
   const renderMessageItem = ({ item, index }) => (

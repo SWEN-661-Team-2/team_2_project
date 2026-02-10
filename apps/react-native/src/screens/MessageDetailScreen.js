@@ -20,6 +20,11 @@ export default function MessageDetailScreen({ navigation, route }) {
   const { message } = route.params;
   const { isLeftHanded } = useHandedness();
 
+  // Convert sentAt back to Date if it's a string
+  const sentAtDate = typeof message.sentAt === 'string' 
+    ? new Date(message.sentAt) 
+    : message.sentAt;
+
   const handleShare = async () => {
     try {
       await Share.share({
@@ -79,7 +84,7 @@ export default function MessageDetailScreen({ navigation, route }) {
           <View style={styles.metadataRow}>
             <Text style={styles.metadataLabel}>Date:</Text>
             <Text style={styles.metadataValue}>
-              {formatDtYmdHmm(message.sentAt)}
+              {formatDtYmdHmm(sentAtDate)}
             </Text>
           </View>
         </View>

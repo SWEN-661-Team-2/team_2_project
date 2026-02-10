@@ -56,7 +56,7 @@ export default function LoginScreen({ navigation }) {
     const success = await login(trimmedEmail, password);
     if (success) {
       // Navigation will be handled by auth state in App.js
-      navigation.replace('Home');
+      // No need to manually navigate - the auth context will trigger the stack change
     } else {
       Alert.alert('Login Failed', 'Invalid email or password');
     }
