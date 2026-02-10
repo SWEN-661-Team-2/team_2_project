@@ -152,6 +152,20 @@ dependencies {
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";
     def isWebpAnimatedEnabled = (findProperty('expo.webp.animated') ?: "") == "true";
 
+    // Get fresco version as string to avoid casting issues
+    def frescoVersion = reactAndroidLibs.versions.fresco.get().toString()
+
+    if (isGifEnabled) {
+        implementation("com.facebook.fresco:animated-gif:${frescoVersion}")
+    }
+
+    if (isWebpEnabled) {
+        implementation("com.facebook.fresco:webpsupport:${frescoVersion}")
+        if (isWebpAnimatedEnabled) {
+            implementation("com.facebook.fresco:animated-webp:${frescoVersion}")
+        }
+    }
+
     if (isGifEnabled) {
         // For animated gif support
         implementation("com.facebook.fresco:animated-gif:${reactAndroidLibs.versions.fresco.get()}")
@@ -165,6 +179,9 @@ dependencies {
             implementation("com.facebook.fresco:animated-webp:${reactAndroidLibs.versions.fresco.get()}")
         }
     }
+
+    // Get fresco version as string to avoid casting issues
+    def frescoVersion = reactAndroidLibs.versions.fresco.get().toString()
 
     implementation("com.facebook.react:flipper-integration")
 
