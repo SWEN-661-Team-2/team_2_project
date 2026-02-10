@@ -10,14 +10,13 @@ import 'package:flutter_app/core/accessibility/app_settings_controller.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('Login navigates to app on success (any non-empty credentials)', (tester) async {
+  testWidgets('Login navigates to app on success (any non-empty credentials)', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       ChangeNotifierProvider(
         create: (_) => AppSettingsController(),
-        child: MaterialApp(
-          routes: Routes.map,
-          initialRoute: Routes.login,
-        ),
+        child: MaterialApp(routes: Routes.map, initialRoute: Routes.login),
       ),
     );
     await tester.pumpAndSettle();

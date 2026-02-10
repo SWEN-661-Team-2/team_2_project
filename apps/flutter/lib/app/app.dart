@@ -13,10 +13,10 @@ class AppScrollBehavior extends MaterialScrollBehavior {
 
   @override
   Set<PointerDeviceKind> get dragDevices => {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-        PointerDeviceKind.trackpad,
-      };
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+    PointerDeviceKind.trackpad,
+  };
 }
 
 class CareConnectApp extends StatelessWidget {
@@ -34,7 +34,9 @@ class CareConnectApp extends StatelessWidget {
       darkTheme: AppTheme.dark(),
 
       // Keep ONLY this one:
-      themeMode: controller.highContrastEnabled ? ThemeMode.dark : ThemeMode.light,
+      themeMode: controller.highContrastEnabled
+          ? ThemeMode.dark
+          : ThemeMode.light,
 
       builder: (context, child) {
         final controller = context.watch<AppSettingsController>();

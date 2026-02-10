@@ -8,11 +8,7 @@ class ReachScaffold extends StatelessWidget {
   final String title;
   final Widget child;
 
-  const ReachScaffold({
-    super.key,
-    required this.title,
-    required this.child,
-  });
+  const ReachScaffold({super.key, required this.title, required this.child});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +20,7 @@ class ReachScaffold extends StatelessWidget {
         children: [
           // Main content
           SafeArea(child: child),
-          
+
           // Floating handedness toggle button (only shows in toggle mode)
           const HandednessToggleButton(),
         ],

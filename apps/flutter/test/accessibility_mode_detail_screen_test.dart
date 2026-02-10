@@ -36,4 +36,3 @@ void main() {
     expect(changedTo, isTrue);
   });
 }
-

@@ -75,7 +75,9 @@ class SettingsScreen extends StatelessWidget {
 
           _HandedListTile(
             title: const Text('Reminder frequency'),
-            subtitle: Text(_reminderFrequencyLabel(controller.reminderFrequency)),
+            subtitle: Text(
+              _reminderFrequencyLabel(controller.reminderFrequency),
+            ),
             icon: Icons.chevron_right,
             isLeftAligned: isLeftAligned,
             onTap: () => _showReminderFrequencyPicker(context, controller),
@@ -108,7 +110,10 @@ class SettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
 
-          _AccessibilityTiles(controller: controller, isLeftAligned: isLeftAligned),
+          _AccessibilityTiles(
+            controller: controller,
+            isLeftAligned: isLeftAligned,
+          ),
 
           const SizedBox(height: AppSpacing.lg),
           const Divider(),
@@ -207,20 +212,22 @@ class SettingsScreen extends StatelessWidget {
               'Logout',
               style: TextStyle(color: Colors.red, fontWeight: FontWeight.w700),
             ),
-            leading: isLeftAligned ? const Icon(Icons.logout, color: Colors.red) : null,
-            trailing: !isLeftAligned ? const Icon(Icons.logout, color: Colors.red) : null,
+            leading: isLeftAligned
+                ? const Icon(Icons.logout, color: Colors.red)
+                : null,
+            trailing: !isLeftAligned
+                ? const Icon(Icons.logout, color: Colors.red)
+                : null,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Logged out')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('Logged out')));
 
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                Routes.login,
-                (route) => false,
-              );
+              Navigator.of(
+                context,
+              ).pushNamedAndRemoveUntil(Routes.login, (route) => false);
             },
           ),
-
 
           const SizedBox(height: AppSpacing.lg),
         ],
@@ -296,8 +303,8 @@ class _HandedSwitchListTile extends StatelessWidget {
       onChanged: onChanged,
       title: title,
       subtitle: subtitle,
-      controlAffinity: isLeftAligned 
-          ? ListTileControlAffinity.leading 
+      controlAffinity: isLeftAligned
+          ? ListTileControlAffinity.leading
           : ListTileControlAffinity.trailing,
     );
   }
@@ -367,7 +374,9 @@ class _DisplaySection extends StatelessWidget {
                 : Icons.wb_sunny,
             isLeftAligned: isLeftAligned,
             onTap: () {
-              controller.setHighContrastEnabled(!controller.highContrastEnabled);
+              controller.setHighContrastEnabled(
+                !controller.highContrastEnabled,
+              );
             },
           ),
         ),
@@ -391,8 +400,7 @@ class _ChoiceBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
 
-    final border =
-        selected ? const Color(0xFF0A7A8A) : const Color(0xFFCED8DC);
+    final border = selected ? const Color(0xFF0A7A8A) : const Color(0xFFCED8DC);
     final fill = selected ? const Color(0xFFE6F7F5) : Colors.white;
 
     return InkWell(
@@ -553,8 +561,7 @@ class _AccessibilityModeTile extends StatelessWidget {
     final text = Theme.of(context).textTheme;
 
     final bg = enabled ? const Color(0xFFE6F7F5) : Colors.white;
-    final border =
-        enabled ? const Color(0xFF0A7A8A) : const Color(0xFFCED8DC);
+    final border = enabled ? const Color(0xFF0A7A8A) : const Color(0xFFCED8DC);
 
     final indicatorAndChevron = Row(
       mainAxisSize: MainAxisSize.min,
@@ -582,13 +589,17 @@ class _AccessibilityModeTile extends StatelessWidget {
       ),
       child: ListTile(
         onTap: onTap,
-        leading: isLeftAligned ? indicatorAndChevron : Icon(icon, color: const Color(0xFF374151)),
+        leading: isLeftAligned
+            ? indicatorAndChevron
+            : Icon(icon, color: const Color(0xFF374151)),
         title: Text(
           title,
           style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
         ),
         subtitle: Text(subtitle, style: text.bodySmall),
-        trailing: isLeftAligned ? Icon(icon, color: const Color(0xFF374151)) : indicatorAndChevron,
+        trailing: isLeftAligned
+            ? Icon(icon, color: const Color(0xFF374151))
+            : indicatorAndChevron,
       ),
     );
   }
@@ -654,7 +665,7 @@ Future<void> _showReminderFrequencyPicker(
   AppSettingsController controller,
 ) async {
   final isLeftAligned = controller.isLeftAligned;
-  
+
   final selected = await showModalBottomSheet<ReminderFrequency>(
     context: context,
     showDragHandle: true,
@@ -684,23 +695,23 @@ Future<void> _showReminderFrequencyPicker(
                     RadioListTile<ReminderFrequency>(
                       value: ReminderFrequency.daily,
                       title: const Text('Daily'),
-                      controlAffinity: isLeftAligned 
-                          ? ListTileControlAffinity.leading 
+                      controlAffinity: isLeftAligned
+                          ? ListTileControlAffinity.leading
                           : ListTileControlAffinity.trailing,
                     ),
                     RadioListTile<ReminderFrequency>(
                       value: ReminderFrequency.weekly,
                       title: const Text('Weekly'),
-                      controlAffinity: isLeftAligned 
-                          ? ListTileControlAffinity.leading 
+                      controlAffinity: isLeftAligned
+                          ? ListTileControlAffinity.leading
                           : ListTileControlAffinity.trailing,
                     ),
                     RadioListTile<ReminderFrequency>(
                       value: ReminderFrequency.custom,
                       title: const Text('Custom'),
                       subtitle: const Text('Setup screen (coming soon)'),
-                      controlAffinity: isLeftAligned 
-                          ? ListTileControlAffinity.leading 
+                      controlAffinity: isLeftAligned
+                          ? ListTileControlAffinity.leading
                           : ListTileControlAffinity.trailing,
                     ),
                   ],
@@ -727,4 +738,3 @@ Future<void> _showReminderFrequencyPicker(
     }
   }
 }
-

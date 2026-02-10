@@ -1,6 +1,6 @@
 enum HandednessMode {
-  left,      
-  right,     
+  left,
+  right,
   toggle;
 
   String get label {
@@ -14,5 +14,3 @@ enum HandednessMode {
     }
   }
 }
-
-

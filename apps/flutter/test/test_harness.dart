@@ -62,12 +62,12 @@ Future<void> pumpWidgetWithApp(
 
 /// Default routes for tests (optional).
 Map<String, WidgetBuilder> _defaultTestRoutes() => {
-      Navigator.defaultRouteName: (_) => const WelcomeScreen(),
-      '/login': (_) => const LoginScreen(),
-      '/app': (_) => const AppShell(),
-      '/profile': (_) => const ProfileScreen(),
-      '/change-password': (_) => const ChangePasswordScreen(),
-    };
+  Navigator.defaultRouteName: (_) => const WelcomeScreen(),
+  '/login': (_) => const LoginScreen(),
+  '/app': (_) => const AppShell(),
+  '/profile': (_) => const ProfileScreen(),
+  '/change-password': (_) => const ChangePasswordScreen(),
+};
 
 /// Pump a MaterialApp configured for navigation tests.
 Future<void> pumpAppWithRoutes(
@@ -108,6 +108,3 @@ Future<void> pumpAppWithRoutes(
   await tester.pumpWidget(_wrapAll(app, wrappers));
   await tester.pumpAndSettle();
 }
-
-
-
