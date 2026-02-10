@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, SafeAreaView } from 'react-native';
+import { View, Text } from 'react-native';
+import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AppProviders } from './src/contexts/AppProviders';
@@ -155,32 +156,10 @@ function RootNavigator() {
  */
 export default function App() {
   return (
-    <AppProviders>
-      <NavigationContainer>
-        <Stack.Navigator 
-          initialRouteName="Welcome"
-          screenOptions={{
-            headerShown: false,
-          }}
-        >
-          <Stack.Screen name="Welcome" component={WelcomeScreen} />
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
-          <Stack.Screen name="MainApp">
-            {() => (
-              <DashboardProvider>
-                <MessagesProvider>
-                  <PatientsProvider>
-                    <MainTabNavigator />
-                  </PatientsProvider>
-                </MessagesProvider>
-              </DashboardProvider>
-            )}
-          </Stack.Screen>
-          <Stack.Screen name="Schedule" component={ScheduleScreen} />
-          <Stack.Screen name="Profile" component={ProfileScreen} />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </AppProviders>
+    <SafeAreaProvider>
+      <AppProviders>
+        <RootNavigator />
+      </AppProviders>
+    </SafeAreaProvider>
   );
 }
