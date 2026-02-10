@@ -83,10 +83,11 @@ function ProfileInner({ navigation }) {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
         <Text style={styles.title}>Profile information</Text>
+        <View style={{ width: 40 }} />  {/* Spacer for centering */}
       </View>
 
       {editing ? (
@@ -151,22 +152,94 @@ export default function ProfileScreenWrapper(props) {
 
 const styles = StyleSheet.create({
   container: { padding: 16, paddingBottom: 40 },
-  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
-  backIcon: { fontSize: 20, marginRight: 12 },
-  title: { fontSize: 20, fontWeight: '700' },
+  header: { 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    marginBottom: 12,
+    paddingHorizontal: 16,  // Add padding
+    paddingTop: 16,  // Add top padding
+  },
+  backButton: {
+    padding: 8,
+    marginLeft: -8,
+  },
+  backIcon: { // Make bigger
+    color: '#0A7A8A',  
+  },
+  title: { 
+    fontSize: 18, 
+    fontWeight: '700',
+    flex: 1,  
+    textAlign: 'center', 
+  },
   form: {},
   readOnly: {},
-  photoWrap: { alignSelf: 'center', marginVertical: 12 },
-  photo: { width: 96, height: 96, borderRadius: 48 },
-  photoPlaceholder: { width: 96, height: 96, borderRadius: 48, backgroundColor: '#0A8F84', justifyContent: 'center', alignItems: 'center' },
-  input: { borderWidth: 1, borderColor: '#E8E8E8', borderRadius: 8, padding: 10, marginVertical: 6 },
-  saveButton: { backgroundColor: '#0A7A8A', padding: 12, borderRadius: 8, marginTop: 12, alignItems: 'center' },
-  saveButtonText: { color: '#fff', fontWeight: '700' },
-  cancelButton: { borderWidth: 1, borderColor: '#E8E8E8', padding: 12, borderRadius: 8, marginTop: 8, alignItems: 'center' },
-  cancelButtonText: { color: '#333' },
-  infoRow: { paddingVertical: 8 },
-  label: { fontWeight: '700' },
-  value: { color: '#333', marginTop: 4 },
-  editButton: { backgroundColor: '#E3F2FD', padding: 12, borderRadius: 8, marginTop: 16, alignItems: 'center' },
-  editButtonText: { color: '#0A7A8A', fontWeight: '700' },
+  photoWrap: { 
+    alignSelf: 'center', 
+    marginVertical: 12 
+  },
+  photo: { 
+    width: 96, 
+    height: 96, 
+    borderRadius: 48 
+  },
+  photoPlaceholder: { 
+    width: 96, 
+    height: 96, 
+    borderRadius: 48, 
+    backgroundColor: '#0A8F84', 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
+  input: { 
+    borderWidth: 1, 
+    borderColor: '#E8E8E8', 
+    borderRadius: 8, 
+    padding: 10, 
+    marginVertical: 6 
+  },
+  saveButton: { 
+    backgroundColor: '#0A7A8A', 
+    padding: 12, 
+    borderRadius: 8, 
+    marginTop: 12, 
+    alignItems: 'center' 
+  },
+  saveButtonText: { 
+    color: '#fff', 
+    fontWeight: '700' 
+  },
+  cancelButton: { 
+    borderWidth: 1, 
+    borderColor: '#E8E8E8', 
+    padding: 12, 
+    borderRadius: 8, 
+    marginTop: 8, 
+    alignItems: 'center' 
+  },
+  cancelButtonText: { 
+    color: '#333' 
+  },
+  infoRow: { 
+    paddingVertical: 8 
+  },
+  label: { 
+    fontWeight: '700' 
+  },
+  value: { 
+    color: '#333', 
+    marginTop: 4 
+  },
+  editButton: { 
+    backgroundColor: '#E3F2FD', 
+    padding: 12, 
+    borderRadius: 8, 
+    marginTop: 16, 
+    alignItems: 'center' 
+  },
+  editButtonText: { 
+    color: '#0A7A8A', 
+    fontWeight: '700' 
+  },
 });

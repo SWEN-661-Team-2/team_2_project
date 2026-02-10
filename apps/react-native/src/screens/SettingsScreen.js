@@ -17,7 +17,7 @@ import HandednessToggleOverlay from '../components/HandednessToggleOverlay';
  */
 export default function SettingsScreen({ navigation }) {
   const { isLeftHanded, toggleHandedness, handednessMode, setHandednessMode } = useHandedness();
-  const { isDarkMode, toggleTheme } = useTheme();
+  const { isDarkMode, toggleTheme, colors } = useTheme();
   const { 
     notificationsEnabled, 
     setNotificationsEnabled,
@@ -40,7 +40,7 @@ export default function SettingsScreen({ navigation }) {
   const [showReminderPicker, setShowReminderPicker] = useState(false);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
@@ -51,7 +51,7 @@ export default function SettingsScreen({ navigation }) {
               resizeMode="contain"
             />
           </View>
-          <Text style={styles.headerTitle}>CareConnect</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>CareConnect</Text>
         </View>
 
         {/* Account & Profile */}
@@ -94,19 +94,19 @@ export default function SettingsScreen({ navigation }) {
 
         {/* Display */}
         <SectionHeader title="Display" />
-        <Text style={styles.sectionSubtitle}>Text size</Text>
+        <Text style={[styles.sectionSubtitle, styles.marginTop, { color: colors.text }]}>Contrast</Text>
         <TextSizeSelector 
           selected={textSize} 
           onSelect={setTextSize}
           isLeftAligned={isLeftHanded}
         />
 
-        <Text style={[styles.sectionSubtitle, styles.marginTop]}>Contrast</Text>
-        <View style={styles.card}>
+        <Text style={[styles.sectionSubtitle, styles.marginTop, { color: colors.text }]}>Contrast</Text>
+        <View style={[styles.card, { backgroundColor: isDarkMode ? '#374151' : '#ffffff' }]}>
           <HandedListTile
-            title={highContrast ? 'Night / High Contrast' : 'Day / Normal'}
+            title={isDarkMode ? 'Night / High Contrast' : 'Day / Normal'}
             subtitle="Toggle contrast mode (persisted)"
-            icon={highContrast ? '🌙' : '☀️'}
+            icon={isDarkMode ? '🌙' : '☀️'}
             isLeftAligned={isLeftHanded}
             onPress={toggleTheme}
           />
@@ -116,7 +116,7 @@ export default function SettingsScreen({ navigation }) {
 
         {/* Accessibility */}
         <SectionHeader title="Accessibility" />
-        <Text style={styles.helperText}>
+        <Text style={[styles.helperText, { color: colors.textSecondary }]}>
           Select a profile to review mitigation goals. Toggle is UI-only for now.
         </Text>
 
@@ -259,7 +259,7 @@ export default function SettingsScreen({ navigation }) {
           isLeftAligned={isLeftHanded}
         />
       )}
-      <HandednessToggleOverlay />
+      <HandednessToggleOverlay/>
     </View>
   );
 }
@@ -269,7 +269,8 @@ export default function SettingsScreen({ navigation }) {
 // ============================================================================
 
 function SectionHeader({ title }) {
-  return <Text style={styles.sectionHeader}>{title}</Text>;
+  const { colors } = useTheme();
+  return <Text style={[styles.sectionHeader, { color: colors.text }]}>{title}</Text>;
 }
 
 function Divider() {
@@ -277,12 +278,13 @@ function Divider() {
 }
 
 function HandedListTile({ title, subtitle, icon, isLeftAligned, onPress }) {
+  const { colors } = useTheme();
   return (
     <TouchableOpacity style={styles.listTile} onPress={onPress}>
       {isLeftAligned && <Text style={styles.listIcon}>{icon}</Text>}
       <View style={styles.listContent}>
-        <Text style={styles.listTitle}>{title}</Text>
-        {subtitle && <Text style={styles.listSubtitle}>{subtitle}</Text>}
+        <Text style={[styles.listTitle, { color: colors.text }]}>{title}</Text>
+        {subtitle && <Text style={[styles.listSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>}
       </View>
       {!isLeftAligned && <Text style={styles.listIcon}>{icon}</Text>}
     </TouchableOpacity>
@@ -290,15 +292,15 @@ function HandedListTile({ title, subtitle, icon, isLeftAligned, onPress }) {
 }
 
 function HandedSwitchListTile({ title, subtitle, value, onValueChange, isLeftAligned }) {
+  const { colors } = useTheme();
   return (
     <View style={styles.switchTile}>
       {isLeftAligned && <Switch value={value} onValueChange={onValueChange} />}
       <View style={styles.listContent}>
-        <Text style={styles.listTitle}>{title}</Text>
-        {subtitle && <Text style={styles.listSubtitle}>{subtitle}</Text>}
+        <Text style={[styles.listTitle, { color: colors.text }]}>{title}</Text>
+        {subtitle && <Text style={[styles.listSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>}
       </View>
       {!isLeftAligned && <Switch value={value} onValueChange={onValueChange} />}
-      <HandednessToggleOverlay />
     </View>
   );
 }
@@ -325,7 +327,6 @@ function TextSizeSelector({ selected, onSelect, isLeftAligned }) {
           <Text style={styles.textSizeLabel}>{opt.label}</Text>
         </TouchableOpacity>
       ))}
-      <HandednessToggleOverlay />
     </View>
   );
 }
@@ -359,6 +360,7 @@ function AccessibilityModeTile({ title, subtitle, icon, enabled, isLeftAligned, 
 }
 
 function HandednessRadioGroup({ selected, onSelect, isLeftAligned }) {
+  const { colors } = useTheme();
   const options = [
     { label: 'Left-handed', value: 'left' },
     { label: 'Right-handed', value: 'right' },
@@ -376,13 +378,12 @@ function HandednessRadioGroup({ selected, onSelect, isLeftAligned }) {
           {isLeftAligned && (
             <View style={[styles.radio, selected === opt.value && styles.radioSelected]} />
           )}
-          <Text style={styles.radioLabel}>{opt.label}</Text>
+          <Text style={[styles.radioLabel, { color: colors.text }]}>{opt.label}</Text>
           {!isLeftAligned && (
             <View style={[styles.radio, selected === opt.value && styles.radioSelected]} />
           )}
         </TouchableOpacity>
       ))}
-      <HandednessToggleOverlay />
     </View>
   );
 }
@@ -420,7 +421,6 @@ function ReminderFrequencyPicker({ selected, onSelect, onClose, isLeftAligned })
           <Text style={styles.modalCloseText}>Close</Text>
         </TouchableOpacity>
       </View>
-      <HandednessToggleOverlay />
     </View>
   );
 }
