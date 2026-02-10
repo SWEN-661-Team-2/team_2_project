@@ -1,8 +1,8 @@
+// apps/react-native/src/screens/WelcomeScreen.js
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  StatusBar,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
@@ -10,6 +10,7 @@ import {
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 
 const { width } = Dimensions.get('window');
 
@@ -65,13 +66,13 @@ export default function WelcomeScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="default" />
+      <StatusBar style="auto" />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Settings Icon (top right) */}
         <View style={styles.settingsContainer}>
           <TouchableOpacity
             style={styles.settingsButton}
-            onPress={handleContinue}
+            onPress={handleSettingsPress}
           >
             <Text style={styles.settingsIcon}>⚙️</Text>
           </TouchableOpacity>
