@@ -100,13 +100,6 @@ function AppStack() {
                 animationEnabled: true,
               }}
             />
-            <Stack.Screen 
-              name="ChangePassword" 
-              component={ChangePasswordScreen}
-              options={{
-                animationEnabled: true,
-              }}
-            />
           </Stack.Navigator>
         </PatientsProvider>
       </MessagesProvider>

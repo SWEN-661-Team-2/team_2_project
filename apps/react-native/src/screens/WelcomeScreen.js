@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
+  StatusBar,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
@@ -10,26 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-/**
- * Carousel Image Assets
- * In a real app, these would be imported from an assets folder
- * Using placeholder data for now (removed external image URLs to prevent loading issues)
- */
-const CAROUSEL_IMAGES = [
-  { id: '1', color: '#4A90E2', text: 'Compassionate Care' },
-  { id: '2', color: '#7B68EE', text: 'Professional Support' },
-  { id: '3', color: '#50C878', text: 'Dedicated Service' },
-  { id: '4', color: '#FF6B6B', text: 'Patient-Centered' },
-  { id: '5', color: '#4ECDC4', text: 'Quality Healthcare' },
-  { id: '6', color: '#FFD93D', text: 'Reliable Care' },
-  { id: '7', color: '#95E1D3', text: 'Expert Guidance' },
-  { id: '8', color: '#F38181', text: 'Trusted Partners' },
-  { id: '9', color: '#AA96DA', text: 'Caring Hearts' },
-  { id: '10', color: '#FCBAD3', text: 'Professional Excellence' },
-];
-
-const CAROUSEL_INTERVAL = 4000; // 4 seconds
-const ANIMATION_DURATION = 300; // milliseconds
+const { width } = Dimensions.get('window');
 
 export default function WelcomeScreen({ navigation }) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -63,25 +45,17 @@ export default function WelcomeScreen({ navigation }) {
       });
     }, 4000);
 
-    return () => clearInterval(timer);
+   return () => clearInterval(timer);
   }, []);
 
-  const handleNavigateToLogin = () => {
-    navigation.replace('Login');
+  const handleContinue = () => {
+    navigation.navigate('Login');
   };
 
   const handleSettingsPress = () => {
     // Settings button navigates to login (like Flutter version)
     navigation.replace('Login');
   };
-
-  const renderCarouselImage = ({ item }) => (
-    <View style={[styles.carouselItem, { width }]}>
-      <View style={[styles.carouselImage, { backgroundColor: item.color }]}>
-        <Text style={styles.carouselText}>{item.text}</Text>
-      </View>
-    </View>
-  );
 
   const onViewableItemsChanged = ({ viewableItems: vItems }) => {
     if (vItems.length > 0 && vItems[0].index !== null) {
@@ -91,7 +65,7 @@ export default function WelcomeScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="auto" />
+      <StatusBar barStyle="default" />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Settings Icon (top right) */}
         <View style={styles.settingsContainer}>
@@ -104,16 +78,18 @@ export default function WelcomeScreen({ navigation }) {
         </View>
 
         {/* Logo */}
-        <View style={styles.logo}>
+        <View style={styles.logoContainer}>
           <Image 
             source={require('../../assets/logo/careconnect_logo.png')}
-            style={{ width: 120, height: 120 }}
+            style={{ width: 180, height: 180 }}
             resizeMode="contain"
           />
         </View>
 
         {/* CareConnect Title */}
         <Text style={styles.title}>CareConnect</Text>
+        <Text style={styles.tagline}>Supporting Care, Connecting Hearts</Text>
+        <Text style={styles.taglineSubtitle}>Empowering caregivers and care recipients with compassion.</Text>
 
         {/* Carousel */}
         <View style={styles.carouselContainer}>
@@ -169,8 +145,8 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    padding: 20,
-    paddingTop: 40,
+    padding: 10,
+    paddingTop: 8,
   },
   settingsContainer: {
     alignItems: 'flex-end',
@@ -204,6 +180,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 32,
   },
+  tagline: {
+    fontSize: 22,
+    fontWeight: '700',
+    textAlign: 'center',
+    color: '#0A7A8A',
+    marginBottom: 8,
+    marginTop: -16,
+  },
+  taglineSubtitle: {
+    fontSize: 15,
+    color: '#6b7280',
+    textAlign: 'center',
+    marginBottom: 24,
+    paddingHorizontal: 24,
+    lineHeight: 22,
+  },
   carouselContainer: {
     width: '100%',
     aspectRatio: 16 / 10,
@@ -216,10 +208,8 @@ const styles = StyleSheet.create({
   },
   carouselImage: {
     height: Dimensions.get('window').width * (10 / 16),
-    width: '100%',
+    width: Dimensions.get('window').width,
     borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   carouselText: {
     fontSize: 28,
