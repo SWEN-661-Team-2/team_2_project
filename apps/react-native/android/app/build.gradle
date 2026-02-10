@@ -160,17 +160,20 @@ dependencies {
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";
     def isWebpAnimatedEnabled = (findProperty('expo.webp.animated') ?: "") == "true";
 
+    // Get fresco version as string to avoid casting issues
+    def frescoVersion = expoLibs.versions.fresco.get().toString()
+
     if (isGifEnabled) {
         // For animated gif support
-        implementation("com.facebook.fresco:animated-gif:${expoLibs.versions.fresco.get()}")
+        implementation("com.facebook.fresco:animated-gif:${frescoVersion}")
     }
 
     if (isWebpEnabled) {
         // For webp support
-        implementation("com.facebook.fresco:webpsupport:${expoLibs.versions.fresco.get()}")
+        implementation("com.facebook.fresco:webpsupport:${frescoVersion}")
         if (isWebpAnimatedEnabled) {
             // Animated webp support
-            implementation("com.facebook.fresco:animated-webp:${expoLibs.versions.fresco.get()}")
+            implementation("com.facebook.fresco:animated-webp:${frescoVersion}")
         }
     }
 
@@ -183,7 +186,7 @@ dependencies {
 
 // Disable CMake configuration tasks that cause build failures
 tasks.configureEach { task ->
-    if (task.name.contains("configureCMake")) {
+    if (task.name.contains("configureCMake") || task.name.contains("buildCMake") || task.name.contains("CMake")) {
         task.enabled = false
     }
 }

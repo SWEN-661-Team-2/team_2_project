@@ -109,30 +109,21 @@ function RootNavigator() {
 
   console.log('[RootNavigator] AUTH STATE:', { isAuthenticated, loading });
 
-  try {
-    if (loading) {
-      return (
-        <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F7FAFB' }}>
-          <Text style={{ fontSize: 16, color: '#333' }}>Loading...</Text>
-        </SafeAreaView>
-      );
-    }
-
-    console.log('[RootNavigator] Rendering:', isAuthenticated ? 'AppStack' : 'AuthStack');
-
+  if (loading) {
     return (
-      <NavigationContainer>
-        {isAuthenticated ? <AppStack /> : <AuthStack />}
-      </NavigationContainer>
-    );
-  } catch (error) {
-    console.error('[RootNavigator] Error:', error);
-    return (
-      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F7FAFB' }}>
-        <Text style={{ fontSize: 16, color: '#d32f2f' }}>Error: {error.message}</Text>
-      </SafeAreaView>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F7FAFB' }}>
+        <Text style={{ fontSize: 16, color: '#333' }}>Loading...</Text>
+      </View>
     );
   }
+
+  console.log('[RootNavigator] Rendering:', isAuthenticated ? 'AppStack' : 'AuthStack');
+
+  return (
+    <NavigationContainer>
+      {isAuthenticated ? <AppStack /> : <AuthStack />}
+    </NavigationContainer>
+  );
 }
 
 /**
