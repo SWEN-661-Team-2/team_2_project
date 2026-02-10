@@ -1,10 +1,3 @@
-/**
- * Messages List Screen
- * Equivalent to Flutter's MessagesListScreen
- * 
- * Displays messages with filtering options (all/unread)
- */
-
 import React, { useState } from 'react';
 import {
   View,
@@ -20,6 +13,7 @@ import { useMessages } from '../contexts/MessagesContext';
 import { useHandedness } from '../contexts/AppProviders';
 import MessageCard from './components/MessageCard';
 import FilterMenu from './components/FilterMenu';
+import HandednessToggleOverlay from '../components/HandednessToggleOverlay';
 
 export default function MessagesListScreen({ navigation, route }) {
   const { messages, viewMode, setViewMode, unreadCount } = useMessages();
@@ -71,6 +65,7 @@ export default function MessagesListScreen({ navigation, route }) {
 
   return (
     <SafeAreaView style={styles.container}>
+
       {/* Header with filter/back button */}
       <View
         style={[
@@ -78,6 +73,12 @@ export default function MessagesListScreen({ navigation, route }) {
           isLeftHanded && styles.headerReversed,
         ]}
       >
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={handleBackPress}
+        >
+          <Text style={styles.backIcon}>←</Text>
+        </TouchableOpacity>
         <Text style={styles.title}>{getTitle()}</Text>
         <TouchableOpacity
           style={styles.filterButton}
@@ -109,7 +110,9 @@ export default function MessagesListScreen({ navigation, route }) {
         onClose={() => setFilterModalVisible(false)}
         isLeftHanded={isLeftHanded}
       />
+      <HandednessToggleOverlay />
     </SafeAreaView>
+    
   );
 }
 
@@ -130,6 +133,13 @@ const styles = StyleSheet.create({
   },
   headerReversed: {
     flexDirection: 'row-reverse',
+  },
+  backButton: {
+    padding: 8,
+  },
+  backIcon: {
+    fontSize: 22,
+    color: '#0A7A8A',
   },
   title: {
     fontSize: 18,

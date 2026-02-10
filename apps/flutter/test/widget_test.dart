@@ -18,10 +18,7 @@ void main() {
     await tester.pumpWidget(
       MultiProvider(
         providers: AppProviders.build(),
-        child: MaterialApp(
-          routes: Routes.map,
-          initialRoute: Routes.welcome,
-        ),
+        child: MaterialApp(routes: Routes.map, initialRoute: Routes.welcome),
       ),
     );
 

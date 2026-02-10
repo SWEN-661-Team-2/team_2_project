@@ -7,11 +7,11 @@ class AppProviders {
   const AppProviders._();
 
   static List<SingleChildWidget> build() => [
-        ChangeNotifierProvider<AppSettingsController>(
-          create: (_) => AppSettingsController()..load(),
-        ),
-        ChangeNotifierProvider<CaregiverProfileController>(
-          create: (_) => CaregiverProfileController()..load(),
-        ),
-      ];
+    ChangeNotifierProvider<AppSettingsController>(
+      create: (_) => AppSettingsController()..load(),
+    ),
+    ChangeNotifierProvider<CaregiverProfileController>(
+      create: (_) => CaregiverProfileController()..load(),
+    ),
+  ];
 }

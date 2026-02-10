@@ -39,10 +39,9 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     if (!_emailError && !_passwordError) {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-        Routes.app,
-        (route) => false,
-      );
+      Navigator.of(
+        context,
+      ).pushNamedAndRemoveUntil(Routes.app, (route) => false);
     }
   }
 
@@ -123,7 +122,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   prefixIcon: isLeftAligned
                       ? IconButton(
                           icon: Icon(
-                            _showPassword ? Icons.visibility_off : Icons.visibility,
+                            _showPassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
                           ),
                           onPressed: () {
                             setState(() => _showPassword = !_showPassword);
@@ -133,7 +134,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   suffixIcon: !isLeftAligned
                       ? IconButton(
                           icon: Icon(
-                            _showPassword ? Icons.visibility_off : Icons.visibility,
+                            _showPassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
                           ),
                           onPressed: () {
                             setState(() => _showPassword = !_showPassword);
@@ -148,7 +151,9 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 12),
 
               Align(
-                alignment: isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
+                alignment: isLeftAligned
+                    ? Alignment.centerLeft
+                    : Alignment.centerRight,
                 child: TextButton(
                   key: const Key('login_forgot'),
                   onPressed: () {},
@@ -157,7 +162,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
 
               const SizedBox(height: 20),
-
 
               const SizedBox(height: 20),
 
@@ -180,7 +184,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 child: const Column(
                   children: [
-                    Icon(Icons.shield_outlined, size: 36, color: Color(0xFF0A8F84)),
+                    Icon(
+                      Icons.shield_outlined,
+                      size: 36,
+                      color: Color(0xFF0A8F84),
+                    ),
                     SizedBox(height: 12),
                     Text(
                       'We use bank-level encryption to keep your health information safe and secure.',

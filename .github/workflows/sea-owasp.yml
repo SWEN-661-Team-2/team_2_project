@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # Runs across the repo; if you want to narrow it later, set scan-path to your Java backend folder.
       - name: OWASP Dependency-Check
@@ -32,7 +32,7 @@ jobs:
           #   --failOnCVSS 7
 
       - name: Upload Dependency-Check reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: owasp-dependency-check
           path: dependency-check-report/

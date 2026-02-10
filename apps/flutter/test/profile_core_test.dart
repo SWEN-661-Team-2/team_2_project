@@ -13,10 +13,7 @@ void main() {
   });
 
   test('CaregiverProfile copyWith updates only provided fields', () {
-    const base = CaregiverProfile(
-      name: 'Alice',
-      email: 'a@test.com',
-    );
+    const base = CaregiverProfile(name: 'Alice', email: 'a@test.com');
 
     final updated = base.copyWith(email: 'b@test.com');
 

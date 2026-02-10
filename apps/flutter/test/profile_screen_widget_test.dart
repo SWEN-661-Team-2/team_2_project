@@ -63,7 +63,10 @@ class FakeCaregiverProfileController extends ChangeNotifier
   }
 }
 
-Future<void> pumpProfile(WidgetTester tester, FakeCaregiverProfileController c) async {
+Future<void> pumpProfile(
+  WidgetTester tester,
+  FakeCaregiverProfileController c,
+) async {
   await tester.binding.setSurfaceSize(const Size(800, 1400));
 
   await tester.pumpWidget(
@@ -85,7 +88,9 @@ Future<void> pumpProfile(WidgetTester tester, FakeCaregiverProfileController c) 
 }
 
 void main() {
-  testWidgets('Profile loads and shows readonly view then enters edit view', (tester) async {
+  testWidgets('Profile loads and shows readonly view then enters edit view', (
+    tester,
+  ) async {
     final c = FakeCaregiverProfileController();
     await pumpProfile(tester, c);
 
@@ -127,17 +132,23 @@ void main() {
     expect(find.byKey(const Key('profile_readonly')), findsOneWidget);
   });
 
-  testWidgets('Tapping photo in edit view shows platform-not-supported snackbar in tests', (tester) async {
-    final c = FakeCaregiverProfileController();
-    await pumpProfile(tester, c);
+  testWidgets(
+    'Tapping photo in edit view shows platform-not-supported snackbar in tests',
+    (tester) async {
+      final c = FakeCaregiverProfileController();
+      await pumpProfile(tester, c);
 
-    await tester.tap(find.byKey(const Key('profile_edit')));
-    await tester.pump();
+      await tester.tap(find.byKey(const Key('profile_edit')));
+      await tester.pump();
 
-    // Tap the photo inkwell (edit view has InkWell wrapper)
-    await tester.tap(find.byType(InkWell).first);
-    await tester.pump(const Duration(milliseconds: 250));
+      // Tap the photo inkwell (edit view has InkWell wrapper)
+      await tester.tap(find.byType(InkWell).first);
+      await tester.pump(const Duration(milliseconds: 250));
 
-    expect(find.text('Photo upload is supported on Android/iOS for now.'), findsOneWidget);
-  });
+      expect(
+        find.text('Photo upload is supported on Android/iOS for now.'),
+        findsOneWidget,
+      );
+    },
+  );
 }

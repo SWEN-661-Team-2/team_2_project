@@ -1,8 +1,4 @@
-enum ReminderFrequency {
-  daily,
-  weekly,
-  custom,
-}
+enum ReminderFrequency { daily, weekly, custom }
 
 extension ReminderFrequencyX on ReminderFrequency {
   String get label {

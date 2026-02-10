@@ -4,32 +4,30 @@
     "slug": "careconnect-react-native",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "../flutter/assets/logo/careconnect_logo.png",
+    "icon": "../react-native/assets/logo/careconnect_logo.png",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "../flutter/assets/carousel/caregiver_pair_01.jpg",
+      "image": "../react-native/assets/carousel/caregiver_pair_01.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
-    "updates": {
-      "enabled": false
-    },
+    "assetBundlePatterns": ["**/*"],
+    "updates": { "enabled": false },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.careconnect.app"
     },
     "android": {
+      "permissions": ["android.permission.DETECT_SCREEN_CAPTURE"],
       "adaptiveIcon": {
-        "foregroundImage": "../flutter/assets/logo/careconnect_logo.png",
+        "foregroundImage": "../react-native/assets/logo/careconnect_logo.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.careconnect.app"
     },
     "web": {
-      "favicon": "../flutter/assets/logo/careconnect_logo.png"
+      "favicon": "../react-native/assets/logo/careconnect_logo.png"
     }
   }
 }
+

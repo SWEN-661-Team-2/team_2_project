@@ -1,248 +1,208 @@
-/**
- * Caregiver Dashboard Screen
- * Equivalent to Flutter's CaregiverDashboardScreen
- * 
- * Main dashboard showing:
- * - KPI cards (patients, visits, alerts, messages)
- * - Patients needing attention
- * - Upcoming visits
- */
-
-import React, { useMemo } from 'react';
+import React from 'react';
 import {
   View,
-  ScrollView,
-  StyleSheet,
   Text,
   TouchableOpacity,
+  StyleSheet,
+  ScrollView,
   Dimensions,
   Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDashboard } from '../contexts/DashboardContext';
 import { useHandedness } from '../contexts/AppProviders';
-import { PatientCriticality } from '../models/Patient';
-import { formatDtYmdHmm } from '../utils/dtFormat';
-import StatCard from './components/StatCard';
-import PatientRow from './components/PatientRow';
-import SectionHeader from './components/SectionHeader';
-
+import { getCriticalityText, getCriticalityTag, getCriticalityColor } from '../repositories/PatientsRepository';
+import HandednessToggleOverlay from '../components/HandednessToggleOverlay';
+const { width } = Dimensions.get('window');
 const TABLET_BREAKPOINT = 600;
 
+/**
+ * Caregiver Dashboard Screen
+ * Main screen with 4 stat tiles and patient lists
+ */
 export default function CaregiverDashboardScreen({ navigation }) {
-  const dashboard = useDashboard();
   const { isLeftHanded } = useHandedness();
-  const windowWidth = Dimensions.get('window').width;
+  
+  const isTablet = width >= TABLET_BREAKPOINT;
+  
+  const {
+    allPatients = [],
+    upcomingVisits = [],
+    needingAttention = [],
+    unreadMessageCount = 0,
+    needingTop3 = [],
+  } = useDashboard();
 
-  const isTablet = windowWidth >= TABLET_BREAKPOINT;
 
-  // Critical and visit colors/tags
-  const getCriticalityColor = (criticality) => {
-    if (!criticality) return '#999999';
-    switch (criticality) {
-      case PatientCriticality.CRITICAL:
-        return '#DC2626';
-      case PatientCriticality.HIGH:
-        return '#EA580C';
-      case PatientCriticality.MEDIUM:
-        return '#60A5FA';
-      case PatientCriticality.LOW:
-        return '#10B981';
-      default:
-        return '#999999';
-    }
+
+  console.log('dashboard:', {
+    allPatients,
+    upcomingVisits,
+    needingAttention,
+    unreadMessageCount,
+    needingTop3,
+  });
+
+
+
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const upcomingTop3 = upcomingVisits
+    .filter(p => p.nextVisit && p.nextVisit >= today)
+    .slice(0, 3);
+
+  // Format date/time
+  const formatDateTime = (date) => {
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}`;
   };
 
-  const getCriticalityText = (criticality) => {
-    if (!criticality) return '—';
-    switch (criticality) {
-      case PatientCriticality.CRITICAL:
-        return 'Critical';
-      case PatientCriticality.HIGH:
-        return 'High';
-      case PatientCriticality.MEDIUM:
-        return 'Medium';
-      case PatientCriticality.LOW:
-        return 'Low';
-      default:
-        return '—';
-    }
+  // Navigate handlers
+  const handleActivePatients = () => {
+    navigation.push('Patients', { mode: 'active' });
   };
 
-  const getCriticalityTag = (criticality) => {
-    if (!criticality) return '';
-    switch (criticality) {
-      case PatientCriticality.CRITICAL:
-        return 'CRITICAL';
-      case PatientCriticality.HIGH:
-        return 'HIGH';
-      case PatientCriticality.MEDIUM:
-        return 'MED';
-      case PatientCriticality.LOW:
-        return 'LOW';
-      default:
-        return '';
-    }
+  const handleUpcomingVisits = () => {
+    navigation.push('Patients', { mode: 'upcomingVisits' });
   };
 
-  const handlePatientTap = (viewMode) => {
-    // Navigate to patients screen with filter
-    navigation.navigate('Patients', { viewMode });
+  const handleNeedingAttention = () => {
+    navigation.push('Patients', { mode: 'needingAttention' });
   };
 
-  const handleMessagesTap = (viewMode) => {
-    navigation.navigate('Messages', { viewMode });
+  const handleMessages = () => {
+    navigation.navigate('Messages', { mode: 'unread' });
   };
-
-  // Header component
-  const Header = () => (
-    <View style={styles.header}>
-      <View style={styles.headerLeft}>
-        <Text style={styles.logoText}>CC</Text>
-      </View>
-      <Text style={styles.headerTitle} numberOfLines={1}>
-        CareConnect
-      </Text>
-      <TouchableOpacity
-        style={styles.infoButton}
-        onPress={() => {
-          /* App info handler */
-        }}
-      >
-        <Text style={styles.infoIcon}>ℹ️</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
-  // KPI Grid
-  const KPIGrid = () => (
-    <View
-      style={[
-        styles.kpiContainer,
-        isTablet ? styles.kpiTablet : styles.kpiMobile,
-      ]}
-    >
-      <StatCard
-        icon="👥"
-        value={dashboard.totalPatients}
-        label="Active Patients"
-        testID="kpi_patients"
-        onPress={() => handlePatientTap('all')}
-      />
-      <StatCard
-        icon="📅"
-        value={dashboard.totalUpcomingVisits}
-        label="Upcoming Visits"
-        testID="kpi_visits"
-        onPress={() => handlePatientTap('upcomingVisits')}
-      />
-      <StatCard
-        icon="⚠️"
-        value={dashboard.totalNeedingAttention}
-        label="Patients Needing Attention"
-        testID="kpi_attention"
-        onPress={() => handlePatientTap('needingAttention')}
-      />
-      <StatCard
-        icon="💬"
-        value={dashboard.unreadMessageCount}
-        label="Messages / Unread"
-        testID="kpi_messages"
-        onPress={() => handleMessagesTap('unread')}
-      />
-    </View>
-  );
-
-  // Patients Needing Attention Section
-  const NeedingAttentionSection = () => (
-    <View style={styles.section}>
-      <SectionHeader title="Patients Needing Attention" />
-      <View style={styles.patientsList}>
-        {dashboard.needingAttention.map((patient) => (
-          <PatientRow
-            key={`${patient.firstName}-${patient.lastName}`}
-            name={patient.fullName}
-            subtitle={`Priority: ${getCriticalityText(patient.criticality)}`}
-            tag={getCriticalityTag(patient.criticality)}
-            color={getCriticalityColor(patient.criticality)}
-          />
-        ))}
-      </View>
-      <TouchableOpacity
-        style={[
-          styles.viewAllButton,
-          isLeftHanded && styles.viewAllButtonLeft,
-        ]}
-        onPress={() => handlePatientTap('needingAttention')}
-      >
-        <Text style={styles.viewAllText}>View All</Text>
-      </TouchableOpacity>
-    </View>
-  );
-
-  // Upcoming Visits Section
-  const UpcomingVisitsSection = () => (
-    <View style={styles.section}>
-      <SectionHeader title="Upcoming Visits" />
-      <View style={styles.patientsList}>
-        {dashboard.upcomingVisits.map((patient) => (
-          <PatientRow
-            key={`${patient.firstName}-${patient.lastName}`}
-            name={patient.fullName}
-            subtitle={
-              patient.nextVisit
-                ? `Visit: ${formatDtYmdHmm(patient.nextVisit)}`
-                : 'No visit scheduled'
-            }
-            tag={getCriticalityTag(patient.criticality)}
-            color={getCriticalityColor(patient.criticality)}
-          />
-        ))}
-      </View>
-      <TouchableOpacity
-        style={[
-          styles.viewAllButton,
-          isLeftHanded && styles.viewAllButtonLeft,
-        ]}
-        onPress={() => handlePatientTap('upcomingVisits')}
-      >
-        <Text style={styles.viewAllText}>View All</Text>
-      </TouchableOpacity>
-    </View>
-  );
 
   return (
-    <SafeAreaView style={styles.container}>
-      {isTablet ? (
-        <ScrollView
-          contentContainerStyle={styles.scrollContentTablet}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.tabletContent}>
-            <Header />
-            <KPIGrid />
-            <View style={styles.tabletSections}>
-              <View style={styles.tabletColumn}>
-                <NeedingAttentionSection />
-              </View>
-              <View style={styles.tabletColumn}>
-                <UpcomingVisitsSection />
-              </View>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.logoContainer}>
+            <Text style={styles.logoEmoji}>🏥</Text>
+          </View>
+          <Text style={styles.headerTitle}>CareConnect</Text>
+          <TouchableOpacity style={styles.infoButton}>
+            <Text style={styles.infoIcon}>ℹ️</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* KPI Tiles Grid */}
+        <View style={[styles.kpiGrid, isTablet && styles.kpiGridTablet]}>
+          <StatCard icon="👥" value={String(allPatients.length)} label="Active Patients" onPress={handleActivePatients} />
+          <StatCard icon="📅" value={String(upcomingVisits.length)} label="Upcoming Visits" onPress={handleUpcomingVisits} />
+          <StatCard icon="⚠️" value={String(needingAttention.length)} label="Patients Needing Attention" onPress={handleNeedingAttention} />
+          <StatCard icon="💬" value={String(unreadMessageCount)} label="Unread Messages" onPress={handleMessages} />
+        </View>
+
+        {/* Patient Lists Section */}
+        {isTablet ? (
+          <View style={styles.sectionsRow}>
+            <View style={styles.sectionHalf}>
+              <SectionHeader title="Patients Needing Attention" />
+              {needingTop3.map((patient) => (
+                <PatientRow key={patient.id} name={patient.fullName} subtitle={`Priority: ${getCriticalityText(patient.criticality)}`} tag={getCriticalityTag(patient.criticality)} color={getCriticalityColor(patient.criticality)} isLeftAligned={isLeftHanded} />
+              ))}
+              <ViewAllButton onPress={handleNeedingAttention} isLeftAligned={isLeftHanded} />
+            </View>
+
+            <View style={styles.sectionHalf}>
+              <SectionHeader title="Upcoming Visits" />
+              {upcomingTop3.map((patient) => (
+                <PatientRow key={patient.id} name={patient.fullName} subtitle={patient.nextVisit ? `Visit: ${formatDateTime(patient.nextVisit)}` : 'No visit scheduled'} tag={getCriticalityTag(patient.criticality)} color={getCriticalityColor(patient.criticality)} isLeftAligned={isLeftHanded} />
+              ))}
+              <ViewAllButton onPress={handleUpcomingVisits} isLeftAligned={isLeftHanded} />
             </View>
           </View>
-        </ScrollView>
-      ) : (
-        <ScrollView
-          contentContainerStyle={styles.scrollContentMobile}
-          showsVerticalScrollIndicator={false}
+        ) : (
+          <>
+            <View style={styles.section}>
+              <SectionHeader title="Patients Needing Attention" />
+              {needingTop3.map((patient) => (
+                <PatientRow key={patient.id} name={patient.fullName} subtitle={`Priority: ${getCriticalityText(patient.criticality)}`} tag={getCriticalityTag(patient.criticality)} color={getCriticalityColor(patient.criticality)} isLeftAligned={isLeftHanded} />
+              ))}
+              <ViewAllButton onPress={handleNeedingAttention} isLeftAligned={isLeftHanded} />
+            </View>
+
+            <View style={styles.section}>
+              <SectionHeader title="Upcoming Visits" />
+              {upcomingTop3.map((patient) => (
+                <PatientRow key={patient.id} name={patient.fullName} subtitle={patient.nextVisit ? `Visit: ${formatDateTime(patient.nextVisit)}` : 'No visit scheduled'} tag={getCriticalityTag(patient.criticality)} color={getCriticalityColor(patient.criticality)} isLeftAligned={isLeftHanded} />
+              ))}
+              <ViewAllButton onPress={handleUpcomingVisits} isLeftAligned={isLeftHanded} />
+            </View>
+          </>
+        )}
+      </ScrollView>  
+      <HandednessToggleOverlay />  
+    </View>
+  );
+}
+
+// Stat Card Component
+function StatCard({ icon, value, label, onPress }) {
+  return (
+    <TouchableOpacity
+      style={styles.statCard}
+      onPress={onPress}
+      activeOpacity={0.7}
+    >
+      <Text style={styles.statIcon}>{icon}</Text>
+      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </TouchableOpacity>
+  );
+}
+
+// Section Header Component
+function SectionHeader({ title }) {
+  return <Text style={styles.sectionTitle}>{title}</Text>;
+}
+
+// Patient Row Component
+function PatientRow({ name, subtitle, tag, color, isLeftAligned }) {
+  return (
+    <View style={styles.patientCard}>
+      <View style={styles.patientInfo}>
+        <Text style={styles.patientName} numberOfLines={1}>
+          {name}
+        </Text>
+        <Text style={styles.patientSubtitle} numberOfLines={2}>
+          {subtitle}
+        </Text>
+      </View>
+      {tag && tag.trim() !== '' && tag !== '—' && (
+        <View
+          style={[
+            styles.patientTag,
+            { backgroundColor: `${color}26` },
+          ]}
         >
-          <Header />
-          <KPIGrid />
-          <NeedingAttentionSection />
-          <UpcomingVisitsSection />
-        </ScrollView>
+          <Text style={[styles.patientTagText, { color }]}>{tag}</Text>
+        </View>
       )}
-    </SafeAreaView>
+    </View>
+  );
+}
+
+// View All Button Component
+function ViewAllButton({ onPress, isLeftAligned }) {
+  return (
+    <View style={[
+      styles.viewAllContainer,
+      isLeftAligned ? { alignItems: 'flex-start' } : { alignItems: 'flex-end' },
+    ]}>
+      <TouchableOpacity onPress={onPress}>
+        <Text style={styles.viewAllText}>View All</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
@@ -251,45 +211,27 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#F7FAFB',
   },
-  scrollContentMobile: {
-    flexGrow: 1,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-  },
-  scrollContentTablet: {
-    flexGrow: 1,
-    paddingVertical: 16,
-  },
-  tabletContent: {
-    alignSelf: 'center',
-    width: '100%',
-    maxWidth: 1100,
-    paddingHorizontal: 16,
+  scrollContent: {
+    padding: 16,
+    paddingTop: 50,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
   },
-  headerLeft: {
+  logoContainer: {
     width: 22,
     height: 22,
-    borderRadius: 4,
-    backgroundColor: '#E6F7F5',
-    justifyContent: 'center',
-    alignItems: 'center',
     marginRight: 10,
   },
-  logoText: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#0A7A8A',
+  logoEmoji: {
+    fontSize: 22,
   },
   headerTitle: {
     flex: 1,
     fontSize: 20,
     fontWeight: '700',
-    color: '#333',
   },
   infoButton: {
     padding: 8,
@@ -297,43 +239,99 @@ const styles = StyleSheet.create({
   infoIcon: {
     fontSize: 20,
   },
-  kpiContainer: {
+  kpiGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
     marginBottom: 24,
   },
-  kpiMobile: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
+  kpiGridTablet: {
+    justifyContent: 'space-between',
   },
-  kpiTablet: {
+  statCard: {
+    width: (width - 52) / 2, // 2 columns on mobile
+    minHeight: 170,
+    backgroundColor: '#ffffff',
+    borderRadius: 16,
+    padding: 14,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  statIcon: {
+    fontSize: 22,
+    marginBottom: 8,
+  },
+  statValue: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 14,
+    color: '#6b7280',
+    lineHeight: 18,
+  },
+  sectionsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
+    gap: 16,
+  },
+  sectionHalf: {
+    flex: 1,
   },
   section: {
     marginBottom: 24,
   },
-  patientsList: {
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  patientCard: {
+    flexDirection: 'row',
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    padding: 16,
     marginBottom: 12,
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 1,
   },
-  viewAllButton: {
-    alignSelf: 'flex-end',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+  patientInfo: {
+    flex: 1,
+    marginRight: 12,
   },
-  viewAllButtonLeft: {
-    alignSelf: 'flex-start',
+  patientName: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  patientSubtitle: {
+    fontSize: 14,
+    color: '#6b7280',
+  },
+  patientTag: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    maxWidth: 110,
+  },
+  patientTagText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  viewAllContainer: {
+    marginTop: 8,
   },
   viewAllText: {
-    color: '#0A7A8A',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  tabletSections: {
-    flexDirection: 'row',
-    gap: 16,
-  },
-  tabletColumn: {
-    flex: 1,
+    color: '#2563eb',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
