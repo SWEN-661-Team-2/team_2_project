@@ -6,7 +6,7 @@
  */
 
 import React, { createContext, useContext, useState, useMemo } from 'react';
-import PatientsRepository from '../repositories/PatientsRepository';
+import { patientsRepository } from '../repositories/PatientsRepository';
 
 const PatientsContext = createContext();
 
@@ -18,7 +18,9 @@ export const PatientViewMode = {
 
 export const PatientsProvider = ({ children }) => {
   const [viewMode, setViewMode] = useState(PatientViewMode.ALL);
-  const patientsRepository = new PatientsRepository();
+  // Use shared repository instance to avoid recreating on each render
+  // (the repository contains static sample data)
+  // `patientsRepository` is imported above.
 
   const getPatients = () => {
     switch (viewMode) {
