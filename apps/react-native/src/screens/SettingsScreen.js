@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
-  View,
+  Alert, Image,
+  ScrollView,
+  StyleSheet,
+  Switch,
   Text,
   TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  Switch,
-  Image,
+  View
 } from 'react-native';
-import { useHandedness, useTheme, useAppSettings } from '../contexts/AppProviders';
 import HandednessToggleOverlay from '../components/HandednessToggleOverlay';
+import { useAppSettings, useHandedness, useTheme } from '../contexts/AppProviders';
+import { useAuth } from '../contexts/AuthContext';
 
 /**
  * Settings Screen - Enhanced to match Flutter version
@@ -18,6 +19,7 @@ import HandednessToggleOverlay from '../components/HandednessToggleOverlay';
 export default function SettingsScreen({ navigation }) {
   const { isLeftHanded, toggleHandedness, handednessMode, setHandednessMode } = useHandedness();
   const { isDarkMode, toggleTheme, colors } = useTheme();
+  const { logout, loading } = useAuth();
   const { 
     notificationsEnabled, 
     setNotificationsEnabled,
@@ -233,14 +235,31 @@ export default function SettingsScreen({ navigation }) {
 
         {/* Logout */}
         <TouchableOpacity
-          style={styles.logoutButton}
+          style={[styles.logoutButton, loading && { opacity: 0.6 }]}
+          disabled={loading}
           onPress={() => {
-            alert('Logged out');
-            navigation.navigate('Login');
+            Alert.alert(
+              'Log out?',
+              'Are you sure you want to log out?',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Log out',
+                  style: 'destructive',
+                  onPress: async () => {
+                    await logout();
+                  },
+                },
+              ]
+            );
           }}
         >
           <Text style={styles.logoutIcon}>{isLeftHanded ? '🚪' : ''}</Text>
-          <Text style={styles.logoutText}>Logout</Text>
+
+          <Text style={styles.logoutText}>
+            {loading ? 'Logging out...' : 'Logout'}
+          </Text>
+
           <Text style={styles.logoutIcon}>{!isLeftHanded ? '🚪' : ''}</Text>
         </TouchableOpacity>
 
