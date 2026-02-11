@@ -44,7 +44,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   mockito: ^5.4.4
-  build_runner: ^2.4.13
+  build_runner: ^2.11.1
   nested: ^1.0.0  # ADD THIS LINE
 
 
