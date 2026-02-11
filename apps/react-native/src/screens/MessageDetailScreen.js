@@ -55,7 +55,7 @@ export default function MessageDetailScreen({ navigation, route }) {
         >
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle} numberOfLines={1}>
+        <Text testID="message_header_title" style={styles.headerTitle} numberOfLines={1}>
           {message.subject}
         </Text>
         <TouchableOpacity
@@ -79,7 +79,7 @@ export default function MessageDetailScreen({ navigation, route }) {
           </View>
           <View style={styles.metadataRow}>
             <Text style={styles.metadataLabel}>Subject:</Text>
-            <Text style={styles.metadataValue}>{message.subject}</Text>
+            <Text testID="message_subject" style={styles.metadataValue}>{message.subject}</Text>
           </View>
           <View style={styles.metadataRow}>
             <Text style={styles.metadataLabel}>Date:</Text>
@@ -91,10 +91,10 @@ export default function MessageDetailScreen({ navigation, route }) {
 
         {/* Message Body */}
         <View style={styles.messageBody}>
-          <Text style={styles.preview}>{message.preview}</Text>
+          <Text testID="message_preview" style={styles.preview}>{message.preview}</Text>
           
           {/* Additional content area for future expansion */}
-          <Text style={styles.fullContent}>
+          <Text testID="message_content" style={styles.fullContent}>
             {message.preview}
           </Text>
         </View>

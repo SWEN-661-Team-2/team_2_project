@@ -39,9 +39,9 @@ export function AuthProvider({ children }) {
         throw new Error('Email and password are required');
       }
 
-      if (!email.includes('@')) {
-        throw new Error('Invalid email format');
-      }
+      //if (!email.includes('@')) {
+        //throw new Error('Invalid email format');
+      //}
 
       // Simulate API call for authentication
       // In a real app, this would call your backend

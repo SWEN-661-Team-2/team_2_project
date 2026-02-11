@@ -50,11 +50,11 @@ describe('PatientsScreen Component', () => {
     });
 
     test('renders patient cards', () => {
-      const { container } = renderWithProviders(
+      const { root } = renderWithProviders(
         <PatientsScreen navigation={navigation} />
       );
 
-      expect(container).toBeTruthy();
+      expect(root).toBeTruthy();
     });
   });
 
@@ -70,21 +70,21 @@ describe('PatientsScreen Component', () => {
 
   describe('patient interaction', () => {
     test('shows alert when patient is pressed', () => {
-      const { container } = renderWithProviders(
+      const { root } = renderWithProviders(
         <PatientsScreen navigation={navigation} />
       );
 
-      expect(container).toBeTruthy();
+      expect(root).toBeTruthy();
     });
   });
 
   describe('filter menu', () => {
     test('filter menu can be opened', () => {
-      const { container } = renderWithProviders(
+      const { root } = renderWithProviders(
         <PatientsScreen navigation={navigation} />
       );
 
-      expect(container).toBeTruthy();
+      expect(root).toBeTruthy();
     });
   });
 });

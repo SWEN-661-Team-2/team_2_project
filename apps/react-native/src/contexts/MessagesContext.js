@@ -30,17 +30,14 @@ export function MessagesProvider({ children }) {
   const handleMarkAsRead = useCallback((messageId) => {
     // In a real app, this would update the backend
     // For now, just a placeholder
-    console.log(`Mark message ${messageId} as read`);
   }, []);
 
   const handleMarkAsUnread = useCallback((messageId) => {
     // In a real app, this would update the backend
-    console.log(`Mark message ${messageId} as unread`);
   }, []);
 
   const handleDeleteMessage = useCallback((messageId) => {
     // In a real app, this would update the backend
-    console.log(`Delete message ${messageId}`);
   }, []);
 
   const value = {

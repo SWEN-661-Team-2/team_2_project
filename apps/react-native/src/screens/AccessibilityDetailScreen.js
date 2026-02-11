@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -7,15 +7,36 @@ import {
   Switch,
   TouchableOpacity,
 } from 'react-native';
-import { useHandedness } from '../contexts/AppProviders';
+import { useHandedness, useAppSettings } from '../contexts/AppProviders';
 
 /**
  * Accessibility Mode Detail Screen
  * Shows details and toggle for individual accessibility modes
  */
 export default function AccessibilityDetailScreen({ route, navigation }) {
-  const { title, description, icon, enabled, onToggle } = route.params;
+  const { title, description, icon, enabled: initialEnabled, mode } = route.params;
   const { isLeftHanded } = useHandedness();
+  const appSettings = useAppSettings();
+  const [enabled, setEnabled] = useState(initialEnabled);
+
+  const handleToggle = (value) => {
+    setEnabled(value);
+    // Update the corresponding setting based on mode
+    switch(mode) {
+      case 'lowVision':
+        appSettings.setLowVisionEnabled(value);
+        break;
+      case 'tremor':
+        appSettings.setTremorSupportEnabled(value);
+        break;
+      case 'cognitive':
+        appSettings.setGuidedModeEnabled(value);
+        break;
+      case 'hearing':
+        appSettings.setHearingImpairedEnabled(value);
+        break;
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -43,7 +64,7 @@ export default function AccessibilityDetailScreen({ route, navigation }) {
         {/* Toggle Card */}
         <View style={styles.toggleCard}>
           <View style={styles.toggleRow}>
-            {isLeftHanded && <Switch value={enabled} onValueChange={onToggle} />}
+            {isLeftHanded && <Switch value={enabled} onValueChange={handleToggle} />}
             <View style={styles.toggleContent}>
               <Text style={styles.toggleTitle}>
                 {enabled ? 'Enabled' : 'Disabled'}
@@ -52,7 +73,7 @@ export default function AccessibilityDetailScreen({ route, navigation }) {
                 Toggle on to activate (UI only for now).
               </Text>
             </View>
-            {!isLeftHanded && <Switch value={enabled} onValueChange={onToggle} />}
+            {!isLeftHanded && <Switch value={enabled} onValueChange={handleToggle} />}
           </View>
         </View>
 
