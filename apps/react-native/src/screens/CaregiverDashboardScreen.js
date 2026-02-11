@@ -33,19 +33,6 @@ export default function CaregiverDashboardScreen({ navigation }) {
     needingTop3 = [],
   } = useDashboard();
 
-
-
-  console.log('dashboard:', {
-    allPatients,
-    upcomingVisits,
-    needingAttention,
-    unreadMessageCount,
-    needingTop3,
-  });
-
-
-
-
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
