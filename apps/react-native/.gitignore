@@ -1,4 +1,8 @@
-/coverage
+# Builds
+build/
+dist/
+.cache/
+coverage/
 
 # MacOS
 .DS_Store
