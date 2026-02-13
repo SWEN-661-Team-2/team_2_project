@@ -1,81 +1,82 @@
 /**
  * Component Tests - WelcomeScreen
- * Tests welcome screen rendering and navigation to login
+ * Verified for Accessibility Labels and Carousel Logic
  */
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, act, screen } from '@testing-library/react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import WelcomeScreen from '../../src/screens/WelcomeScreen';
-import { AppProviders } from '../../src/contexts/AppProviders';
 
+// Mock Navigation
 const mockNavigation = {
   navigate: jest.fn(),
-  setOptions: jest.fn(),
 };
 
 const renderWelcomeScreen = () => {
   return render(
-    <AppProviders>
-      <NavigationContainer>
-        <WelcomeScreen navigation={mockNavigation} />
-      </NavigationContainer>
-    </AppProviders>
+    <NavigationContainer>
+      <WelcomeScreen navigation={mockNavigation} />
+    </NavigationContainer>
   );
 };
 
 describe('WelcomeScreen Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.useFakeTimers(); // Required for auto-rotating carousel
   });
 
-  describe('rendering', () => {
-    test('renders welcome screen', () => {
-      const { getByText } = renderWelcomeScreen();
-
-      expect(getByText(/CareConnect/i) || getByText(/Welcome/i)).toBeTruthy();
-    });
-
-    test('renders app logo or branding', () => {
-      const { queryByTestId } = renderWelcomeScreen();
-
-      const logo = queryByTestId('welcome_logo') || queryByTestId('app_logo');
-      // Logo might not have testID, so this is optional
-      expect(true).toBe(true);
-    });
-
-    test('renders call to action button', () => {
-      const { getByText, queryByText } = renderWelcomeScreen();
-
-      const ctaButton = 
-        queryByText(/Get Started/i) || 
-        queryByText(/Login/i) ||
-        queryByText(/Sign In/i);
-
-      expect(ctaButton).toBeTruthy();
-    });
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
-  describe('navigation', () => {
-    test('navigates to login screen on button press', () => {
-      const { getByText, queryByText } = renderWelcomeScreen();
+  describe('Accessibility & Rendering', () => {
+    test('renders grouped branding header with full mission statement label', () => {
+      renderWelcomeScreen();
+      // Verifies the brandingContainer grouping
+      const header = screen.getByRole('header');
+      expect(header.props.accessibilityLabel).toContain('CareConnect');
+      expect(header.props.accessibilityLabel).toContain('Connecting Hearts');
+    });
 
-      const ctaButton = 
-        queryByText(/Get Started/i) || 
-        queryByText(/Login/i) ||
-        queryByText(/Sign In/i);
+    test('settings button has correct accessibility labels', () => {
+      renderWelcomeScreen();
+      const settingsBtn = screen.getByTestId('welcome_settings_button');
+      expect(settingsBtn.props.accessibilityLabel).toBe('Settings');
+      expect(settingsBtn.props.accessibilityHint).toBe('Navigates to the login screen');
+    });
 
-      if (ctaButton) {
-        fireEvent.press(ctaButton);
-        expect(mockNavigation.navigate).toHaveBeenCalledWith('Login');
-      }
+    test('continue button is accessible and navigates to Login', () => {
+      renderWelcomeScreen();
+      const continueBtn = screen.getByLabelText('Continue to Login');
+      
+      fireEvent.press(continueBtn);
+      expect(mockNavigation.navigate).toHaveBeenCalledWith('Login');
     });
   });
 
-  describe('accessibility', () => {
-    test('welcome screen is accessible', () => {
-      const { getByText, queryByText } = renderWelcomeScreen();
+  describe('Carousel Logic', () => {
+    test('carousel updates accessibility label when auto-rotating', () => {
+      renderWelcomeScreen();
+      
+      // Check initial state (1 of 10)
+      const carousel = screen.getByTestId('welcome_carousel');
+      expect(carousel.props.accessibilityLabel).toBe('Caregiving illustration 1 of 10');
 
-      expect(queryByText(/CareConnect/i) || queryByText(/Welcome/i)).toBeTruthy();
+      // Fast-forward 4 seconds
+      act(() => {
+        jest.advanceTimersByTime(4000);
+      });
+
+      // Check second state (2 of 10)
+      expect(carousel.props.accessibilityLabel).toBe('Caregiving illustration 2 of 10');
+    });
+
+    test('carousel has polite live region for screen readers', () => {
+      renderWelcomeScreen();
+      const carousel = screen.getByTestId('welcome_carousel');
+      expect(carousel.props.accessibilityLiveRegion).toBe('polite');
     });
   });
 });
+
