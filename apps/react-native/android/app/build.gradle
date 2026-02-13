@@ -109,12 +109,9 @@ android {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
             signingConfig signingConfigs.debug
-            def enableShrinkResources = (findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false').toBoolean()
-            shrinkResources enableShrinkResources
-            minifyEnabled enableMinifyInReleaseBuilds
+            shrinkResources (findProperty('android.enableShrinkResourcesInReleaseBuilds')?.toBoolean() ?: false)
+            minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
-            def enablePngCrunchInRelease = (findProperty('android.enablePngCrunchInReleaseBuilds') ?: 'true').toBoolean()
-            crunchPngs enablePngCrunchInRelease
         }
     }
     packagingOptions {
@@ -152,25 +149,19 @@ dependencies {
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";
     def isWebpAnimatedEnabled = (findProperty('expo.webp.animated') ?: "") == "true";
 
-    // Get fresco version as string to avoid casting issues
-    def frescoVersion = expoLibs.versions.fresco.get().toString()
-
     if (isGifEnabled) {
         // For animated gif support
-        implementation("com.facebook.fresco:animated-gif:${frescoVersion}")
+        implementation("com.facebook.fresco:animated-gif:${reactAndroidLibs.versions.fresco.get()}")
     }
 
     if (isWebpEnabled) {
         // For webp support
-        implementation("com.facebook.fresco:webpsupport:${frescoVersion}")
+        implementation("com.facebook.fresco:webpsupport:${reactAndroidLibs.versions.fresco.get()}")
         if (isWebpAnimatedEnabled) {
             // Animated webp support
-            implementation("com.facebook.fresco:animated-webp:${frescoVersion}")
+            implementation("com.facebook.fresco:animated-webp:${reactAndroidLibs.versions.fresco.get()}")
         }
     }
-
-    // Get fresco version as string to avoid casting issues
-    def frescoVersion = reactAndroidLibs.versions.fresco.get().toString()
 
     implementation("com.facebook.react:flipper-integration")
 
@@ -181,9 +172,5 @@ dependencies {
     }
 }
 
-// Disable CMake configuration tasks that cause build failures
-tasks.configureEach { task ->
-    if (task.name.contains("configureCMake") || task.name.contains("buildCMake") || task.name.contains("CMake")) {
-        task.enabled = false
-    }
-}
+apply from: new File(["node", "--print", "require.resolve('@react-native-community/cli-platform-android/package.json', { paths: [require.resolve('react-native/package.json')] })"].execute(null, rootDir).text.trim(), "../native_modules.gradle");
+applyNativeModulesAppBuildGradle(project)

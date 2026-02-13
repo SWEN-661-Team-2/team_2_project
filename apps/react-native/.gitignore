@@ -1,18 +1,42 @@
+# MacOS
+.DS_Store
+**/.DS_Store
+.AppleDouble
+.LSOverride
+
 # Node
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+package-lock.json
+yarn.lock
 
 # Android
 android/app/build/
 android/.gradle/
 android/local.properties
+android/keyboxes
+android/app/debug.keystore
+android/app/release.keystore
+android/app/*.jks
+android/app/*.keystore
+android/app/*.properties
+*.apk
+*.aab
 
 # iOS
 ios/build/
 ios/Pods/
-*.xcworkspace
+ios/Podfile.lock
+ios/.xccheckout
+ios/*.xcworkspace
+ios/*.xcuserdata
+ios/*.xcresult
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
 
 # Metro / Watchman
 .expo/
