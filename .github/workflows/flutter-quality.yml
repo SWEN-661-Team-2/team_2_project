@@ -3,9 +3,21 @@ name: Flutter Quality (analyze + format + tests + pana)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
+    paths:
+      - "**/*.dart"
+      - "**/pubspec.yaml"
+      - "**/pubspec.lock"
+      - "apps/flutter/**"
+      - ".github/workflows/flutter-quality.yml"
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+    paths:
+      - "**/*.dart"
+      - "**/pubspec.yaml"
+      - "**/pubspec.lock"
+      - "apps/flutter/**"
+      - ".github/workflows/flutter-quality.yml"
   workflow_dispatch: {}
 
 permissions:
@@ -17,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Locate Flutter app dir
         id: locate
@@ -74,7 +86,7 @@ jobs:
           pana --no-warning > ../reports/pana.txt || true
 
       - name: Upload pana report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: pana
           path: reports/pana.*
