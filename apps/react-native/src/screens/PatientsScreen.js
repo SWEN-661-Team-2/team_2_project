@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePatients, PatientViewMode } from '../contexts/PatientsContext';
-import { useHandedness } from '../contexts/AppProviders'; // Added for layout support
+import { useHandedness } from '../contexts/AppProviders';
 import PriorityPatientCard, {
   VisitPatientCard,
   PatientCard,
@@ -18,7 +18,7 @@ import PatientFilterMenu from './components/PatientFilterMenu';
 
 export default function PatientsScreen({ navigation }) {
   const { viewMode, setViewMode, patients } = usePatients();
-  const { isLeftHanded } = useHandedness(); // Consume handedness context
+  const { isLeftHanded } = useHandedness();
   const [filterVisible, setFilterVisible] = useState(false);
 
   const handlePatientPress = (patient) => {
@@ -42,7 +42,6 @@ export default function PatientsScreen({ navigation }) {
   };
 
   const getCardComponent = (item, index) => {
-    // Shared props for all cards
     const cardProps = {
       patient: item,
       index,
@@ -63,10 +62,13 @@ export default function PatientsScreen({ navigation }) {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header respecting handedness */}
-      <View style={[
-        styles.header, 
-        { flexDirection: isLeftHanded ? 'row-reverse' : 'row' }
-      ]}>
+      <View 
+        testID="screen_header"
+        style={[
+          styles.header, 
+          { flexDirection: isLeftHanded ? 'row-reverse' : 'row' }
+        ]}
+      >
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
@@ -77,8 +79,8 @@ export default function PatientsScreen({ navigation }) {
         >
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
-        
-        <Text 
+
+        <Text
           style={[styles.title, { textAlign: isLeftHanded ? 'right' : 'left' }]}
           accessibilityRole="header"
         >
