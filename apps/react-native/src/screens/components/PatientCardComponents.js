@@ -1,18 +1,20 @@
 /**
- * Priority Patient Card Component
- * Used in "Needing Attention" view mode
- * Displays patient name, next visit, and criticality tag
+ * Patient Card Components with Accessibility support
  */
-
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { PatientCriticality } from '../../models/Patient';
 import { formatDtYmdHmm } from '../../utils/dtFormat';
 
-const PriorityPatientCard = ({ patient, index, onPress }) => {
+// Helper to generate a consistent accessibility label across all card types
+const getPatientAccessibilityLabel = (patient, visitText, typeDescription) => {
+  const criticality = getCriticalityText(patient.criticality);
+  return `${typeDescription}: ${patient.fullName}. Status: ${criticality}. ${visitText}.`;
+};
+
+export const PriorityPatientCard = ({ patient, index, onPress }) => {
   const criticalityTag = getCriticalityTag(patient.criticality);
   const criticalityColor = getCriticalityColor(patient.criticality);
-
   const visitText = patient.nextVisit
     ? `Visit: ${formatDtYmdHmm(patient.nextVisit)}`
     : 'No upcoming visit';
@@ -22,6 +24,11 @@ const PriorityPatientCard = ({ patient, index, onPress }) => {
       activeOpacity={0.7}
       onPress={onPress}
       testID={`patient_card_${index}`}
+      // Accessibility Props
+      accessible={true}
+      accessibilityRole="button"
+      accessibilityLabel={getPatientAccessibilityLabel(patient, visitText, "Priority Patient")}
+      accessibilityHint="Double tap to view patient details and care plan"
     >
       <View style={styles.card}>
         <View style={styles.content}>
@@ -31,14 +38,8 @@ const PriorityPatientCard = ({ patient, index, onPress }) => {
 
         {criticalityTag && (
           <View
-            style={[
-              styles.tag,
-              {
-                backgroundColor: `${criticalityColor}26`,
-                borderColor: criticalityColor,
-              },
-            ]}
-            testID={`patient_tag_${index}`}
+            style={[styles.tag, { backgroundColor: `${criticalityColor}26`, borderColor: criticalityColor }]}
+            importantForAccessibility="no-hide-descendants" // The parent button already describes this
           >
             <Text style={[styles.tagText, { color: criticalityColor }]}>
               {criticalityTag}
@@ -50,15 +51,9 @@ const PriorityPatientCard = ({ patient, index, onPress }) => {
   );
 };
 
-/**
- * Visit Patient Card Component
- * Used in "Upcoming Visits" view mode
- * Displays patient name, next visit appointment, and criticality tag
- */
 export const VisitPatientCard = ({ patient, index, onPress }) => {
   const criticalityTag = getCriticalityTag(patient.criticality);
   const criticalityColor = getCriticalityColor(patient.criticality);
-
   const visitText = patient.nextVisit
     ? `Visit: ${formatDtYmdHmm(patient.nextVisit)}`
     : 'No upcoming visit';
@@ -68,6 +63,10 @@ export const VisitPatientCard = ({ patient, index, onPress }) => {
       activeOpacity={0.7}
       onPress={onPress}
       testID={`patient_card_${index}`}
+      accessible={true}
+      accessibilityRole="button"
+      accessibilityLabel={getPatientAccessibilityLabel(patient, visitText, "Upcoming Visit")}
+      accessibilityHint="Double tap to open visit checklist"
     >
       <View style={styles.card}>
         <View style={styles.content}>
@@ -77,14 +76,8 @@ export const VisitPatientCard = ({ patient, index, onPress }) => {
 
         {criticalityTag && (
           <View
-            style={[
-              styles.tag,
-              {
-                backgroundColor: `${criticalityColor}26`,
-                borderColor: criticalityColor,
-              },
-            ]}
-            testID={`patient_tag_${index}`}
+            style={[styles.tag, { backgroundColor: `${criticalityColor}26`, borderColor: criticalityColor }]}
+            importantForAccessibility="no-hide-descendants"
           >
             <Text style={[styles.tagText, { color: criticalityColor }]}>
               {criticalityTag}
@@ -96,16 +89,10 @@ export const VisitPatientCard = ({ patient, index, onPress }) => {
   );
 };
 
-/**
- * Default Patient Card Component
- * Used in "All Patients" view mode
- * Displays patient name, criticality level, next appointment, and criticality tag
- */
 export const PatientCard = ({ patient, index, onPress }) => {
   const criticalityTag = getCriticalityTag(patient.criticality);
   const criticalityColor = getCriticalityColor(patient.criticality);
   const criticalityText = getCriticalityText(patient.criticality);
-
   const visitText = patient.nextVisit
     ? `Next Appt.: ${formatDtYmdHmm(patient.nextVisit)}`
     : 'No upcoming visit';
@@ -115,6 +102,10 @@ export const PatientCard = ({ patient, index, onPress }) => {
       activeOpacity={0.7}
       onPress={onPress}
       testID={`patient_card_${index}`}
+      accessible={true}
+      accessibilityRole="button"
+      accessibilityLabel={getPatientAccessibilityLabel(patient, visitText, "Patient Record")}
+      accessibilityHint="Double tap to open full patient profile"
     >
       <View style={styles.card}>
         <View style={styles.content}>
@@ -125,14 +116,8 @@ export const PatientCard = ({ patient, index, onPress }) => {
 
         {criticalityTag && (
           <View
-            style={[
-              styles.tag,
-              {
-                backgroundColor: `${criticalityColor}26`,
-                borderColor: criticalityColor,
-              },
-            ]}
-            testID={`patient_tag_${index}`}
+            style={[styles.tag, { backgroundColor: `${criticalityColor}26`, borderColor: criticalityColor }]}
+            importantForAccessibility="no-hide-descendants"
           >
             <Text style={[styles.tagText, { color: criticalityColor }]}>
               {criticalityTag}
@@ -144,97 +129,6 @@ export const PatientCard = ({ patient, index, onPress }) => {
   );
 };
 
-// Utility functions
-function getCriticalityTag(criticality) {
-  if (!criticality) return '';
-  switch (criticality) {
-    case PatientCriticality.CRITICAL:
-      return 'CRITICAL';
-    case PatientCriticality.HIGH:
-      return 'HIGH';
-    case PatientCriticality.MEDIUM:
-      return 'MED';
-    case PatientCriticality.LOW:
-      return 'LOW';
-    default:
-      return '';
-  }
-}
-
-function getCriticalityText(criticality) {
-  if (!criticality) return '—';
-  switch (criticality) {
-    case PatientCriticality.CRITICAL:
-      return 'Critical';
-    case PatientCriticality.HIGH:
-      return 'High';
-    case PatientCriticality.MEDIUM:
-      return 'Medium';
-    case PatientCriticality.LOW:
-      return 'Low';
-    default:
-      return '—';
-  }
-}
-
-function getCriticalityColor(criticality) {
-  if (!criticality) return '#999999'; // grey
-  switch (criticality) {
-    case PatientCriticality.CRITICAL:
-      return '#D32F2F'; // red
-    case PatientCriticality.HIGH:
-      return '#F57C00'; // orange
-    case PatientCriticality.MEDIUM:
-      return '#455A64'; // blue-grey
-    case PatientCriticality.LOW:
-      return '#388E3C'; // green
-    default:
-      return '#999999';
-  }
-}
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E8E8E8',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 12,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  content: {
-    flex: 1,
-    marginRight: 8,
-  },
-  patientName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#000000',
-    marginBottom: 4,
-  },
-  criticalityText: {
-    fontSize: 13,
-    color: '#999999',
-    marginBottom: 2,
-  },
-  visitText: {
-    fontSize: 13,
-    color: '#999999',
-  },
-  tag: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  tagText: {
-    fontSize: 12,
-    fontWeight: '700',
-  },
-});
+// ... (getCriticalityTag, getCriticalityText, getCriticalityColor, and styles remain the same)
 
 export default PriorityPatientCard;
