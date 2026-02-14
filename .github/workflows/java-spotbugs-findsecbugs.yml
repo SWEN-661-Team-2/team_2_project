@@ -1,10 +1,23 @@
+# .github/workflows/java-spotbugs-findsecbugs.yml
 name: Java Static Analysis (SpotBugs + FindSecBugs)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
+    # Only run when backend/Java-related files change
+    paths:
+      - "**/pom.xml"
+      - "**/*.java"
+      - "backend/**"
+      - ".github/workflows/java-spotbugs-findsecbugs.yml"
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+    # Only run when backend/Java-related files change
+    paths:
+      - "**/pom.xml"
+      - "**/*.java"
+      - "backend/**"
+      - ".github/workflows/java-spotbugs-findsecbugs.yml"
   workflow_dispatch: {}
 
 permissions:
@@ -16,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -41,8 +54,6 @@ jobs:
 
           for pom in "${poms[@]}"; do
             echo "Analyzing: $pom"
-            # This uses SpotBugs plugin directly, and attempts to pull FindSecBugs as an extra plugin.
-            # If a module can't run (missing plugin/config), we continue so one module doesn't break the pipeline.
             mvn -f "$pom" -DskipTests \
               com.github.spotbugs:spotbugs-maven-plugin:4.8.5.0:spotbugs \
               -Dspotbugs.effort=Max \
@@ -51,12 +62,11 @@ jobs:
               || true
           done
 
-          # Collect anything spotbugs produced (varies by project config)
           find . -type f \( -name "spotbugsXml.xml" -o -name "spotbugs.html" -o -name "*spotbugs*.xml" \) -print0 \
             | xargs -0 -I{} cp "{}" reports/spotbugs/ || true
 
       - name: Upload SpotBugs artifacts
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: spotbugs-findsecbugs
           path: reports/spotbugs/
