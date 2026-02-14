@@ -196,6 +196,7 @@ class _PatientsListScreenState extends State<PatientsListScreen> {
         ],
       ),
       body: ListView(
+        key: const Key('patients_list'),
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
         children: [
           // Top row like your sample screens: "All" chip + count

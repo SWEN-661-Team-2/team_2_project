@@ -40,15 +40,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     _index = math.Random().nextInt(_carouselImages.length);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        _pageController.jumpToPage(_index);
-      }
+      if (!mounted) return;
+      if (!_pageController.hasClients) return;
+      _pageController.jumpToPage(_index);
     });
 
     _timer = Timer.periodic(const Duration(seconds: 4), (_) {
       if (!mounted) return;
+      if (!_pageController.hasClients) return;
+
       final next = (_index + 1) % _carouselImages.length;
       setState(() => _index = next);
+
       _pageController.animateToPage(
         next,
         duration: const Duration(milliseconds: 300),
@@ -73,10 +76,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           builder: (context, constraints) {
             final w = constraints.maxWidth;
 
-            // Clamp sizes so they match your reference and never get “giant”.
-            final titleSize = math.min(44.0, math.max(32.0, w * 0.10)); // ~32–44
-            final taglineSize = math.min(22.0, math.max(16.0, w * 0.052)); // ~16–22
-            final subSize = math.min(16.0, math.max(12.0, w * 0.038)); // ~12–16
+            final titleSize = math.min(44.0, math.max(32.0, w * 0.10));
+            final taglineSize = math.min(22.0, math.max(16.0, w * 0.052));
+            final subSize = math.min(16.0, math.max(12.0, w * 0.038));
 
             return SingleChildScrollView(
               child: Padding(
@@ -94,12 +96,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         },
                       ),
                     ),
-
-                    // Smaller logo to match the slide
                     const AppLogo(size: 120),
-
                     const SizedBox(height: 10),
-
                     Text(
                       'CareConnect',
                       textAlign: TextAlign.center,
@@ -110,9 +108,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         color: const Color(0xFF0A7A8A),
                       ),
                     ),
-
                     const SizedBox(height: 10),
-
                     Text(
                       'Supporting Care, Connecting Hearts',
                       textAlign: TextAlign.center,
@@ -123,9 +119,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         color: const Color(0xFF0A7A8A),
                       ),
                     ),
-
                     const SizedBox(height: 8),
-
                     Text(
                       'Empowering caregivers and care recipients\nwith compassion.',
                       textAlign: TextAlign.center,
@@ -133,12 +127,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         fontSize: subSize,
                         height: 1.35,
                         fontWeight: FontWeight.w500,
-                        color: Colors.grey.shade600,
+                        color: Colors.grey,
                       ),
                     ),
-
                     const SizedBox(height: AppSpacing.lg),
-
                     ClipRRect(
                       borderRadius: BorderRadius.circular(18),
                       child: AspectRatio(
@@ -152,9 +144,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         ),
                       ),
                     ),
-
                     const SizedBox(height: AppSpacing.xl),
-
                     SizedBox(
                       width: double.infinity,
                       height: 56,
@@ -166,7 +156,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         child: const Text('Continue'),
                       ),
                     ),
-
                     const SizedBox(height: AppSpacing.lg),
                   ],
                 ),

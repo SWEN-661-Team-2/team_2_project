@@ -190,14 +190,13 @@ class SettingsScreen extends StatelessWidget {
           // Logout
           // =========================
           ListTile(
+            key: const Key('settings_logout_tile'),
             title: const Text(
               'Logout',
               style: TextStyle(color: Colors.red, fontWeight: FontWeight.w700),
             ),
-            leading:
-                isLeftAligned ? const Icon(Icons.logout, color: Colors.red) : null,
-            trailing:
-                !isLeftAligned ? const Icon(Icons.logout, color: Colors.red) : null,
+            leading: isLeftAligned ? const Icon(Icons.logout, color: Colors.red) : null,
+            trailing: !isLeftAligned ? const Icon(Icons.logout, color: Colors.red) : null,
             onTap: () async {
               final shouldLogout = await showDialog<bool>(
                 context: context,
@@ -207,10 +206,12 @@ class SettingsScreen extends StatelessWidget {
                     content: const Text('Are you sure you want to log out?'),
                     actions: [
                       TextButton(
+                        key: const Key('logout_cancel'),
                         onPressed: () => Navigator.of(ctx).pop(false),
                         child: const Text('Cancel'),
                       ),
                       TextButton(
+                        key: const Key('logout_confirm'),
                         onPressed: () => Navigator.of(ctx).pop(true),
                         child: const Text('Logout'),
                       ),
@@ -396,7 +397,7 @@ class _DisplaySection extends StatelessWidget {
               'Toggle day/night theme (persisted).',
               style: isNight
                   ? text.bodySmall?.copyWith(
-                      color: Colors.white.withOpacity(0.85),
+                      color: Colors.white.withValues(alpha: 0.85),
                     )
                   : null,
             ),
@@ -682,7 +683,7 @@ class _AccessibilityModeTile extends StatelessWidget {
         subtitle: Text(
           subtitle,
           style: text.bodySmall?.copyWith(
-            color: isNight ? nightFg.withOpacity(0.85) : null,
+            color: isNight ? nightFg.withValues(alpha: 0.85) : null,
           ),
         ),
         trailing: isLeftAligned

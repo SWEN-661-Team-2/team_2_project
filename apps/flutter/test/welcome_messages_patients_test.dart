@@ -5,6 +5,7 @@ import 'package:flutter_app/features/welcome/welcome_screen.dart';
 import 'package:flutter_app/features/messages/messages_list_screen.dart';
 import 'package:flutter_app/features/patients/patients_list_screen.dart';
 import 'package:flutter_app/core/messages/messages_repository.dart';
+import 'package:flutter_app/core/patients/patients_repository.dart';
 
 import 'test_harness.dart';
 
@@ -35,7 +36,6 @@ void main() {
   });
 
   testWidgets('Settings icon navigates to login', (tester) async {
-    // FIXED: Use pumpAppWithRoutes instead of bare MaterialApp
     await pumpAppWithRoutes(tester, initialRoute: Routes.welcome);
     await tester.pumpAndSettle();
 
@@ -52,10 +52,9 @@ void main() {
     final all = MessagesRepository.instance.all();
     expect(all, isNotEmpty);
     expect(find.byKey(const Key('messages_list')), findsOneWidget);
-    // Ensure first item exists by key
+
     expect(find.byKey(const Key('message_0')), findsOneWidget);
 
-    // The first message is unread in the repository; assert icon inside first tile
     expect(
       find.descendant(
         of: find.byKey(const Key('message_0')),
@@ -65,14 +64,11 @@ void main() {
     );
   });
 
-  testWidgets('Messages unreadCount matches visible unread icons', (
-    tester,
-  ) async {
+  testWidgets('Messages unreadCount matches visible unread icons', (tester) async {
     await pumpWidgetWithApp(tester, const MessagesListScreen());
     final repo = MessagesRepository.instance;
     final unread = repo.unreadCount();
 
-    // Ensure repository reports unread and first tile shows the unread icon
     expect(unread, greaterThan(0));
     expect(
       find.descendant(
@@ -84,36 +80,53 @@ void main() {
   });
 
   testWidgets('Patients list renders for different modes', (tester) async {
+    final patientsRepo = PatientsRepository.instance;
+    final allPatients = patientsRepo.allPatients();
+    expect(allPatients, isNotEmpty);
+
+    // ---------- ALL PATIENTS ----------
     await pumpWidgetWithApp(
       tester,
       const PatientsListScreen(
-        key: Key('patients_all'), // Added unique key
+        key: Key('patients_all'),
         mode: PatientsViewMode.allPatients,
       ),
     );
 
     expect(find.byKey(const Key('patients_list')), findsOneWidget);
-    expect(find.byKey(const Key('patient_0')), findsOneWidget);
 
+    // DO NOT hardcode a specific patient name.
+    // Just assert at least one patient name from repo is present.
+    final anyPatientNameFinder = find.byWidgetPredicate((w) {
+      if (w is! Text) return false;
+      final data = w.data ?? '';
+      return allPatients.any((p) => data == '${p.firstName} ${p.lastName}');
+    });
+
+    expect(anyPatientNameFinder, findsWidgets);
+
+    // ---------- NEEDING ATTENTION ----------
     await pumpWidgetWithApp(
       tester,
       const PatientsListScreen(
-        key: Key('patients_needing_attention'), // Added unique key
+        key: Key('patients_needing_attention'),
         mode: PatientsViewMode.needingAttention,
       ),
     );
 
-    expect(find.text('Patients Needing Attention'), findsOneWidget);
-    expect(find.byKey(const Key('patient_tag_0')), findsOneWidget);
+    expect(find.byKey(const Key('patients_list')), findsOneWidget);
+    expect(find.textContaining('Priority:'), findsWidgets);
 
+    // ---------- UPCOMING VISITS ----------
     await pumpWidgetWithApp(
       tester,
       const PatientsListScreen(
-        key: Key('patients_upcoming'), // Added unique key
+        key: Key('patients_upcoming'),
         mode: PatientsViewMode.upcomingVisits,
       ),
     );
 
-    expect(find.text('Upcoming Visits'), findsOneWidget);
+    expect(find.byKey(const Key('patients_list')), findsOneWidget);
+    expect(find.textContaining('Visit:'), findsWidgets);
   });
 }

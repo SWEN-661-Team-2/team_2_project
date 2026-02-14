@@ -1,9 +1,7 @@
-// lib/app/app.dart
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
-
-import '../core/accessibility/text_size_mode.dart';
+import 'package:flutter_app/core/accessibility/text_size_mode.dart';
 import '../core/accessibility/app_settings_controller.dart';
 import '../core/theme/app_theme.dart';
 import 'routes.dart';
@@ -26,6 +24,7 @@ class CareConnectApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.watch<AppSettingsController>();
 
+    // High-contrast affects WHICH theme set we use.
     final ThemeData lightTheme =
         c.highContrastEnabled ? AppTheme.highContrastLight() : AppTheme.light();
 
@@ -35,11 +34,14 @@ class CareConnectApp extends StatelessWidget {
     return MaterialApp(
       title: 'CareConnect-LH',
       debugShowCheckedModeBanner: false,
+
       theme: lightTheme,
       darkTheme: darkTheme,
 
-      // Day/Night MUST be driven by darkModeEnabled
-      themeMode: c.darkModeEnabled ? ThemeMode.dark : ThemeMode.light,
+      // Day/Night drives ThemeMode. (THIS was the bug.)
+      themeMode: (c.darkModeEnabled || c.highContrastEnabled)
+          ? ThemeMode.dark
+          : ThemeMode.light,
 
       builder: (context, child) {
         final c = context.watch<AppSettingsController>();
