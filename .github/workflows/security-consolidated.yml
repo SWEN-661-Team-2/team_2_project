@@ -44,11 +44,13 @@ jobs:
           set -euo pipefail
           grype sbom:reports/sbom/sbom.spdx.json -o sarif > reports/sbom/grype.sarif || true
 
-      - name: Upload SARIF (Grype)
-        uses: github/codeql-action/upload-sarif@v4
+      - name: Upload Grype SARIF as artifact (GitHub SARIF upload incompatible)
+        uses: actions/upload-artifact@v4
         with:
-          sarif_file: reports/sbom/grype.sarif
-          category: grype-vulnerabilities
+          name: grype-sarif
+          path: reports/sbom/grype.sarif
+          if-no-files-found: error
+
 
       - name: Upload SBOM artifacts
         uses: actions/upload-artifact@v4
