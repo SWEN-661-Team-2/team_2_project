@@ -14,8 +14,8 @@ import HandednessToggleOverlay from '../components/HandednessToggleOverlay';
 export default function SettingsScreen({ navigation }) {
   const { isLeftHanded, handednessMode, setHandednessMode } = useHandedness();
   const { isDarkMode, toggleTheme, colors } = useTheme();
-  const { 
-    notificationsEnabled, 
+  const {
+    notificationsEnabled,
     setNotificationsEnabled,
     reminderFrequency,
     setReminderFrequency,
@@ -35,14 +35,14 @@ export default function SettingsScreen({ navigation }) {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView 
+      <ScrollView
         contentContainerStyle={styles.scrollContent}
-        accessibilityRole="summary" // Tells OS this is a list of options/settings
+        accessibilityRole="summary"
       >
         {/* Header */}
         <View style={styles.header} accessibilityRole="header">
           <View style={styles.logoContainer}>
-            <Image 
+            <Image
               source={require('../../assets/logo/careconnect_logo.png')}
               style={styles.logoImage}
               resizeMode="contain"
@@ -94,8 +94,8 @@ export default function SettingsScreen({ navigation }) {
         {/* Display */}
         <SectionHeader title="Display" />
         <Text style={[styles.sectionSubtitle, styles.marginTop, { color: colors.text }]}>Text Size</Text>
-        <TextSizeSelector 
-          selected={textSize} 
+        <TextSizeSelector
+          selected={textSize}
           onSelect={setTextSize}
           isLeftAligned={isLeftHanded}
         />
@@ -116,10 +116,6 @@ export default function SettingsScreen({ navigation }) {
 
         {/* Accessibility */}
         <SectionHeader title="Accessibility" />
-        <Text style={[styles.helperText, { color: colors.textSecondary }]}>
-          Select a profile to review mitigation goals. Toggle is UI-only for now.
-        </Text>
-
         <AccessibilityModeTile
           title="Low Vision"
           subtitle="Larger text + improved contrast (UI only)"
@@ -145,8 +141,32 @@ export default function SettingsScreen({ navigation }) {
             onToggle: setTremorSupportEnabled,
           })}
         />
-        
-        {/* ... remaining AccessibilityModeTiles updated with the same logic ... */}
+
+        <AccessibilityModeTile
+          title="Cognitive Load (STML)"
+          subtitle="Reduced complexity + clear flow (UI only)"
+          icon="🧠"
+          enabled={guidedModeEnabled}
+          isLeftAligned={isLeftHanded}
+          onPress={() => navigation.navigate('AccessibilityDetail', {
+            title: 'Cognitive Load',
+            enabled: guidedModeEnabled,
+            onToggle: setGuidedModeEnabled,
+          })}
+        />
+
+        <AccessibilityModeTile
+          title="Hearing Impaired"
+          subtitle="Visual alerts + captions (UI only)"
+          icon="🔇"
+          enabled={hearingImpairedEnabled}
+          isLeftAligned={isLeftHanded}
+          onPress={() => navigation.navigate('AccessibilityDetail', {
+            title: 'Hearing Impaired',
+            enabled: hearingImpairedEnabled,
+            onToggle: setHearingImpairedEnabled,
+          })}
+        />
 
         <Divider />
 
@@ -189,32 +209,36 @@ export default function SettingsScreen({ navigation }) {
           isLeftAligned={isLeftHanded}
         />
       )}
-      <HandednessToggleOverlay/>
+      <HandednessToggleOverlay />
     </View>
   );
 }
 
 // ============================================================================
-// ACCESSIBILITY-ENHANCED SUB-COMPONENTS
+// SUB-COMPONENTS
 // ============================================================================
 
 function SectionHeader({ title }) {
   const { colors } = useTheme();
-  return (
-    <Text 
-      style={[styles.sectionHeader, { color: colors.text }]}
-      accessibilityRole="header"
-    >
-      {title}
-    </Text>
-  );
+  return <Text style={[styles.sectionHeader, { color: colors.text }]} accessibilityRole="header">{title}</Text>;
+}
+
+function Divider() { return <View style={styles.divider} />; }
+
+function getReminderLabel(freq) {
+  const labels = {
+    daily: 'Daily',
+    weekly: 'Weekly',
+    custom: 'Custom',
+  };
+  return labels[freq] || 'Daily';
 }
 
 function HandedListTile({ title, subtitle, icon, isLeftAligned, onPress, accessibilityLabel, accessibilityHint }) {
   const { colors } = useTheme();
   return (
-    <TouchableOpacity 
-      style={styles.listTile} 
+    <TouchableOpacity
+      style={styles.listTile}
       onPress={onPress}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel || `${title}, ${subtitle || ''}`}
@@ -233,18 +257,13 @@ function HandedListTile({ title, subtitle, icon, isLeftAligned, onPress, accessi
 function HandedSwitchListTile({ title, subtitle, value, onValueChange, isLeftAligned }) {
   const { colors } = useTheme();
   return (
-    <View 
-      style={styles.switchTile}
-      accessibilityRole="switch"
-      accessibilityLabel={title}
-      accessibilityState={{ checked: value }}
-    >
-      {isLeftAligned && <Switch value={value} onValueChange={onValueChange} accessibilityLabel={title} />}
+    <View style={styles.switchTile} accessibilityRole="switch" accessibilityLabel={title} accessibilityState={{ checked: value }}>
+      {isLeftAligned && <Switch value={value} onValueChange={onValueChange} />}
       <View style={styles.listContent}>
         <Text style={[styles.listTitle, { color: colors.text }]}>{title}</Text>
         {subtitle && <Text style={[styles.listSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>}
       </View>
-      {!isLeftAligned && <Switch value={value} onValueChange={onValueChange} accessibilityLabel={title} />}
+      {!isLeftAligned && <Switch value={value} onValueChange={onValueChange} />}
     </View>
   );
 }
@@ -256,7 +275,6 @@ function TextSizeSelector({ selected, onSelect, isLeftAligned }) {
     { label: 'Large', value: 'large' },
     { label: 'XL', value: 'extraLarge' },
   ];
-
   return (
     <View style={[styles.textSizeContainer, isLeftAligned && styles.alignLeft]} accessibilityRole="radiogroup">
       {options.map((opt) => (
@@ -266,7 +284,6 @@ function TextSizeSelector({ selected, onSelect, isLeftAligned }) {
           onPress={() => onSelect(opt.value)}
           accessibilityRole="radio"
           accessibilityState={{ selected: selected === opt.value }}
-          accessibilityLabel={`${opt.label} text size`}
         >
           <Text style={styles.textSizeLabel}>{opt.label}</Text>
         </TouchableOpacity>
@@ -284,30 +301,118 @@ function AccessibilityModeTile({ title, subtitle, icon, enabled, isLeftAligned, 
       accessibilityState={{ checked: enabled }}
       accessibilityLabel={`${title} mode. ${enabled ? 'Currently active' : 'Currently inactive'}.`}
     >
-      {/* Visual only icons/indicators hidden from screen reader to reduce noise */}
-      {isLeftAligned && (
-        <View style={styles.accessibilityLeft} accessibilityElementsHidden={true}>
-          <View style={[styles.indicator, enabled && styles.indicatorEnabled]} />
-          <Text style={styles.chevron}>›</Text>
-        </View>
-      )}
+      {isLeftAligned && <View style={styles.accessibilityLeft} accessibilityElementsHidden={true}><View style={[styles.indicator, enabled && styles.indicatorEnabled]} /><Text style={styles.chevron}>›</Text></View>}
       {!isLeftAligned && <Text style={styles.accessibilityIcon} accessibilityElementsHidden={true}>{icon}</Text>}
-      
       <View style={styles.accessibilityContent}>
         <Text style={styles.accessibilityTitle}>{title}</Text>
         <Text style={styles.accessibilitySubtitle}>{subtitle}</Text>
       </View>
-
       {isLeftAligned && <Text style={styles.accessibilityIcon} accessibilityElementsHidden={true}>{icon}</Text>}
-      {!isLeftAligned && (
-        <View style={styles.accessibilityRight} accessibilityElementsHidden={true}>
-          <View style={[styles.indicator, enabled && styles.indicatorEnabled]} />
-          <Text style={styles.chevron}>›</Text>
-        </View>
-      )}
+      {!isLeftAligned && <View style={styles.accessibilityRight} accessibilityElementsHidden={true}><View style={[styles.indicator, enabled && styles.indicatorEnabled]} /><Text style={styles.chevron}>›</Text></View>}
     </TouchableOpacity>
   );
 }
 
-// HandednessRadioGroup and ReminderFrequencyPicker should follow 
-// the same pattern: accessibilityRole="radio" and accessibilityState={{ selected: ... }}
+function HandednessRadioGroup({ selected, onSelect, isLeftAligned }) {
+  const { colors } = useTheme();
+  const options = [{ label: 'Left-handed', value: 'left' }, { label: 'Right-handed', value: 'right' }, { label: 'Toggle mode', value: 'toggle' }];
+  return (
+    <View style={styles.radioGroup}>
+      {options.map((opt) => (
+        <TouchableOpacity key={opt.value} style={styles.radioItem} onPress={() => onSelect(opt.value)} accessibilityRole="radio" accessibilityState={{ selected: selected === opt.value }}>
+          {isLeftAligned && <View style={[styles.radio, selected === opt.value && styles.radioSelected]} />}
+          <Text style={[styles.radioLabel, { color: colors.text }]}>{opt.label}</Text>
+          {!isLeftAligned && <View style={[styles.radio, selected === opt.value && styles.radioSelected]} />}
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+}
+
+function ReminderFrequencyPicker({ selected, onSelect, onClose, isLeftAligned }) {
+  const options = [
+    { label: 'Daily', value: 'daily' },
+    { label: 'Weekly', value: 'weekly' },
+    { label: 'Custom', value: 'custom' }
+  ];
+  return (
+    <View style={styles.modalOverlay}>
+      <View style={styles.modalContent}>
+        {/* Changed this line to ensure getByText or getByRole matches */}
+        <Text style={styles.modalTitle} accessibilityRole="header">Reminder frequency</Text>
+        {options.map((opt) => (
+          <TouchableOpacity
+            key={opt.value}
+            style={styles.modalOption}
+            onPress={() => onSelect(opt.value)}
+            accessibilityRole="radio"
+            accessibilityState={{ selected: selected === opt.value }}
+            accessibilityLabel={opt.label}
+          >
+            {isLeftAligned && <View style={[styles.radio, selected === opt.value && styles.radioSelected]} />}
+            <Text style={styles.radioLabel}>{opt.label}</Text>
+            {!isLeftAligned && <View style={[styles.radio, selected === opt.value && styles.radioSelected]} />}
+          </TouchableOpacity>
+        ))}
+        <TouchableOpacity style={styles.modalClose} onPress={onClose} accessibilityRole="button">
+          <Text style={styles.modalCloseText}>Close</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+// ============================================================================
+// STYLES
+// ============================================================================
+
+const styles = StyleSheet.create({
+  container: { flex: 1 },
+  scrollContent: { padding: 20, paddingTop: 60 },
+  header: { flexDirection: 'row', alignItems: 'center', marginBottom: 24 },
+  logoContainer: { width: 40, height: 40, marginRight: 12 },
+  logoImage: { width: 40, height: 40 },
+  headerTitle: { fontSize: 24, fontWeight: '700' },
+  sectionHeader: { fontSize: 18, fontWeight: 'bold', marginTop: 8, marginBottom: 12 },
+  sectionSubtitle: { fontSize: 15, fontWeight: '600', marginBottom: 8 },
+  helperText: { fontSize: 14, marginBottom: 12 },
+  divider: { height: 1, backgroundColor: '#e5e7eb', marginVertical: 24 },
+  listTile: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
+  listContent: { flex: 1, marginHorizontal: 12 },
+  listTitle: { fontSize: 16 },
+  listSubtitle: { fontSize: 14, marginTop: 2 },
+  listIcon: { fontSize: 20 },
+  switchTile: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
+  card: { borderRadius: 12, padding: 4, marginBottom: 8 },
+  textSizeContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 },
+  alignLeft: { justifyContent: 'flex-start' },
+  textSizeBox: { paddingHorizontal: 16, paddingVertical: 14, borderRadius: 14, borderWidth: 2, borderColor: '#CED8DC', backgroundColor: '#ffffff' },
+  textSizeBoxSelected: { borderColor: '#0A7A8A', backgroundColor: '#E6F7F5' },
+  textSizeLabel: { fontSize: 14, fontWeight: '800' },
+  marginTop: { marginTop: 16 },
+  accessibilityTile: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#ffffff', borderRadius: 16, borderWidth: 1.5, borderColor: '#CED8DC', padding: 16, marginBottom: 12 },
+  accessibilityTileEnabled: { backgroundColor: '#E6F7F5', borderColor: '#0A7A8A' },
+  accessibilityLeft: { flexDirection: 'row', alignItems: 'center', marginRight: 12 },
+  accessibilityRight: { flexDirection: 'row', alignItems: 'center', marginLeft: 12 },
+  indicator: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: '#CED8DC', marginRight: 10 },
+  indicatorEnabled: { backgroundColor: '#0A7A8A', borderColor: '#0A7A8A' },
+  chevron: { fontSize: 24, color: '#6b7280' },
+  accessibilityIcon: { fontSize: 24, marginHorizontal: 8 },
+  accessibilityContent: { flex: 1 },
+  accessibilityTitle: { fontSize: 16, fontWeight: '800', marginBottom: 4 },
+  accessibilitySubtitle: { fontSize: 13, color: '#6b7280' },
+  radioGroup: { marginBottom: 8 },
+  radioItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
+  radio: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: '#9ca3af', marginHorizontal: 12 },
+  radioSelected: { borderColor: '#0A7A8A', backgroundColor: '#0A7A8A' },
+  radioLabel: { fontSize: 16, flex: 1 },
+  logoutButton: { flexDirection: 'row', alignItems: 'center', paddingVertical: 16 },
+  logoutIcon: { fontSize: 20, marginHorizontal: 8 },
+  logoutText: { flex: 1, fontSize: 16, color: '#ef4444', fontWeight: '700' },
+  modalOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: '#ffffff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 24 },
+  modalTitle: { fontSize: 18, fontWeight: '800', marginBottom: 16 },
+  modalOption: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12 },
+  modalClose: { marginTop: 16, padding: 12, alignItems: 'center' },
+  modalCloseText: { fontSize: 16, color: '#0A7A8A', fontWeight: '600' },
+});
