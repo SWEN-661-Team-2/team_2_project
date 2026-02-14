@@ -39,10 +39,12 @@ describe('CaregiverDashboardScreen Component', () => {
       expect(getByText('CareConnect')).toBeTruthy();
     });
 
-    test('renders welcome message', () => {
-      const { getByText } = renderDashboard();
+    test('renders stat cards', () => {
+      const { getByText, getAllByText } = renderDashboard();
 
-      expect(getByText(/Hello/i)).toBeTruthy();
+      expect(getByText('Active Patients')).toBeTruthy();
+      const upcomingMatches = getAllByText('Upcoming Visits');
+      expect(upcomingMatches.length).toBeGreaterThan(0);
     });
   });
 
@@ -59,10 +61,11 @@ describe('CaregiverDashboardScreen Component', () => {
 
   describe('patients section', () => {
     test('renders patients needing attention section', async () => {
-      const { getByText } = renderDashboard();
+      const { getAllByText } = renderDashboard();
 
       await waitFor(() => {
-        expect(getByText(/Patients Needing Attention/i) || getByText(/Patients/i)).toBeTruthy();
+        const matches = getAllByText(/Patients Needing Attention/i);
+        expect(matches.length).toBeGreaterThan(0);
       });
     });
   });
@@ -99,12 +102,12 @@ describe('CaregiverDashboardScreen Component', () => {
 
   describe('upcoming visits section', () => {
     test('renders upcoming visits section', async () => {
-      const { getByText, queryByText } = renderDashboard();
+      const { getAllByText } = renderDashboard();
 
       await waitFor(() => {
-        // Check for section header
-        const hasUpcomingVisits = queryByText(/Upcoming Visits/i) || queryByText(/Schedule/i);
-        expect(hasUpcomingVisits).toBeTruthy();
+        // Check for section header or stat card
+        const matches = getAllByText(/Upcoming Visits/i);
+        expect(matches.length).toBeGreaterThan(0);
       });
     });
   });
