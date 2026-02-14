@@ -1,3 +1,4 @@
+// lib/core/accessibility/app_settings_storage.dart
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'handedness.dart';
@@ -21,12 +22,17 @@ class AppSettingsStorage {
   // Keys (persisted)
   // =========================
   static const _keyHandedness = 'handedness_mode';
-  static const _keyCurrentToggleHandedness = 'current_toggle_handedness'; // NEW
+  static const _keyCurrentToggleHandedness = 'current_toggle_handedness';
+
   static const _keyA11yOverlay = 'a11y_overlay';
   static const _keyNotificationsEnabled = 'notifications_enabled';
 
   static const _keyTextSizeMode = 'text_size_mode';
+
   static const _keyHighContrastEnabled = 'high_contrast_enabled';
+
+  /// NEW: this is what your Day/Night toggle should persist
+  static const _keyDarkModeEnabled = 'dark_mode_enabled';
 
   static const _keyReminderFrequency = 'reminder_frequency';
 
@@ -120,6 +126,19 @@ class AppSettingsStorage {
   Future<void> saveHighContrastEnabled(bool enabled) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_keyHighContrastEnabled, enabled);
+  }
+
+  // =========================
+  // Dark Mode (persisted)
+  // =========================
+  Future<bool> loadDarkModeEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_keyDarkModeEnabled) ?? false;
+  }
+
+  Future<void> saveDarkModeEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_keyDarkModeEnabled, enabled);
   }
 
   // =========================

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../messages/messages_list_screen.dart';
 
 import '../../widgets/app_logo.dart';
 import '../../app/app_shell.dart';
-import '../patients/patients_list_screen.dart';
+
+import '../patients/patients_list_screen.dart'; 
+import '../messages/messages_list_screen.dart';
+
 import '../../core/patients/patient.dart';
 import '../../core/patients/patients_repository.dart';
 import '../../core/utils/dt_format.dart';
@@ -28,136 +30,135 @@ class CaregiverDashboardScreen extends StatelessWidget {
     final upcomingTop3 = repo.topUpcomingVisits(3);
 
     Widget header() => Row(
-      children: [
-        const AppLogo(size: 22),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            'CareConnect',
-            overflow: TextOverflow.ellipsis,
-            maxLines: 1,
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-          ),
-        ),
-        IconButton(
-          tooltip: 'App information',
-          icon: const Icon(Icons.info_outline),
-          onPressed: () {},
-        ),
-      ],
-    );
+          children: [
+            const AppLogo(size: 22),
+            const SizedBox(width: 10),
+            const Expanded(
+              child: Text(
+                'CareConnect',
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+              ),
+            ),
+            IconButton(
+              tooltip: 'App information',
+              icon: const Icon(Icons.info_outline),
+              onPressed: () {},
+            ),
+          ],
+        );
 
     Widget kpiGrid({
       required int crossAxisCount,
       required double mainAxisExtent,
-    }) => GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        mainAxisExtent: mainAxisExtent,
-      ),
-      itemCount: 4,
-      itemBuilder: (context, index) {
-        final cards = [
-          _StatCard(
-            icon: Icons.people,
-            value: '${repo.allPatients().length}',
-            label: 'Active Patients',
-            onTap: () =>
-                AppShell.of(context)?.openPatients(PatientsViewMode.all),
+    }) =>
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            mainAxisExtent: mainAxisExtent,
           ),
-          _StatCard(
-            icon: Icons.schedule,
-            value: '${repo.upcomingVisitsSorted().length}',
-            label: 'Upcoming Visits',
-            onTap: () => AppShell.of(
-              context,
-            )?.openPatients(PatientsViewMode.upcomingVisits),
-          ),
-          _StatCard(
-            icon: Icons.warning_amber,
-            value: '${repo.needingAttentionSorted().length}',
-            label: 'Patients Needing Attention',
-            onTap: () => AppShell.of(
-              context,
-            )?.openPatients(PatientsViewMode.needingAttention),
-          ),
-          _StatCard(
-            icon: Icons.chat_bubble_outline,
-            value: '${msgRepo.unreadCount()}',
-            label: 'Messages / Unread',
-            onTap: () =>
-                AppShell.of(context)?.openMessages(MessagesViewMode.unread),
-          ),
-        ];
-        return cards[index];
-      },
-    );
+          itemCount: 4,
+          itemBuilder: (context, index) {
+            final cards = [
+              _StatCard(
+                icon: Icons.people,
+                value: '${repo.allPatients().where((p) => p.nextVisit != null || p.criticality != null).length}',
+                label: 'Active Patients',
+                onTap: () => AppShell.of(context)?.openPatients(
+                  PatientsViewMode.activePatients,
+                ),
+              ),
+              _StatCard(
+                icon: Icons.schedule,
+                value: '${repo.upcomingVisitsSorted().length}',
+                label: 'Upcoming Visits',
+                onTap: () => AppShell.of(context)?.openPatients(
+                  PatientsViewMode.upcomingVisits,
+                ),
+              ),
+              _StatCard(
+                icon: Icons.warning_amber,
+                value: '${repo.needingAttentionSorted().length}',
+                label: 'Patients Needing Attention',
+                onTap: () => AppShell.of(context)?.openPatients(
+                  PatientsViewMode.needingAttention,
+                ),
+              ),
+              _StatCard(
+                icon: Icons.chat_bubble_outline,
+                value: '${msgRepo.unreadCount()}',
+                label: 'Unread Messages', 
+                onTap: () => AppShell.of(context)?.openMessages(
+                  MessagesViewMode.unread,
+                ),
+              ),
+            ];
+            return cards[index];
+          },
+        );
 
     Widget needingSection() => Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const _SectionHeader(title: 'Patients Needing Attention'),
-        for (final p in needingTop3)
-          _PatientRow(
-            name: p.fullName,
-            subtitle: 'Priority: ${_critText(p.criticality)}',
-            tag: _critTag(p.criticality),
-            color: _critColor(p.criticality),
-          ),
-
-        Align(
-          alignment: isLeftAligned
-              ? Alignment.centerLeft
-              : Alignment.centerRight,
-          child: Semantics(
-            button: true,
-            label: 'View all patients needing attention',
-            child: TextButton(
-              onPressed: () => AppShell.of(
-                context,
-              )?.openPatients(PatientsViewMode.needingAttention),
-              child: const Text('View All'),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const _SectionHeader(title: 'Patients Needing Attention'),
+            for (final p in needingTop3)
+              _PatientRow(
+                name: p.fullName,
+                subtitle: 'Priority: ${_critText(p.criticality)}',
+                tag: _critTag(p.criticality),
+                color: _critColor(p.criticality),
+              ),
+            Align(
+              alignment:
+                  isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
+              child: Semantics(
+                button: true,
+                label: 'View all patients needing attention',
+                child: TextButton(
+                  onPressed: () => AppShell.of(context)?.openPatients(
+                    PatientsViewMode.needingAttention,
+                  ),
+                  child: const Text('View All'),
+                ),
+              ),
             ),
-          ),
-        ),
-      ],
-    );
+          ],
+        );
 
     Widget upcomingSection() => Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const _SectionHeader(title: 'Upcoming Visits'),
-        for (final p in upcomingTop3)
-          _PatientRow(
-            name: p.fullName,
-            subtitle: p.nextVisit == null
-                ? 'No visit scheduled'
-                : 'Visit: ${formatDtYmdHmm(p.nextVisit!.toLocal())}',
-            tag: _critTagOrBlank(p.criticality),
-            color: _critColorOrTransparent(p.criticality),
-          ),
-
-        Align(
-          alignment: isLeftAligned
-              ? Alignment.centerLeft
-              : Alignment.centerRight,
-          child: Semantics(
-            button: true,
-            label: 'View all upcoming visits',
-            child: TextButton(
-              onPressed: () => AppShell.of(
-                context,
-              )?.openPatients(PatientsViewMode.upcomingVisits),
-              child: const Text('View All'),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const _SectionHeader(title: 'Upcoming Visits'),
+            for (final p in upcomingTop3)
+              _PatientRow(
+                name: p.fullName,
+                subtitle: p.nextVisit == null
+                    ? 'No visit scheduled'
+                    : 'Visit: ${formatDtYmdHmm(p.nextVisit!.toLocal())}',
+                tag: _critTagOrBlank(p.criticality),
+                color: _critColorOrTransparent(p.criticality),
+              ),
+            Align(
+              alignment:
+                  isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
+              child: Semantics(
+                button: true,
+                label: 'View all upcoming visits',
+                child: TextButton(
+                  onPressed: () => AppShell.of(context)?.openPatients(
+                    PatientsViewMode.upcomingVisits,
+                  ),
+                  child: const Text('View All'),
+                ),
+              ),
             ),
-          ),
-        ),
-      ],
-    );
+          ],
+        );
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -180,8 +181,8 @@ class CaregiverDashboardScreen extends StatelessWidget {
                             LayoutBuilder(
                               builder: (context, constraints) {
                                 final w = constraints.maxWidth;
-                                final cols = w >= 900 ? 4 : (w >= 600 ? 3 : 2);
-
+                                final cols =
+                                    w >= 900 ? 4 : (w >= 600 ? 3 : 2);
                                 return kpiGrid(
                                   crossAxisCount: cols,
                                   mainAxisExtent: 170,
@@ -210,8 +211,8 @@ class CaregiverDashboardScreen extends StatelessWidget {
                       LayoutBuilder(
                         builder: (context, constraints) {
                           final w = constraints.maxWidth;
-                          final cols = w >= 900 ? 4 : (w >= 600 ? 3 : 2);
-
+                          final cols =
+                              w >= 900 ? 4 : (w >= 600 ? 3 : 2);
                           return kpiGrid(
                             crossAxisCount: cols,
                             mainAxisExtent: 170,
@@ -355,6 +356,7 @@ class _StatCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const Icon(Icons.circle, size: 0), // keeps layout stable
                   Icon(icon, color: Colors.blue, size: 22),
                   const SizedBox(height: 8),
                   Expanded(
@@ -438,7 +440,6 @@ class _PatientRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         child: Row(
           children: [
-            // Patient info on left
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -453,8 +454,6 @@ class _PatientRow extends StatelessWidget {
                 ],
               ),
             ),
-
-            // Tag ALWAYS on right
             if (tagWidget != null) ...[
               const SizedBox(width: 12),
               ConstrainedBox(

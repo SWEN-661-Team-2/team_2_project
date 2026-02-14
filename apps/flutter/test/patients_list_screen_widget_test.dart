@@ -23,7 +23,7 @@ Future<void> _pump(
 
 void main() {
   testWidgets('Patients list renders for ALL mode', (tester) async {
-    await _pump(tester, mode: PatientsViewMode.all);
+    await _pump(tester, mode: PatientsViewMode.allPatients);
 
     expect(find.text('Patients'), findsOneWidget);
     expect(find.byKey(const Key('patients_list')), findsOneWidget);
@@ -49,7 +49,7 @@ void main() {
   });
 
   testWidgets('Sort menu opens and options render', (tester) async {
-    await _pump(tester, mode: PatientsViewMode.all);
+    await _pump(tester, mode: PatientsViewMode.allPatients);
 
     await tester.tap(find.byIcon(Icons.sort));
     await tester.pumpAndSettle();
@@ -61,7 +61,7 @@ void main() {
   });
 
   testWidgets('Selecting a sort option does not crash', (tester) async {
-    await _pump(tester, mode: PatientsViewMode.all);
+    await _pump(tester, mode: PatientsViewMode.allPatients);
 
     await tester.tap(find.byIcon(Icons.sort));
     await tester.pumpAndSettle();

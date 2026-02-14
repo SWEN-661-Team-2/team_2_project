@@ -88,7 +88,7 @@ void main() {
       tester,
       const PatientsListScreen(
         key: Key('patients_all'), // Added unique key
-        mode: PatientsViewMode.all,
+        mode: PatientsViewMode.allPatients,
       ),
     );
 

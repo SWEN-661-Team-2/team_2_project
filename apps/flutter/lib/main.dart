@@ -1,8 +1,9 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_app/app/providers.dart';
-import 'package:flutter_app/app/routes.dart';
+import 'package:flutter_app/app/app.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,7 +17,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: AppProviders.build(),
-      child: MaterialApp(routes: Routes.map, initialRoute: Routes.welcome),
+      child: const CareConnectApp(),
     );
   }
 }

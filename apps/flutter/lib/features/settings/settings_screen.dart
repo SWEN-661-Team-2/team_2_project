@@ -75,9 +75,7 @@ class SettingsScreen extends StatelessWidget {
 
           _HandedListTile(
             title: const Text('Reminder frequency'),
-            subtitle: Text(
-              _reminderFrequencyLabel(controller.reminderFrequency),
-            ),
+            subtitle: Text(_reminderFrequencyLabel(controller.reminderFrequency)),
             icon: Icons.chevron_right,
             isLeftAligned: isLeftAligned,
             onTap: () => _showReminderFrequencyPicker(context, controller),
@@ -147,23 +145,16 @@ class SettingsScreen extends StatelessWidget {
 
           _HandedListTile(
             title: const Text('Privacy policy'),
-            icon: Icons.open_in_new,
+            icon: Icons.chevron_right,
             isLeftAligned: isLeftAligned,
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Privacy policy (coming soon)')),
-              );
-            },
+            onTap: () => Navigator.of(context).pushNamed(Routes.privacyPolicy),
           ),
+
           _HandedListTile(
             title: const Text('Terms of service'),
-            icon: Icons.open_in_new,
+            icon: Icons.chevron_right,
             isLeftAligned: isLeftAligned,
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Terms of service (coming soon)')),
-              );
-            },
+            onTap: () => Navigator.of(context).pushNamed(Routes.termsOfService),
           ),
 
           const SizedBox(height: AppSpacing.lg),
@@ -180,24 +171,15 @@ class SettingsScreen extends StatelessWidget {
             title: const Text('Help / Support'),
             icon: Icons.chevron_right,
             isLeftAligned: isLeftAligned,
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Support (coming soon)')),
-              );
-            },
+            onTap: () => Navigator.of(context).pushNamed(Routes.helpSupport),
           ),
+
           _HandedListTile(
             title: const Text('About CareConnect'),
             subtitle: const Text('Version, credits, licensing'),
             icon: Icons.chevron_right,
             isLeftAligned: isLeftAligned,
-            onTap: () {
-              showAboutDialog(
-                context: context,
-                applicationName: 'CareConnect-LH',
-                applicationVersion: '0.1.0',
-              );
-            },
+            onTap: () => Navigator.of(context).pushNamed(Routes.aboutCareConnect),
           ),
 
           const SizedBox(height: AppSpacing.lg),
@@ -212,20 +194,43 @@ class SettingsScreen extends StatelessWidget {
               'Logout',
               style: TextStyle(color: Colors.red, fontWeight: FontWeight.w700),
             ),
-            leading: isLeftAligned
-                ? const Icon(Icons.logout, color: Colors.red)
-                : null,
-            trailing: !isLeftAligned
-                ? const Icon(Icons.logout, color: Colors.red)
-                : null,
-            onTap: () {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Logged out')));
+            leading:
+                isLeftAligned ? const Icon(Icons.logout, color: Colors.red) : null,
+            trailing:
+                !isLeftAligned ? const Icon(Icons.logout, color: Colors.red) : null,
+            onTap: () async {
+              final shouldLogout = await showDialog<bool>(
+                context: context,
+                builder: (ctx) {
+                  return AlertDialog(
+                    title: const Text('Logout?'),
+                    content: const Text('Are you sure you want to log out?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(false),
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(ctx).pop(true),
+                        child: const Text('Logout'),
+                      ),
+                    ],
+                  );
+                },
+              );
 
-              Navigator.of(
-                context,
-              ).pushNamedAndRemoveUntil(Routes.login, (route) => false);
+              if (shouldLogout != true) return;
+
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Logged out')),
+                );
+
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  Routes.login,
+                  (route) => false,
+                );
+              }
             },
           ),
 
@@ -258,7 +263,6 @@ class _HandedListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isLeftAligned) {
-      // Left-handed: icon on the left
       return ListTile(
         leading: Icon(icon),
         title: title,
@@ -266,7 +270,6 @@ class _HandedListTile extends StatelessWidget {
         onTap: onTap,
       );
     } else {
-      // Right-handed: icon on the right
       return ListTile(
         title: title,
         subtitle: subtitle,
@@ -311,7 +314,7 @@ class _HandedSwitchListTile extends StatelessWidget {
 }
 
 // ============================================================================
-// DISPLAY SECTION (Text Size boxes + Contrast button)
+// DISPLAY SECTION (Text Size boxes + Day/Night + High Contrast)
 // ============================================================================
 
 class _DisplaySection extends StatelessWidget {
@@ -334,9 +337,14 @@ class _DisplaySection extends StatelessWidget {
       ('XL', TextSizeMode.extraLarge),
     ];
 
+    final bool isNight = controller.darkModeEnabled;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // =========================
+        // Text Size
+        // =========================
         Text('Text size', style: text.titleSmall),
         const SizedBox(height: AppSpacing.sm),
         Wrap(
@@ -352,56 +360,101 @@ class _DisplaySection extends StatelessWidget {
               label: label,
               selected: selected,
               onTap: () => controller.setTextSizeMode(value),
+              isNight: isNight,
             );
           }).toList(),
         ),
 
         const SizedBox(height: AppSpacing.lg),
 
-        Text('Contrast', style: text.titleSmall),
+        // =========================
+        // Day / Night
+        // =========================
+        Text('Day / Night', style: text.titleSmall),
         const SizedBox(height: AppSpacing.sm),
 
         Card(
+          color: isNight ? const Color(0xFF2B2F36) : null,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: isNight
+                ? const BorderSide(color: Color(0xFF2F80ED), width: 1.8)
+                : BorderSide.none,
+          ),
           child: _HandedListTile(
             title: Text(
-              controller.highContrastEnabled
-                  ? 'Night / High Contrast'
-                  : 'Day / Normal',
+              isNight ? 'Night' : 'Day',
+              style: isNight
+                  ? text.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                    )
+                  : null,
             ),
-            subtitle: const Text('Toggle contrast mode (persisted).'),
-            icon: controller.highContrastEnabled
-                ? Icons.nights_stay
-                : Icons.wb_sunny,
+            subtitle: Text(
+              'Toggle day/night theme (persisted).',
+              style: isNight
+                  ? text.bodySmall?.copyWith(
+                      color: Colors.white.withOpacity(0.85),
+                    )
+                  : null,
+            ),
+            icon: isNight ? Icons.nights_stay : Icons.wb_sunny,
             isLeftAligned: isLeftAligned,
-            onTap: () {
-              controller.setHighContrastEnabled(
-                !controller.highContrastEnabled,
-              );
-            },
+            onTap: () => controller.setDarkModeEnabled(!controller.darkModeEnabled),
           ),
+        ),
+
+        const SizedBox(height: AppSpacing.md),
+
+        // =========================
+        // High Contrast
+        // =========================
+        _HandedSwitchListTile(
+          value: controller.highContrastEnabled,
+          onChanged: (v) => controller.setHighContrastEnabled(v),
+          title: const Text('High contrast'),
+          subtitle: const Text('Boost contrast without changing Day/Night.'),
+          isLeftAligned: isLeftAligned,
         ),
       ],
     );
   }
 }
 
+// ============================================================================
+// CHOICE BOX (Text Size button)
+// ============================================================================
+
 class _ChoiceBox extends StatelessWidget {
   final String label;
   final bool selected;
   final VoidCallback onTap;
+  final bool isNight;
 
   const _ChoiceBox({
     required this.label,
     required this.selected,
     required this.onTap,
+    required this.isNight,
   });
 
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
 
-    final border = selected ? const Color(0xFF0A7A8A) : const Color(0xFFCED8DC);
-    final fill = selected ? const Color(0xFFE6F7F5) : Colors.white;
+    // Day colors (original)
+    final dayBorder = selected ? const Color(0xFF0A7A8A) : const Color(0xFFCED8DC);
+    final dayFill = selected ? const Color(0xFFE6F7F5) : Colors.white;
+
+    // Night colors
+    const nightBg = Color(0xFF2B2F36);
+    const blue = Color(0xFF2F80ED);
+    const blueStrong = Color(0xFF56A3FF);
+
+    final nightBorderColor = selected ? blueStrong : blue;
+    final nightBorderWidth = selected ? 2.4 : 1.8;
 
     return InkWell(
       borderRadius: BorderRadius.circular(14),
@@ -409,13 +462,19 @@ class _ChoiceBox extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: fill,
+          color: isNight ? nightBg : dayFill,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: border, width: 2),
+          border: Border.all(
+            color: isNight ? nightBorderColor : dayBorder,
+            width: isNight ? nightBorderWidth : 2,
+          ),
         ),
         child: Text(
           label,
-          style: text.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+          style: text.titleSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: isNight ? Colors.white : null,
+          ),
         ),
       ),
     );
@@ -539,6 +598,10 @@ class _AccessibilityTiles extends StatelessWidget {
   }
 }
 
+// ============================================================================
+// ACCESSIBILITY MODE TILE (Day vs Night styling)
+// ============================================================================
+
 class _AccessibilityModeTile extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -560,45 +623,70 @@ class _AccessibilityModeTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
 
-    final bg = enabled ? const Color(0xFFE6F7F5) : Colors.white;
-    final border = enabled ? const Color(0xFF0A7A8A) : const Color(0xFFCED8DC);
+    final controller = context.watch<AppSettingsController>();
+    final bool isNight = controller.darkModeEnabled;
+
+    // Day colors (original behavior)
+    final dayBg = enabled ? const Color(0xFFE6F7F5) : Colors.white;
+    final dayBorder = enabled ? const Color(0xFF0A7A8A) : const Color(0xFFCED8DC);
+    const dayIconColor = Color(0xFF374151);
+
+    // Night colors
+    const nightBg = Color(0xFF2B2F36);
+    const nightFg = Colors.white;
+    const blue = Color(0xFF2F80ED);
+    const blueStrong = Color(0xFF56A3FF);
+
+    final borderColor = isNight ? (enabled ? blueStrong : blue) : dayBorder;
+    final borderWidth = isNight ? (enabled ? 2.4 : 1.8) : 1.5;
+
+    final indicator = Container(
+      width: 18,
+      height: 18,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: borderColor, width: 2),
+        color: enabled ? borderColor : Colors.transparent,
+      ),
+    );
 
     final indicatorAndChevron = Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: 18,
-          height: 18,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(color: border, width: 2),
-            color: enabled ? const Color(0xFF0A7A8A) : Colors.transparent,
-          ),
-        ),
+        indicator,
         const SizedBox(width: 10),
-        const Icon(Icons.chevron_right),
+        Icon(Icons.chevron_right, color: isNight ? nightFg : null),
       ],
     );
 
     return Card(
-      key: const Key('a11y_mode_toggle'),
-      color: bg,
+      key: Key('a11y_mode_tile_${title.toLowerCase().replaceAll(" ", "_")}'),
+      color: isNight ? nightBg : dayBg,
+      elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(color: border, width: 1.5),
+        side: BorderSide(color: borderColor, width: borderWidth),
       ),
       child: ListTile(
         onTap: onTap,
         leading: isLeftAligned
             ? indicatorAndChevron
-            : Icon(icon, color: const Color(0xFF374151)),
+            : Icon(icon, color: isNight ? nightFg : dayIconColor),
         title: Text(
           title,
-          style: text.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+          style: text.titleMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: isNight ? nightFg : null,
+          ),
         ),
-        subtitle: Text(subtitle, style: text.bodySmall),
+        subtitle: Text(
+          subtitle,
+          style: text.bodySmall?.copyWith(
+            color: isNight ? nightFg.withOpacity(0.85) : null,
+          ),
+        ),
         trailing: isLeftAligned
-            ? Icon(icon, color: const Color(0xFF374151))
+            ? Icon(icon, color: isNight ? nightFg : dayIconColor)
             : indicatorAndChevron,
       ),
     );
@@ -646,7 +734,7 @@ class _HandednessRadioGroup extends StatelessWidget {
 }
 
 // ============================================================================
-// Reminder Frequency Picker
+// Reminder Frequency Picker Helpers
 // ============================================================================
 
 String _reminderFrequencyLabel(ReminderFrequency f) {
@@ -684,7 +772,6 @@ Future<void> _showReminderFrequencyPicker(
                 style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
               ),
               const SizedBox(height: AppSpacing.md),
-
               RadioGroup<ReminderFrequency>(
                 groupValue: current,
                 onChanged: (v) {
@@ -717,7 +804,6 @@ Future<void> _showReminderFrequencyPicker(
                   ],
                 ),
               ),
-
               const SizedBox(height: AppSpacing.sm),
             ],
           ),

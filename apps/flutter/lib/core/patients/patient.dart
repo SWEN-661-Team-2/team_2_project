@@ -1,6 +1,7 @@
 enum PatientCriticality { critical, high, medium, low }
 
 class Patient {
+  final String id;
   final String firstName;
   final String lastName;
 
@@ -11,6 +12,7 @@ class Patient {
   final DateTime? nextVisit;
 
   const Patient({
+    required this.id,
     required this.firstName,
     required this.lastName,
     this.criticality,
