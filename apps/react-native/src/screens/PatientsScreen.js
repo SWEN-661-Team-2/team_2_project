@@ -1,12 +1,3 @@
-/**
- * Patients List Screen
- * Equivalent to Flutter's PatientsListScreen
- *
- * Displays patients with filtering by view mode:
- * - All Patients: shows all patients with criticality info
- * - Needing Attention: shows patients sorted by criticality level
- * - Upcoming Visits: shows patients with upcoming appointments sorted by visit date
- */
 import React, { useState } from 'react';
 import {
   View,
@@ -18,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePatients, PatientViewMode } from '../contexts/PatientsContext';
+import { useHandedness } from '../contexts/AppProviders'; // Added for layout support
 import PriorityPatientCard, {
   VisitPatientCard,
   PatientCard,
@@ -26,6 +18,7 @@ import PatientFilterMenu from './components/PatientFilterMenu';
 
 export default function PatientsScreen({ navigation }) {
   const { viewMode, setViewMode, patients } = usePatients();
+  const { isLeftHanded } = useHandedness(); // Consume handedness context
   const [filterVisible, setFilterVisible] = useState(false);
 
   const handlePatientPress = (patient) => {
@@ -49,55 +42,56 @@ export default function PatientsScreen({ navigation }) {
   };
 
   const getCardComponent = (item, index) => {
+    // Shared props for all cards
+    const cardProps = {
+      patient: item,
+      index,
+      onPress: () => handlePatientPress(item),
+    };
+
     switch (viewMode) {
       case PatientViewMode.NEEDING_ATTENTION:
-        return (
-          <PriorityPatientCard
-            patient={item}
-            index={index}
-            onPress={() => handlePatientPress(item)}
-          />
-        );
+        return <PriorityPatientCard {...cardProps} />;
       case PatientViewMode.UPCOMING_VISITS:
-        return (
-          <VisitPatientCard
-            patient={item}
-            index={index}
-            onPress={() => handlePatientPress(item)}
-          />
-        );
+        return <VisitPatientCard {...cardProps} />;
       case PatientViewMode.ALL:
       default:
-        return (
-          <PatientCard
-            patient={item}
-            index={index}
-            onPress={() => handlePatientPress(item)}
-          />
-        );
+        return <PatientCard {...cardProps} />;
     }
-  };
-
-  const renderPatientItem = ({ item, index }) => {
-    return getCardComponent(item, index);
   };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      {/* Header with title and filter button */}
-      <View style={styles.header}>
+      {/* Header respecting handedness */}
+      <View style={[
+        styles.header, 
+        { flexDirection: isLeftHanded ? 'row-reverse' : 'row' }
+      ]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
           testID="back_button"
+          accessibilityLabel="Go back"
+          accessibilityRole="button"
+          accessibilityHint="Navigates to the previous screen"
         >
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.title}>{getTitle()}</Text>
+        
+        <Text 
+          style={[styles.title, { textAlign: isLeftHanded ? 'right' : 'left' }]}
+          accessibilityRole="header"
+        >
+          {getTitle()}
+        </Text>
+
         <TouchableOpacity
           style={styles.filterButton}
           onPress={() => setFilterVisible(true)}
           testID="patients_filter_button"
+          accessibilityLabel="Filter patients"
+          accessibilityRole="button"
+          accessibilityHint="Opens menu to change patient view mode"
         >
           <Text style={styles.filterIcon}>⋮</Text>
         </TouchableOpacity>
@@ -105,21 +99,22 @@ export default function PatientsScreen({ navigation }) {
 
       {/* Patients List */}
       {patients.length === 0 ? (
-        <View style={styles.emptyContainer}>
+        <View style={styles.emptyContainer} accessibilityLiveRegion="polite">
           <Text style={styles.emptyText}>No patients found</Text>
         </View>
       ) : (
         <FlatList
           testID="patients_list"
           data={patients}
-          renderItem={renderPatientItem}
+          renderItem={({ item, index }) => getCardComponent(item, index)}
           keyExtractor={(item, index) => `${item.id}-${index}`}
           contentContainerStyle={styles.list}
           showsVerticalScrollIndicator={false}
+          accessibilityLabel="Patient list"
+          accessibilityRole="list"
         />
       )}
 
-      {/* Filter Modal */}
       <PatientFilterMenu
         visible={filterVisible}
         onClose={() => setFilterVisible(false)}
@@ -136,9 +131,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F7FAFB',
   },
   header: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderBottomWidth: 1,
@@ -157,7 +150,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#1A1A1A',
     flex: 1,
-    marginLeft: 12,
+    marginHorizontal: 12,
   },
   filterButton: {
     padding: 8,
