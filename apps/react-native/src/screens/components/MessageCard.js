@@ -1,8 +1,3 @@
-/**
- * Message Card Component
- * Displays a single message in the list
- */
-
 import React from 'react';
 import {
   View,
@@ -18,8 +13,15 @@ export default function MessageCard({ message, index, onPress }) {
 
   const timestampText = formatDtYmdHmm(message.sentAt);
 
+  // Define unread status for the accessibility label
+  const statusPrefix = message.unread ? 'Unread message' : 'Message';
+  const accessibilityLabel = `${statusPrefix} from ${message.sender}, subject: ${message.subject}. Sent on ${timestampText}. Preview: ${message.preview}`;
+
   const unreadIndicator = message.unread ? (
-    <View style={styles.unreadDot} />
+    <View 
+      style={styles.unreadDot} 
+      importantForAccessibility="no-hide-descendants" // Hide the dot itself from accessibility tree
+    />
   ) : (
     <View style={styles.readDot} />
   );
@@ -33,6 +35,15 @@ export default function MessageCard({ message, index, onPress }) {
       ]}
       onPress={onPress}
       activeOpacity={0.7}
+      // Accessibility Props
+      accessible={true}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint="Double tap to open this message"
+      accessibilityState={{
+        // Using 'selected' to indicate unread/read state is a common pattern
+        selected: message.unread 
+      }}
     >
       <View
         style={[
@@ -84,82 +95,3 @@ export default function MessageCard({ message, index, onPress }) {
     </TouchableOpacity>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    marginBottom: 12,
-    padding: 16,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 1,
-  },
-  cardUnread: {
-    backgroundColor: '#E3F2FD',
-  },
-  content: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  contentReversed: {
-    flexDirection: 'row-reverse',
-  },
-  messageInfo: {
-    flex: 1,
-    marginHorizontal: 12,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  sender: {
-    flex: 1,
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-  },
-  senderUnread: {
-    fontWeight: '700',
-    color: '#1976D2',
-  },
-  timestamp: {
-    fontSize: 12,
-    color: '#999',
-    marginLeft: 8,
-    flexShrink: 1,
-  },
-  subject: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#666',
-    marginBottom: 2,
-  },
-  subjectUnread: {
-    fontWeight: '600',
-    color: '#333',
-  },
-  preview: {
-    fontSize: 13,
-    color: '#999',
-    lineHeight: 18,
-  },
-  unreadDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: '#1976D2',
-    marginTop: 4,
-  },
-  readDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    backgroundColor: 'transparent',
-    marginTop: 4,
-  },
-});
