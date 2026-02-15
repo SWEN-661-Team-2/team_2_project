@@ -15,7 +15,7 @@ import HandednessToggleOverlay from '../components/HandednessToggleOverlay';
 import { ProfileProvider, useProfile } from '../contexts/ProfileContext';
 
 function ProfileInner({ navigation }) {
-  const { profile, loaded, updateField, savePhoto, load } = useProfile();
+  const { profile, loaded, updateField, savePhoto } = useProfile();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState('');
   const [titleRole, setTitleRole] = useState('');
@@ -26,25 +26,23 @@ function ProfileInner({ navigation }) {
 
   useEffect(() => {
     if (!loaded) return;
-    setName(profile.name);
-    setTitleRole(profile.titleRole);
-    setPosition(profile.position);
-    setOrganization(profile.organization);
-    setEmail(profile.email);
-    setPhone(profile.phone);
+    setName(profile.name || '');
+    setTitleRole(profile.titleRole || '');
+    setPosition(profile.position || '');
+    setOrganization(profile.organization || '');
+    setEmail(profile.email || '');
+    setPhone(profile.phone || '');
   }, [loaded, profile]);
 
-  const startEdit = () => {
-    setEditing(true);
-  };
+  const startEdit = () => setEditing(true);
 
   const cancelEdit = () => {
-    setName(profile.name);
-    setTitleRole(profile.titleRole);
-    setPosition(profile.position);
-    setOrganization(profile.organization);
-    setEmail(profile.email);
-    setPhone(profile.phone);
+    setName(profile.name || '');
+    setTitleRole(profile.titleRole || '');
+    setPosition(profile.position || '');
+    setOrganization(profile.organization || '');
+    setEmail(profile.email || '');
+    setPhone(profile.phone || '');
     setEditing(false);
   };
 
@@ -67,12 +65,12 @@ function ProfileInner({ navigation }) {
       Alert.alert('Permission required', 'Need permission to pick images.');
       return;
     }
+    const result = await ImagePicker.launchImageLibraryAsync({ 
+      mediaTypes: ImagePicker.MediaTypeOptions.Images 
+    });
+    if (result.canceled) return; // Note: SDK 50+ uses 'canceled' (one L)
 
-    const result = await ImagePicker.launchImageLibraryAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images });
-    if (result.cancelled) return;
-
-    // result.uri in SDK 54 is result.uri
-    const saved = await savePhoto(result.uri);
+    const saved = await savePhoto(result.assets[0].uri);
     if (saved) {
       await updateField({ photoUri: saved });
       Alert.alert('Photo updated');

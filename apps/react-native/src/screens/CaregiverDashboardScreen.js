@@ -20,9 +20,9 @@ const TABLET_BREAKPOINT = 600;
  */
 export default function CaregiverDashboardScreen({ navigation }) {
   const { isLeftHanded } = useHandedness();
-  
+
   const isTablet = width >= TABLET_BREAKPOINT;
-  
+
   const {
     allPatients = [],
     upcomingVisits = [],
@@ -129,8 +129,8 @@ export default function CaregiverDashboardScreen({ navigation }) {
             </View>
           </>
         )}
-      </ScrollView>  
-      <HandednessToggleOverlay />  
+      </ScrollView>
+      <HandednessToggleOverlay />
     </View>
   );
 }

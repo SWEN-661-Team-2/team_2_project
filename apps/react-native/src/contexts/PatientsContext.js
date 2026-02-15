@@ -8,7 +8,9 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
 import { patientsRepository } from '../repositories/PatientsRepository';
 
-const PatientsContext = createContext();
+// const PatientsContext = createContext();
+export const PatientsContext = createContext(); // Add 'export' here
+
 
 export const PatientViewMode = {
   ALL: 'all',

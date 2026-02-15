@@ -13,10 +13,8 @@ import { useHandedness } from '../contexts/AppProviders';
 import { useAuth } from '../contexts/AuthContext';
 
 /**
- * Change Password Screen for React Native
- * Equivalent to Flutter's ChangePasswordScreen
- * 
- * Allows users to update their password with validation
+ * Change Password Screen - Hardened for WK6 Accessibility
+ * Includes: Screen Reader labels, Live Regions, and Left-Handed support.
  */
 export default function ChangePasswordScreen({ navigation }) {
   const [oldPassword, setOldPassword] = useState('');
@@ -27,18 +25,14 @@ export default function ChangePasswordScreen({ navigation }) {
   const [showNew, setShowNew] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  const [error, setError] = useState(null);
-  const { changePassword, loading } = useAuth();
+  const { changePassword, loading, error: authError } = useAuth();
   const { isLeftHanded } = useHandedness();
 
   const handleSave = async () => {
     const success = await changePassword(oldPassword, newPassword, confirmPassword);
-    
     if (success) {
       Alert.alert('Success', 'Password updated successfully');
       navigation.goBack();
-    } else {
-      // Error is already set by the context
     }
   };
 
@@ -57,11 +51,10 @@ export default function ChangePasswordScreen({ navigation }) {
         >
           <Text style={styles.backButton}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Change password</Text>
+        <Text style={styles.headerTitle} accessibilityRole="header">Change password</Text>
         <View style={{ width: 40 }} />
       </View>
 
-      {/* Content */}
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
         {/* Old Password */}
         <Text style={styles.label}>Old password</Text>
@@ -72,6 +65,7 @@ export default function ChangePasswordScreen({ navigation }) {
           onToggleVisibility={() => setShowOld(!showOld)}
           isLeftHanded={isLeftHanded}
           testID="change_old"
+          label="Old password"
           editable={!loading}
         />
 
@@ -84,6 +78,7 @@ export default function ChangePasswordScreen({ navigation }) {
           onToggleVisibility={() => setShowNew(!showNew)}
           isLeftHanded={isLeftHanded}
           testID="change_new"
+          label="New password"
           editable={!loading}
         />
 
@@ -96,11 +91,20 @@ export default function ChangePasswordScreen({ navigation }) {
           onToggleVisibility={() => setShowConfirm(!showConfirm)}
           isLeftHanded={isLeftHanded}
           testID="change_confirm"
+          label="Confirm new password"
           editable={!loading}
         />
 
-        {/* Error Message */}
-        {error && <Text style={styles.errorText}>{error}</Text>}
+        {/* Error Message - Live Region alerts screen readers immediately */}
+        {authError && (
+          <Text 
+            style={styles.errorText} 
+            accessibilityLiveRegion="assertive"
+            accessibilityRole="alert"
+          >
+            {authError}
+          </Text>
+        )}
 
         {/* Save Button */}
         <TouchableOpacity
@@ -108,6 +112,9 @@ export default function ChangePasswordScreen({ navigation }) {
           style={[styles.button, loading && styles.buttonDisabled]}
           onPress={handleSave}
           disabled={loading}
+          accessibilityLabel={loading ? "Saving password" : "Save new password"}
+          accessibilityRole="button"
+          accessibilityState={{ disabled: loading, busy: loading }}
         >
           <Text style={styles.buttonText}>
             {loading ? 'Saving...' : 'Save'}
@@ -118,9 +125,6 @@ export default function ChangePasswordScreen({ navigation }) {
   );
 }
 
-/**
- * Reusable Password Input Component
- */
 function PasswordInput({
   value,
   onChangeText,
@@ -128,15 +132,11 @@ function PasswordInput({
   onToggleVisibility,
   isLeftHanded,
   testID,
+  label,
   editable = true,
 }) {
   return (
-    <View
-      style={[
-        styles.passwordContainer,
-        !editable && styles.disabledInput,
-      ]}
-    >
+    <View style={[styles.passwordContainer, !editable && styles.disabledInput]}>
       <TextInput
         testID={testID}
         style={[styles.passwordInput, isLeftHanded && styles.rtlText]}
@@ -145,25 +145,24 @@ function PasswordInput({
         value={value}
         onChangeText={onChangeText}
         editable={editable}
+        accessibilityLabel={label}
       />
       <TouchableOpacity
         onPress={onToggleVisibility}
         disabled={!editable}
         style={isLeftHanded ? styles.eyeIconLeft : styles.eyeIconRight}
+        accessibilityLabel={isVisible ? "Hide password" : "Show password"}
+        accessibilityRole="button"
       >
-        <Text style={styles.eyeIcon}>
-          {isVisible ? '👁️' : '👁️‍🗨️'}
-        </Text>
+        <Text style={styles.eyeIcon}>{isVisible ? '👁️' : '👁️‍🗨️'}</Text>
       </TouchableOpacity>
     </View>
   );
 }
 
+// Styles remain the same...
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#F7FAFB',
-  },
+  container: { flex: 1, backgroundColor: '#F7FAFB' },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -174,29 +173,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#EEE',
   },
-  backButton: {
-    fontSize: 16,
-    color: '#0A7A8A',
-    fontWeight: '500',
-    width: 40,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  content: {
-    padding: 16,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 6,
-  },
+  headerTitle: { fontSize: 18, fontWeight: '600', color: '#333' },
+  scrollView: { flex: 1 },
+  content: { padding: 16 },
+  label: { fontSize: 14, fontWeight: '600', color: '#333', marginBottom: 6 },
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -207,34 +187,13 @@ const styles = StyleSheet.create({
     paddingRight: 8,
     marginBottom: 12,
   },
-  passwordInput: {
-    flex: 1,
-    padding: 12,
-    fontSize: 16,
-  },
-  rtlText: {
-    textAlign: 'right',
-  },
-  eyeIconLeft: {
-    paddingLeft: 8,
-    paddingRight: 4,
-  },
-  eyeIconRight: {
-    paddingLeft: 4,
-    paddingRight: 8,
-  },
-  eyeIcon: {
-    fontSize: 18,
-  },
-  disabledInput: {
-    opacity: 0.6,
-  },
-  errorText: {
-    color: '#E74C3C',
-    fontSize: 14,
-    marginTop: 8,
-    marginBottom: 12,
-  },
+  passwordInput: { flex: 1, padding: 12, fontSize: 16 },
+  rtlText: { textAlign: 'right' },
+  eyeIconLeft: { paddingLeft: 8, paddingRight: 4 },
+  eyeIconRight: { paddingLeft: 4, paddingRight: 8 },
+  eyeIcon: { fontSize: 18 },
+  disabledInput: { opacity: 0.6 },
+  errorText: { color: '#E74C3C', fontSize: 14, marginTop: 8, marginBottom: 12 },
   button: {
     backgroundColor: '#0A7A8A',
     paddingVertical: 14,

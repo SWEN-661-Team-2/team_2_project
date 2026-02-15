@@ -1,6 +1,6 @@
 /**
  * Component Tests - ProfileScreen
- * Tests profile display, editing, and photo upload functionality
+ * Tests profile display, editing, and photo upload functionality with Accessibility
  */
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
@@ -12,18 +12,26 @@ import { AppProviders } from '../../src/contexts/AppProviders';
 
 // Mock dependencies
 jest.spyOn(Alert, 'alert');
-jest.mock('expo-image-picker');
+
+// Fixed factory mock to ensure stable references
+jest.mock('expo-image-picker', () => ({
+  requestMediaLibraryPermissionsAsync: jest.fn(),
+  launchImageLibraryAsync: jest.fn(),
+  MediaTypeOptions: { Images: 'Images' },
+}));
 
 const mockNavigation = {
   navigate: jest.fn(),
   goBack: jest.fn(),
+  canGoBack: jest.fn(() => true),
   setOptions: jest.fn(),
 };
 
-const renderProfileScreen = () => {
+const renderProfileScreen = (nav = mockNavigation) => {
   return render(
     <AppProviders>
       <ProfileProvider>
+        <ProfileScreen navigation={nav} />
         <ProfileScreen navigation={mockNavigation} />
       </ProfileProvider>
     </AppProviders>
@@ -33,15 +41,50 @@ const renderProfileScreen = () => {
 describe('ProfileScreen Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    ImagePicker.requestMediaLibraryPermissionsAsync = jest.fn().mockResolvedValue({
+    
+    // Use .mockResolvedValue instead of re-assigning jest.fn()
+    ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValue({
       status: 'granted',
     });
-    ImagePicker.launchImageLibraryAsync = jest.fn().mockResolvedValue({
-      cancelled: false,
-      uri: 'file://test-photo.jpg',
+    
+    ImagePicker.launchImageLibraryAsync.mockResolvedValue({
+      canceled: false,
+      assets: [{ uri: 'file://test-photo.jpg' }],
     });
   });
 
+  describe('rendering & accessibility', () => {
+    test('renders profile screen with title as a header', async () => {
+      const { getByRole } = renderProfileScreen();
+      await waitFor(() => {
+        expect(getByRole('header', { name: /profile information/i })).toBeTruthy();
+      });
+    });
+
+    test('renders accessible back button', async () => {
+      const { getByRole } = renderProfileScreen();
+      await waitFor(() => {
+        expect(getByRole('button', { name: /go back/i })).toBeTruthy();
+      });
+    });
+
+    test('back button navigates back if possible', async () => {
+      const { getByRole } = renderProfileScreen();
+      
+      await waitFor(() => {
+        const backButton = getByRole('button', { name: /go back/i });
+        fireEvent.press(backButton);
+      });
+
+      expect(mockNavigation.goBack).toHaveBeenCalled();
+    });
+
+    test('back button navigates to Settings if cannot go back', async () => {
+      const altNav = { ...mockNavigation, canGoBack: () => false };
+      const { getByRole } = renderProfileScreen(altNav);
+      
+      await waitFor(() => {
+        const backButton = getByRole('button', { name: /go back/i });
   describe('rendering', () => {
     test('renders profile screen with title', async () => {
       const { getByText } = renderProfileScreen();
@@ -67,12 +110,13 @@ describe('ProfileScreen Component', () => {
         fireEvent.press(backButton);
       });
 
-      expect(mockNavigation.goBack).toHaveBeenCalled();
+      expect(altNav.navigate).toHaveBeenCalledWith('Settings');
     });
   });
 
   describe('edit mode', () => {
     test('enters edit mode when edit button is pressed', async () => {
+      const { getByRole, getByTestId } = renderProfileScreen();
       const { getByTestId, getByText } = renderProfileScreen();
 
       await waitFor(() => {
@@ -81,12 +125,15 @@ describe('ProfileScreen Component', () => {
       });
 
       await waitFor(() => {
-        expect(getByText('Save')).toBeTruthy();
-        expect(getByText('Cancel')).toBeTruthy();
+        expect(getByRole('button', { name: /save profile changes/i })).toBeTruthy();
+        expect(getByRole('button', { name: /cancel editing/i })).toBeTruthy();
       });
     });
 
     test('cancel button exits edit mode without saving', async () => {
+      const { getByTestId, getByRole } = renderProfileScreen();
+
+      await waitFor(() => fireEvent.press(getByTestId('profile_edit')));
       const { getByTestId, getByText } = renderProfileScreen();
 
       await waitFor(() => {
@@ -95,16 +142,20 @@ describe('ProfileScreen Component', () => {
       });
 
       await waitFor(() => {
-        const cancelButton = getByText('Cancel');
+        const cancelButton = getByRole('button', { name: /cancel editing/i });
         fireEvent.press(cancelButton);
       });
 
       await waitFor(() => {
+        expect(getByTestId('profile_edit')).toBeTruthy();
         expect(getByText('Edit Profile')).toBeTruthy();
       });
     });
 
     test('save button saves profile and exits edit mode', async () => {
+      const { getByTestId, getByRole } = renderProfileScreen();
+
+      await waitFor(() => fireEvent.press(getByTestId('profile_edit')));
       const { getByTestId, getByText } = renderProfileScreen();
 
       await waitFor(() => {
@@ -113,7 +164,7 @@ describe('ProfileScreen Component', () => {
       });
 
       await waitFor(() => {
-        const saveButton = getByText('Save');
+        const saveButton = getByRole('button', { name: /save profile changes/i });
         fireEvent.press(saveButton);
       });
 
@@ -124,6 +175,10 @@ describe('ProfileScreen Component', () => {
   });
 
   describe('profile fields', () => {
+    test('allows editing name field via accessibility label', async () => {
+      const { getByTestId, getByLabelText } = renderProfileScreen();
+
+      await waitFor(() => fireEvent.press(getByTestId('profile_edit')));
     test('allows editing name field', async () => {
       const { getByTestId, getByPlaceholderText } = renderProfileScreen();
 
@@ -133,12 +188,16 @@ describe('ProfileScreen Component', () => {
       });
 
       await waitFor(() => {
-        const nameInput = getByPlaceholderText('Name');
+        const nameInput = getByLabelText('Full Name');
         fireEvent.changeText(nameInput, 'John Doe');
         expect(nameInput.props.value).toBe('John Doe');
       });
     });
 
+    test('allows editing email field via accessibility label', async () => {
+      const { getByTestId, getByLabelText } = renderProfileScreen();
+
+      await waitFor(() => fireEvent.press(getByTestId('profile_edit')));
     test('allows editing email field', async () => {
       const { getByTestId, getByPlaceholderText } = renderProfileScreen();
 
@@ -148,7 +207,7 @@ describe('ProfileScreen Component', () => {
       });
 
       await waitFor(() => {
-        const emailInput = getByPlaceholderText('Email');
+        const emailInput = getByLabelText('Email Address');
         fireEvent.changeText(emailInput, 'john@example.com');
         expect(emailInput.props.value).toBe('john@example.com');
       });
@@ -157,6 +216,9 @@ describe('ProfileScreen Component', () => {
 
   describe('photo upload', () => {
     test('allows photo selection in edit mode', async () => {
+      const { getByRole, getByTestId } = renderProfileScreen();
+
+      await waitFor(() => fireEvent.press(getByTestId('profile_edit')));
       const { getByTestId } = renderProfileScreen();
 
       await waitFor(() => {
@@ -165,7 +227,7 @@ describe('ProfileScreen Component', () => {
       });
 
       await waitFor(() => {
-        const photoButton = getByTestId('profile_pick_photo');
+        const photoButton = getByRole('button', { name: /change profile photo/i });
         fireEvent.press(photoButton);
       });
 
@@ -175,10 +237,14 @@ describe('ProfileScreen Component', () => {
     });
 
     test('shows alert when permission is denied', async () => {
-      ImagePicker.requestMediaLibraryPermissionsAsync = jest.fn().mockResolvedValue({
+      // Use mockResolvedValueOnce to override the default "granted" state
+      ImagePicker.requestMediaLibraryPermissionsAsync.mockResolvedValueOnce({
         status: 'denied',
       });
 
+      const { getByRole, getByTestId } = renderProfileScreen();
+
+      await waitFor(() => fireEvent.press(getByTestId('profile_edit')));
       const { getByTestId } = renderProfileScreen();
 
       await waitFor(() => {
@@ -187,7 +253,7 @@ describe('ProfileScreen Component', () => {
       });
 
       await waitFor(() => {
-        const photoButton = getByTestId('profile_pick_photo');
+        const photoButton = getByRole('button', { name: /change profile photo/i });
         fireEvent.press(photoButton);
       });
 

@@ -1,8 +1,3 @@
-/**
- * Message Card Component
- * Displays a single message in the list
- */
-
 import React from 'react';
 import {
   View,
@@ -18,10 +13,20 @@ export default function MessageCard({ message, index, onPress }) {
 
   const timestampText = formatDtYmdHmm(message.sentAt);
 
-  const unreadIndicator = message.unread ? (
-    <View style={styles.unreadDot} />
-  ) : (
-    <View style={styles.readDot} />
+  const statusPrefix = message.unread ? 'Unread message' : 'Message';
+  const accessibilityLabel = `${statusPrefix} from ${message.sender}, subject: ${message.subject}. Sent on ${timestampText}. Preview: ${message.preview}`;
+
+  // We define this as a helper function or render it inline to avoid 
+  // ReferenceErrors with the 'styles' object defined at the bottom.
+  const renderUnreadIndicator = () => (
+    message.unread ? (
+      <View 
+        style={styles.unreadDot} 
+        importantForAccessibility="no-hide-descendants" 
+      />
+    ) : (
+      <View style={styles.readDot} />
+    )
   );
 
   return (
@@ -33,6 +38,13 @@ export default function MessageCard({ message, index, onPress }) {
       ]}
       onPress={onPress}
       activeOpacity={0.7}
+      accessible={true}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
+      accessibilityHint="Double tap to open this message"
+      accessibilityState={{
+        selected: !!message.unread 
+      }}
     >
       <View
         style={[
@@ -40,7 +52,7 @@ export default function MessageCard({ message, index, onPress }) {
           isLeftHanded && styles.contentReversed,
         ]}
       >
-        {isLeftHanded && unreadIndicator}
+        {isLeftHanded && renderUnreadIndicator()}
 
         <View style={styles.messageInfo}>
           <View style={styles.headerRow}>
@@ -79,7 +91,7 @@ export default function MessageCard({ message, index, onPress }) {
           </Text>
         </View>
 
-        {!isLeftHanded && unreadIndicator}
+        {!isLeftHanded && renderUnreadIndicator()}
       </View>
     </TouchableOpacity>
   );

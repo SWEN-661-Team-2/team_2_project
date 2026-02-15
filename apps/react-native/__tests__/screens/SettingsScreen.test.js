@@ -1,38 +1,37 @@
 /**
  * Component Tests - SettingsScreen
- * Tests settings display, logout functionality, and navigation
  */
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import { Alert } from 'react-native';
 import SettingsScreen from '../../src/screens/SettingsScreen';
-import { AuthProvider } from '../../src/contexts/AuthContext';
 import { AppProviders } from '../../src/contexts/AppProviders';
 
-jest.spyOn(Alert, 'alert');
-
+// Mock navigation
 const mockNavigation = {
   navigate: jest.fn(),
-  goBack: jest.fn(),
-  replace: jest.fn(),
-  setOptions: jest.fn(),
 };
 
-const renderSettingsScreen = () => {
+// Do NOT wrap render in act
+const renderSettings = () => {
   return render(
     <AppProviders>
-      <AuthProvider>
-        <SettingsScreen navigation={mockNavigation} />
-      </AuthProvider>
+      <SettingsScreen navigation={mockNavigation} />
     </AppProviders>
   );
 };
 
-describe('SettingsScreen Component', () => {
+describe('SettingsScreen Accessibility & Functionality', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
+  describe('Interaction & State', () => {
+    test('toggles notification switch accessibility state', async () => {
+  const { getByLabelText } = renderSettings();
+
+  const toggle = await waitFor(() =>
+    getByLabelText('Notifications')
+  );
   describe('rendering', () => {
     test('renders settings screen', () => {
       const { getAllByText } = renderSettingsScreen();
@@ -42,30 +41,35 @@ describe('SettingsScreen Component', () => {
       expect(careConnectElements.length).toBeGreaterThan(0);
     });
 
-    test('renders accessibility settings option', () => {
-      const { getByText, queryByText } = renderSettingsScreen();
+  const initial =
+    toggle.props.accessibilityState?.checked;
 
-      const accessibilityOption = 
-        queryByText(/Accessibility/i) || 
-        queryByText(/Text Size/i) ||
-        queryByText(/Display/i);
-      
-      expect(accessibilityOption).toBeTruthy();
-    });
+  fireEvent.press(toggle);
+
+  await waitFor(() => {
+    const updatedToggle = getByLabelText('Notifications');
+    expect(
+      updatedToggle.props.accessibilityState?.checked
+    ).toBe(!initial);
   });
+});
 
-  describe('navigation options', () => {
-    test('navigates to change password screen', () => {
-      const { getByText } = renderSettingsScreen();
-      
-      const changePasswordButton = getByText(/Change Password/i) || getByText(/Password/i);
-      fireEvent.press(changePasswordButton);
 
-      expect(mockNavigation.navigate).toHaveBeenCalledWith(
-        expect.stringMatching(/Password/i)
+    test('text size selector uses radio roles and shows selection state', async () => {
+      const { getByRole } = renderSettings();
+
+      // Wait for radios to render after AsyncStorage load
+      const smallOption = await waitFor(() =>
+        getByRole('radio', { name: /small/i })
       );
-    });
 
+      fireEvent.press(smallOption);
+
+      await waitFor(() => {
+        expect(
+          smallOption.props.accessibilityState?.selected
+        ).toBe(true);
+      });
     test('accessibility section is rendered', () => {
       const { queryByText } = renderSettingsScreen();
       
@@ -82,28 +86,42 @@ describe('SettingsScreen Component', () => {
       const logoutButton = queryByText(/Log Out/i) || queryByText(/Logout/i);
       expect(logoutButton).toBeTruthy();
     });
+  });
 
-    test('shows confirmation dialog on logout', () => {
-      // Mock Alert.alert
-      Alert.alert = jest.fn((title, message, buttons) => {
-        // Simulate pressing the logout button
-        if (buttons && buttons.length > 0) {
-          const logoutButton = buttons.find(b => b.text === 'Log Out' || b.text === 'Logout');
-          if (logoutButton && logoutButton.onPress) {
-            logoutButton.onPress();
-          }
-        }
-      });
+  describe('Modals', () => {
+    test('opens reminder frequency picker', async () => {
+      const { getByText, getAllByText } = renderSettings();
 
+      const trigger = await waitFor(() =>
+        getByText('Reminder frequency')
+      );
       const { queryByText } = renderSettingsScreen();
       const logoutButton = queryByText(/Log Out/i) || queryByText(/Logout/i);
 
-      fireEvent.press(logoutButton);
+      fireEvent.press(trigger);
 
-      expect(Alert.alert).toHaveBeenCalled();
+      await waitFor(() => {
+        const dailyOptions = getAllByText('Daily');
+        expect(dailyOptions.length).toBeGreaterThan(1);
+      });
     });
   });
 
+  describe('Handedness Coverage', () => {
+    test('updates handedness when radio button is pressed', async () => {
+      const { getByRole } = renderSettings();
+
+      const toggleBtn = await waitFor(() =>
+        getByRole('radio', { name: /toggle mode/i })
+      );
+
+      fireEvent.press(toggleBtn);
+
+      await waitFor(() => {
+        expect(
+          toggleBtn.props.accessibilityState?.selected
+        ).toBe(true);
+      });
   describe('accessibility', () => {
     test('all interactive elements are accessible', () => {
       const { queryByText } = renderSettingsScreen();

@@ -7,6 +7,7 @@ buildscript {
         compileSdkVersion = Integer.parseInt(findProperty('android.compileSdkVersion') ?: '34')
         targetSdkVersion = Integer.parseInt(findProperty('android.targetSdkVersion') ?: '34')
         kotlinVersion = findProperty('android.kotlinVersion') ?: '1.8.10'
+
         ndkVersion = "25.1.8937393"
     }
     repositories {
@@ -20,7 +21,6 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
-apply plugin: "expo-root-project"
 
 allprojects {
     repositories {
@@ -30,25 +30,11 @@ allprojects {
         }
         maven {
             // Android JSC is installed from npm
-            url(new File(['node', '--print', "require.resolve('jsc-android/package.json', { paths: [require.resolve('react-native/package.json')] })"]
-                .execute(null, rootDir).text.trim(), '../dist'))
+            url(new File(['node', '--print', "require.resolve('jsc-android/package.json', { paths: [require.resolve('react-native/package.json')] })"].execute(null, rootDir).text.trim(), '../dist'))
         }
 
         google()
         mavenCentral()
-    }
-}
-
-apply plugin: "expo-root-project"
-apply plugin: "com.facebook.react.rootproject"
-
-// Disable all CMake configuration tasks across all subprojects
-subprojects {
-    pluginManager.withPlugin('com.android.library') {
-        tasks.configureEach { task ->
-            if (task.name.contains("configureCMake") || task.name.contains("buildCMake") || task.name.contains("CMake")) {
-                task.enabled = false
-            }
-        }
+        maven { url 'https://www.jitpack.io' }
     }
 }
