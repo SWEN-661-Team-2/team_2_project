@@ -88,13 +88,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   children: [
                     Align(
                       alignment: Alignment.topRight,
-                      child: IconButton(
-                        key: const Key('welcome_settings'),
-                        tooltip: 'Open settings',
-                        icon: const Icon(Icons.settings),
-                        onPressed: () {
-                          Navigator.of(context).pushNamed(Routes.login);
-                        },
+                      child: Semantics(
+                        button: true,
+                        label: 'Settings',
+                        hint: 'Open settings',
+                        child: IconButton(
+                          key: const Key('welcome_settings'),
+                          tooltip: 'Open settings',
+                          icon: const Icon(Icons.settings),
+                          onPressed: () {
+                            Navigator.of(context).pushNamed(Routes.login);
+                          },
+                        ),
                       ),
                     ),
                     const AppLogo(size: 120),
