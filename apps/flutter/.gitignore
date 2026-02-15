@@ -53,3 +53,5 @@ ios/Runner.xcworkspace/contents.xcworkspacedata
 ios/Runner.xcodeproj/project.pbxproj
 ios/Runner.xcworkspace/contents.xcworkspacedata
 
+.fvm/
+.fvmrc

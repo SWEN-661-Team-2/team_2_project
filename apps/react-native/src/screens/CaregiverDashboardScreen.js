@@ -205,9 +205,9 @@ const styles = StyleSheet.create({
     paddingTop: 50,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginBottom: 16,
   },
   logoImage: {
     width: 22,

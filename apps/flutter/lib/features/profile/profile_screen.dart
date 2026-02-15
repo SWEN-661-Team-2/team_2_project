@@ -233,6 +233,17 @@ class _EditView extends StatelessWidget {
     required this.isLeftAligned,
   });
 
+  InputDecoration _dec(String label, {String? hint}) {
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -242,24 +253,79 @@ class _EditView extends StatelessWidget {
         Center(
           child: _PhotoCircle(photoPath: profile.photoPath, onTap: onTapPhoto),
         ),
-        const SizedBox(height: 16),
-        TextField(controller: name),
-        TextField(controller: titleRole),
-        TextField(controller: position),
-        TextField(controller: organization),
-        TextField(controller: email),
-        TextField(controller: phone),
         const SizedBox(height: 20),
-        FilledButton(
-          key: const Key('profile_save'),
-          onPressed: onSave,
-          child: const Text('Save'),
+
+        TextField(
+          controller: name,
+          textInputAction: TextInputAction.next,
+          decoration: _dec('Name', hint: 'Enter full name'),
         ),
+        const SizedBox(height: 14),
+
+        TextField(
+          controller: titleRole,
+          textInputAction: TextInputAction.next,
+          decoration: _dec('Title / Role', hint: 'e.g., Caregiver'),
+        ),
+        const SizedBox(height: 14),
+
+        TextField(
+          controller: position,
+          textInputAction: TextInputAction.next,
+          decoration: _dec('Position', hint: 'e.g., RN, DSP, Family Caregiver'),
+        ),
+        const SizedBox(height: 14),
+
+        TextField(
+          controller: organization,
+          textInputAction: TextInputAction.next,
+          decoration: _dec('Organization', hint: 'e.g., CareConnect Health'),
+        ),
+        const SizedBox(height: 14),
+
+        TextField(
+          controller: email,
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.next,
+          decoration: _dec('Email address', hint: 'you@example.com'),
+        ),
+        const SizedBox(height: 14),
+
+        TextField(
+          controller: phone,
+          keyboardType: TextInputType.phone,
+          textInputAction: TextInputAction.done,
+          decoration: _dec('Phone', hint: '(555) 555-5555'),
+        ),
+
+        const SizedBox(height: 22),
+
+        Align(
+          alignment: isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
+          child: SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: FilledButton(
+              key: const Key('profile_save'),
+              onPressed: onSave,
+              child: const Text('Save'),
+            ),
+          ),
+        ),
+
         const SizedBox(height: 12),
-        OutlinedButton(
-          key: const Key('profile_cancel'),
-          onPressed: onCancel,
-          child: const Text('Cancel'),
+
+        Align(
+          alignment: isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
+          child: SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: OutlinedButton(
+              key: const Key('profile_cancel'),
+              onPressed: onCancel,
+              child: const Text('Cancel'),
+            ),
+          ),
         ),
       ],
     );

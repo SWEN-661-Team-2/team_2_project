@@ -1,10 +1,29 @@
+# FILE: .github/workflows/sca-owasp-dependency-check.yml
 name: SCA (OWASP Dependency-Check)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
+    paths:
+      - "**/pom.xml"
+      - "**/build.gradle"
+      - "**/build.gradle.kts"
+      - "**/gradle.properties"
+      - "**/settings.gradle"
+      - "**/settings.gradle.kts"
+      - "backend/**"
+      - ".github/workflows/sca-owasp-dependency-check.yml"
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+    paths:
+      - "**/pom.xml"
+      - "**/build.gradle"
+      - "**/build.gradle.kts"
+      - "**/gradle.properties"
+      - "**/settings.gradle"
+      - "**/settings.gradle.kts"
+      - "backend/**"
+      - ".github/workflows/sca-owasp-dependency-check.yml"
   workflow_dispatch: {}
 
 permissions:
@@ -17,22 +36,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
-      # Runs across the repo; if you want to narrow it later, set scan-path to your Java backend folder.
       - name: OWASP Dependency-Check
         uses: dependency-check/Dependency-Check_Action@main
         with:
           project: "team_2_project"
-          path: "."
+          # Narrow to backend to avoid scanning Flutter/RN/etc.
+          path: "backend/core"
           format: "ALL"
           out: "dependency-check-report"
-          # If you want to fail on severity later, uncomment and tune:
-          # args: >
-          #   --failOnCVSS 7
+          args: >
+            --noupdate
+            # If you ever change path back to ".", this prevents the NodeAuditAnalyzer failure:
+            # --disableNodeAudit
+          # Optional (PR gate): fail only on high+ (tune later)
+          # --failOnCVSS 7
 
       - name: Upload Dependency-Check reports
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: owasp-dependency-check
           path: dependency-check-report/
+          if-no-files-found: error

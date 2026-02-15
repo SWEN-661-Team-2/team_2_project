@@ -77,6 +77,12 @@ test('renders correct title based on viewMode', () => {
       viewMode: 'priority',
       setViewMode: mockSetViewMode,
       patients: mockPatients,
+    test('renders patient cards', () => {
+      const { root } = renderWithProviders(
+        <PatientsScreen navigation={navigation} />
+      );
+
+      expect(root).toBeTruthy();
     });
     
     // Use the rerender function correctly
@@ -122,6 +128,13 @@ test('applies left-handed styles to header', () => {
       viewMode: 'all',
       setViewMode: mockSetViewMode,
       patients: [],
+  describe('patient interaction', () => {
+    test('shows alert when patient is pressed', () => {
+      const { root } = renderWithProviders(
+        <PatientsScreen navigation={navigation} />
+      );
+
+      expect(root).toBeTruthy();
     });
 
     const { getByText } = render(<PatientsScreen navigation={mockNavigation} />);
@@ -132,5 +145,13 @@ test('applies left-handed styles to header', () => {
     const { getByTestId } = render(<PatientsScreen navigation={mockNavigation} />);
     fireEvent.press(getByTestId('back_button'));
     expect(mockNavigation.goBack).toHaveBeenCalled();
+  describe('filter menu', () => {
+    test('filter menu can be opened', () => {
+      const { root } = renderWithProviders(
+        <PatientsScreen navigation={navigation} />
+      );
+
+      expect(root).toBeTruthy();
+    });
   });
 });

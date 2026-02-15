@@ -52,6 +52,16 @@ describe('WelcomeScreen Component', () => {
       
       fireEvent.press(continueBtn);
       expect(mockNavigation.navigate).toHaveBeenCalledWith('Login');
+    test('renders call to action button', () => {
+      const { queryByText } = renderWelcomeScreen();
+
+      const ctaButton = 
+        queryByText(/Get Started/i) || 
+        queryByText(/Login/i) ||
+        queryByText(/Sign In/i) ||
+        queryByText(/Continue/i);
+
+      expect(ctaButton).toBeTruthy();
     });
   });
 

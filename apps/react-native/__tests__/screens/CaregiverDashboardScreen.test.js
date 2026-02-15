@@ -64,6 +64,20 @@ describe('CaregiverDashboardScreen Hardening', () => {
     // Line 65: Messages
     fireEvent.press(screen.getByText('Unread Messages'));
     expect(mockNavigation.navigate).toHaveBeenCalledWith('Messages', expect.objectContaining({ mode: 'unread' }));
+  describe('rendering', () => {
+    test('renders dashboard title', () => {
+      const { getByText } = renderDashboard();
+
+      expect(getByText('CareConnect')).toBeTruthy();
+    });
+
+    test('renders stat cards', () => {
+      const { getByText, getAllByText } = renderDashboard();
+
+      expect(getByText('Active Patients')).toBeTruthy();
+      const upcomingMatches = getAllByText('Upcoming Visits');
+      expect(upcomingMatches.length).toBeGreaterThan(0);
+    });
   });
 
   test('hits date formatting logic (Lines 118-126)', () => {
@@ -79,6 +93,30 @@ describe('CaregiverDashboardScreen Hardening', () => {
     DashboardContext.useDashboard.mockReturnValue({
       ...mockData,
       upcomingVisits: [{ id: 99, fullName: 'No Date Guy', nextVisit: futureDate, criticality: 'low' }],
+  describe('patients section', () => {
+    test('renders patients needing attention section', async () => {
+      const { getAllByText } = renderDashboard();
+
+      await waitFor(() => {
+        const matches = getAllByText(/Patients Needing Attention/i);
+        expect(matches.length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('responsive layout', () => {
+    test('renders on tablet layout (width >= 600)', () => {
+      // Mock large screen
+      jest.spyOn(Dimensions, 'get').mockReturnValue({
+        width: 900,
+        height: 900,
+        scale: 1,
+        fontScale: 1,
+      });
+
+      const { getByText } = renderDashboard();
+
+      expect(getByText('CareConnect')).toBeTruthy();
     });
 
     // We manually mock a scenario where the row component receives no date
@@ -95,5 +133,15 @@ describe('CaregiverDashboardScreen Hardening', () => {
     
     render(<CaregiverDashboardScreen navigation={mockNavigation} />);
     expect(screen.getByText('CareConnect')).toBeTruthy();
+  describe('upcoming visits section', () => {
+    test('renders upcoming visits section', async () => {
+      const { getAllByText } = renderDashboard();
+
+      await waitFor(() => {
+        // Check for section header or stat card
+        const matches = getAllByText(/Upcoming Visits/i);
+        expect(matches.length).toBeGreaterThan(0);
+      });
+    });
   });
 });

@@ -1,5 +1,9 @@
 class CaregiverMessage {
   final String id;
+
+  /// NEW: links a message to a patient
+  final String patientId;
+
   final String sender;
   final String subject;
   final String preview;
@@ -8,6 +12,7 @@ class CaregiverMessage {
 
   const CaregiverMessage({
     required this.id,
+    required this.patientId,
     required this.sender,
     required this.subject,
     required this.preview,
