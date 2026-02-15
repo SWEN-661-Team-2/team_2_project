@@ -1,0 +1,8 @@
+# apps/flutter/maestro/welcome_to_login.yaml
+appId: com.example.flutter_app
+---
+- launchApp
+- assertVisible: "CareConnect"
+- assertVisible: "Continue"
+- tapOn: "Continue"
+- assertVisible: "Sign In"
