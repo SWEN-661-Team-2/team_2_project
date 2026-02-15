@@ -1,19 +1,14 @@
-// /Volumes/DevDrive/code/swen-661-ui/team_2_project/apps/react-native/__tests__/models/CaregiverMessage.test.js
-
 /**
  * Business Logic Tests - CaregiverMessage Model
- * Tests the CaregiverMessage class (handles default vs named exports)
+ * Tests the CaregiverMessage class
  */
-import * as ModelModule from '../../src/models/CaregiverMessage';
-
-const CaregiverMessageCtor =
-  ModelModule.CaregiverMessage || ModelModule.default || ModelModule;
+import CaregiverMessage from '../../src/models/CaregiverMessage';
 
 describe('CaregiverMessage Model', () => {
   describe('constructor', () => {
     test('creates message with all fields', () => {
       const date = new Date('2024-03-15T10:30:00');
-      const message = new CaregiverMessageCtor(
+      const message = new CaregiverMessage(
         '1',
         'Meeting Reminder',
         'Team meeting tomorrow',
@@ -31,11 +26,18 @@ describe('CaregiverMessage Model', () => {
     });
 
     test('creates message with minimal fields', () => {
-      const message = new CaregiverMessageCtor('2', 'Alert', 'Important message');
+      const message = new CaregiverMessage(
+        '2',
+        'Alert',
+        'Important message'
+      );
 
       expect(message.id).toBe('2');
       expect(message.title).toBe('Alert');
       expect(message.body).toBe('Important message');
+      expect(message.category).toBeUndefined();
+      expect(message.timestamp).toBeUndefined();
+      expect(message.isRead).toBeUndefined();
     });
   });
 });
