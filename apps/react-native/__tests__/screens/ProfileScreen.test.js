@@ -32,7 +32,6 @@ const renderProfileScreen = (nav = mockNavigation) => {
     <AppProviders>
       <ProfileProvider>
         <ProfileScreen navigation={nav} />
-        <ProfileScreen navigation={mockNavigation} />
       </ProfileProvider>
     </AppProviders>
   );
@@ -85,28 +84,6 @@ describe('ProfileScreen Component', () => {
       
       await waitFor(() => {
         const backButton = getByRole('button', { name: /go back/i });
-  describe('rendering', () => {
-    test('renders profile screen with title', async () => {
-      const { getByText } = renderProfileScreen();
-
-      await waitFor(() => {
-        expect(getByText('Profile information')).toBeTruthy();
-      });
-    });
-
-    test('renders back button', async () => {
-      const { getByText } = renderProfileScreen();
-
-      await waitFor(() => {
-        expect(getByText('←')).toBeTruthy();
-      });
-    });
-
-    test('back button navigates back', async () => {
-      const { getByText } = renderProfileScreen();
-      
-      await waitFor(() => {
-        const backButton = getByText('←');
         fireEvent.press(backButton);
       });
 
@@ -117,7 +94,6 @@ describe('ProfileScreen Component', () => {
   describe('edit mode', () => {
     test('enters edit mode when edit button is pressed', async () => {
       const { getByRole, getByTestId } = renderProfileScreen();
-      const { getByTestId, getByText } = renderProfileScreen();
 
       await waitFor(() => {
         const editButton = getByTestId('profile_edit');
@@ -134,12 +110,6 @@ describe('ProfileScreen Component', () => {
       const { getByTestId, getByRole } = renderProfileScreen();
 
       await waitFor(() => fireEvent.press(getByTestId('profile_edit')));
-      const { getByTestId, getByText } = renderProfileScreen();
-
-      await waitFor(() => {
-        const editButton = getByTestId('profile_edit');
-        fireEvent.press(editButton);
-      });
 
       await waitFor(() => {
         const cancelButton = getByRole('button', { name: /cancel editing/i });
@@ -148,7 +118,6 @@ describe('ProfileScreen Component', () => {
 
       await waitFor(() => {
         expect(getByTestId('profile_edit')).toBeTruthy();
-        expect(getByText('Edit Profile')).toBeTruthy();
       });
     });
 
@@ -156,12 +125,6 @@ describe('ProfileScreen Component', () => {
       const { getByTestId, getByRole } = renderProfileScreen();
 
       await waitFor(() => fireEvent.press(getByTestId('profile_edit')));
-      const { getByTestId, getByText } = renderProfileScreen();
-
-      await waitFor(() => {
-        const editButton = getByTestId('profile_edit');
-        fireEvent.press(editButton);
-      });
 
       await waitFor(() => {
         const saveButton = getByRole('button', { name: /save profile changes/i });
@@ -179,13 +142,6 @@ describe('ProfileScreen Component', () => {
       const { getByTestId, getByLabelText } = renderProfileScreen();
 
       await waitFor(() => fireEvent.press(getByTestId('profile_edit')));
-    test('allows editing name field', async () => {
-      const { getByTestId, getByPlaceholderText } = renderProfileScreen();
-
-      await waitFor(() => {
-        const editButton = getByTestId('profile_edit');
-        fireEvent.press(editButton);
-      });
 
       await waitFor(() => {
         const nameInput = getByLabelText('Full Name');
@@ -198,13 +154,6 @@ describe('ProfileScreen Component', () => {
       const { getByTestId, getByLabelText } = renderProfileScreen();
 
       await waitFor(() => fireEvent.press(getByTestId('profile_edit')));
-    test('allows editing email field', async () => {
-      const { getByTestId, getByPlaceholderText } = renderProfileScreen();
-
-      await waitFor(() => {
-        const editButton = getByTestId('profile_edit');
-        fireEvent.press(editButton);
-      });
 
       await waitFor(() => {
         const emailInput = getByLabelText('Email Address');
@@ -219,12 +168,6 @@ describe('ProfileScreen Component', () => {
       const { getByRole, getByTestId } = renderProfileScreen();
 
       await waitFor(() => fireEvent.press(getByTestId('profile_edit')));
-      const { getByTestId } = renderProfileScreen();
-
-      await waitFor(() => {
-        const editButton = getByTestId('profile_edit');
-        fireEvent.press(editButton);
-      });
 
       await waitFor(() => {
         const photoButton = getByRole('button', { name: /change profile photo/i });
@@ -245,12 +188,6 @@ describe('ProfileScreen Component', () => {
       const { getByRole, getByTestId } = renderProfileScreen();
 
       await waitFor(() => fireEvent.press(getByTestId('profile_edit')));
-      const { getByTestId } = renderProfileScreen();
-
-      await waitFor(() => {
-        const editButton = getByTestId('profile_edit');
-        fireEvent.press(editButton);
-      });
 
       await waitFor(() => {
         const photoButton = getByRole('button', { name: /change profile photo/i });

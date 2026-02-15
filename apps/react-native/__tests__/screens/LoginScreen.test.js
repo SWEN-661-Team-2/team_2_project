@@ -77,11 +77,6 @@ describe('LoginScreen Component', () => {
       // Updated to match the exact placeholder in the new LoginScreen.js
       expect(screen.getByPlaceholderText('you@example.com')).toBeTruthy();
       expect(screen.getByPlaceholderText('Enter your password')).toBeTruthy();
-    test('renders email and password input fields', () => {
-      const { getByPlaceholderText } = renderLoginScreen();
-
-      expect(getByPlaceholderText('you@example.com')).toBeTruthy();
-      expect(getByPlaceholderText('password')).toBeTruthy();
     });
   });
 
@@ -171,19 +166,12 @@ describe('LoginScreen Component', () => {
       const loginSpy = jest.fn(() => Promise.reject('Error'));
       useAuth.mockReturnValue({ login: loginSpy });
       const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-  describe('login submission', () => {
-    test('calls login function on successful submission', async () => {
-      const { getByTestId, getByText } = renderLoginScreen();
-      const emailInput = getByTestId('login_email');
-      const passwordInput = getByTestId('login_password');
-      const submitButton = getByText('Sign In');
 
       renderLoginScreen();
       fireEvent.changeText(screen.getByTestId('login_email'), 'test@test.com');
       fireEvent.changeText(screen.getByTestId('login_password'), 'password');
       fireEvent.press(screen.getByLabelText('Sign In'));
 
-      // Wait for async login to complete
       await waitFor(() => {
         expect(consoleSpy).toHaveBeenCalledWith('Login failed', 'Error');
       });
@@ -198,24 +186,6 @@ describe('LoginScreen Component', () => {
       
       expect(consoleSpy).toHaveBeenCalledWith('Forgot password clicked');
       consoleSpy.mockRestore();
-        // Login is successful and doesn't show alert
-        expect(Alert.alert).not.toHaveBeenCalled();
-      }, { timeout: 3000 });
-    });
-
-    test('shows alert on empty credentials', async () => {
-      const { getByTestId, getByText } = renderLoginScreen();
-      const emailInput = getByTestId('login_email');
-      const passwordInput = getByTestId('login_password');
-      const submitButton = getByText('Sign In');
-
-      // Leave fields empty - this will trigger validation errors, not Alert
-      fireEvent.press(submitButton);
-
-      await waitFor(() => {
-        // Should show validation errors, not Alert
-        expect(Alert.alert).not.toHaveBeenCalled();
-      }, { timeout: 1000 });
     });
   });
   // ************************************************************

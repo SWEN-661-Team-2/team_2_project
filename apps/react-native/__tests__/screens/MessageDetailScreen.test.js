@@ -4,15 +4,13 @@
  */
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
+import { Share } from 'react-native';
 import MessageDetailScreen from '../../src/screens/MessageDetailScreen';
 import { AppProviders } from '../../src/contexts/AppProviders';
 
 // Mock Share API
-const mockShare = jest.fn(() => Promise.resolve({ action: 'sharedAction' }));
 jest.mock('react-native/Libraries/Share/Share', () => ({
-  default: {
-    share: mockShare,
-  },
+  share: jest.fn(() => Promise.resolve({ action: 'sharedAction' })),
 }));
 
 const mockMessage = {
@@ -48,11 +46,11 @@ describe('MessageDetailScreen Component', () => {
 
   describe('rendering', () => {
     test('renders message detail screen', () => {
-      const { getByTestId } = renderWithProviders(
+      const { getByText } = renderWithProviders(
         <MessageDetailScreen navigation={navigation} route={route} />
       );
 
-      expect(getByTestId('message_header_title')).toBeTruthy();
+      expect(getByText(mockMessage.subject)).toBeTruthy();
     });
 
     test('displays message sender', () => {
@@ -64,19 +62,19 @@ describe('MessageDetailScreen Component', () => {
     });
 
     test('displays message subject', () => {
-      const { getByTestId } = renderWithProviders(
+      const { getByText } = renderWithProviders(
         <MessageDetailScreen navigation={navigation} route={route} />
       );
 
-      expect(getByTestId('message_subject')).toBeTruthy();
+      expect(getByText(mockMessage.subject)).toBeTruthy();
     });
 
     test('displays message preview', () => {
-      const { getByTestId } = renderWithProviders(
+      const { getByText } = renderWithProviders(
         <MessageDetailScreen navigation={navigation} route={route} />
       );
 
-      expect(getByTestId('message_preview')).toBeTruthy();
+      expect(getByText(mockMessage.preview)).toBeTruthy();
     });
 
     test('renders back button', () => {
@@ -119,7 +117,7 @@ describe('MessageDetailScreen Component', () => {
       fireEvent.press(shareButton);
 
       await waitFor(() => {
-        expect(mockShare).toHaveBeenCalledWith({
+        expect(Share.share).toHaveBeenCalledWith({
           message: `${mockMessage.subject}\n\n${mockMessage.preview}`,
           title: mockMessage.subject,
         });
@@ -128,7 +126,7 @@ describe('MessageDetailScreen Component', () => {
 
     test('handles share errors gracefully', async () => {
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-      mockShare.mockRejectedValueOnce(new Error('Share failed'));
+      Share.share.mockRejectedValueOnce(new Error('Share failed'));
 
       const { getByText } = renderWithProviders(
         <MessageDetailScreen navigation={navigation} route={route} />
@@ -173,19 +171,19 @@ describe('MessageDetailScreen Component', () => {
 
   describe('handedness support', () => {
     test('renders with left-handed layout', () => {
-      const { root } = renderWithProviders(
+      const { container } = renderWithProviders(
         <MessageDetailScreen navigation={navigation} route={route} />
       );
 
-      expect(root).toBeTruthy();
+      expect(container).toBeTruthy();
     });
 
     test('renders with right-handed layout', () => {
-      const { root } = renderWithProviders(
+      const { container } = renderWithProviders(
         <MessageDetailScreen navigation={navigation} route={route} />
       );
 
-      expect(root).toBeTruthy();
+      expect(container).toBeTruthy();
     });
   });
 });
