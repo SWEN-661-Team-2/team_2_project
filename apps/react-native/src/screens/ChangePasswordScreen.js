@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
-  View,
+  Alert,
+  ScrollView,
+  StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  ScrollView,
-  StyleSheet,
-  Alert,
+  View,
 } from 'react-native';
-import { useAuth } from '../contexts/AuthContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useHandedness } from '../contexts/AppProviders';
+import { useAuth } from '../contexts/AuthContext';
 
 /**
  * Change Password Screen for React Native
@@ -41,12 +42,20 @@ export default function ChangePasswordScreen({ navigation }) {
     }
   };
 
+  // apps/react-native/src/screens/ChangePasswordScreen.js
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>← Back</Text>
+        <TouchableOpacity
+          onPress={() => {
+            if (navigation.canGoBack()) navigation.goBack();
+            else navigation.navigate('Settings'); 
+          }}
+          style={styles.backTouch}
+          hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
+        >
+          <Text style={styles.backButton}>←</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Change password</Text>
         <View style={{ width: 40 }} />
@@ -105,7 +114,7 @@ export default function ChangePasswordScreen({ navigation }) {
           </Text>
         </TouchableOpacity>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -239,6 +248,17 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#FFF',
     fontSize: 16,
+    fontWeight: '600',
+  },
+  backTouch: {
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backButton: {
+    fontSize: 28,
+    color: '#0A7A8A',
     fontWeight: '600',
   },
 });

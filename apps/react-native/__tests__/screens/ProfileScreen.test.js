@@ -8,6 +8,7 @@ import { Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import ProfileScreen from '../../src/screens/ProfileScreen';
 import { ProfileProvider } from '../../src/contexts/ProfileContext';
+import { AppProviders } from '../../src/contexts/AppProviders';
 
 // Mock dependencies
 jest.spyOn(Alert, 'alert');
@@ -21,9 +22,11 @@ const mockNavigation = {
 
 const renderProfileScreen = () => {
   return render(
-    <ProfileProvider>
-      <ProfileScreen navigation={mockNavigation} />
-    </ProfileProvider>
+    <AppProviders>
+      <ProfileProvider>
+        <ProfileScreen navigation={mockNavigation} />
+      </ProfileProvider>
+    </AppProviders>
   );
 };
 
@@ -40,23 +43,29 @@ describe('ProfileScreen Component', () => {
   });
 
   describe('rendering', () => {
-    test('renders profile screen with title', () => {
+    test('renders profile screen with title', async () => {
       const { getByText } = renderProfileScreen();
 
-      expect(getByText('Profile information')).toBeTruthy();
+      await waitFor(() => {
+        expect(getByText('Profile information')).toBeTruthy();
+      });
     });
 
-    test('renders back button', () => {
+    test('renders back button', async () => {
       const { getByText } = renderProfileScreen();
 
-      expect(getByText('←')).toBeTruthy();
+      await waitFor(() => {
+        expect(getByText('←')).toBeTruthy();
+      });
     });
 
-    test('back button navigates back', () => {
+    test('back button navigates back', async () => {
       const { getByText } = renderProfileScreen();
-      const backButton = getByText('←');
-
-      fireEvent.press(backButton);
+      
+      await waitFor(() => {
+        const backButton = getByText('←');
+        fireEvent.press(backButton);
+      });
 
       expect(mockNavigation.goBack).toHaveBeenCalled();
     });
@@ -64,10 +73,10 @@ describe('ProfileScreen Component', () => {
 
   describe('edit mode', () => {
     test('enters edit mode when edit button is pressed', async () => {
-      const { getByText } = renderProfileScreen();
+      const { getByTestId, getByText } = renderProfileScreen();
 
       await waitFor(() => {
-        const editButton = getByText('Edit');
+        const editButton = getByTestId('profile_edit');
         fireEvent.press(editButton);
       });
 
@@ -78,10 +87,10 @@ describe('ProfileScreen Component', () => {
     });
 
     test('cancel button exits edit mode without saving', async () => {
-      const { getByText } = renderProfileScreen();
+      const { getByTestId, getByText } = renderProfileScreen();
 
       await waitFor(() => {
-        const editButton = getByText('Edit');
+        const editButton = getByTestId('profile_edit');
         fireEvent.press(editButton);
       });
 
@@ -91,15 +100,15 @@ describe('ProfileScreen Component', () => {
       });
 
       await waitFor(() => {
-        expect(getByText('Edit')).toBeTruthy();
+        expect(getByText('Edit Profile')).toBeTruthy();
       });
     });
 
     test('save button saves profile and exits edit mode', async () => {
-      const { getByText } = renderProfileScreen();
+      const { getByTestId, getByText } = renderProfileScreen();
 
       await waitFor(() => {
-        const editButton = getByText('Edit');
+        const editButton = getByTestId('profile_edit');
         fireEvent.press(editButton);
       });
 
@@ -116,10 +125,10 @@ describe('ProfileScreen Component', () => {
 
   describe('profile fields', () => {
     test('allows editing name field', async () => {
-      const { getByText, getByPlaceholderText } = renderProfileScreen();
+      const { getByTestId, getByPlaceholderText } = renderProfileScreen();
 
       await waitFor(() => {
-        const editButton = getByText('Edit');
+        const editButton = getByTestId('profile_edit');
         fireEvent.press(editButton);
       });
 
@@ -131,10 +140,10 @@ describe('ProfileScreen Component', () => {
     });
 
     test('allows editing email field', async () => {
-      const { getByText, getByPlaceholderText } = renderProfileScreen();
+      const { getByTestId, getByPlaceholderText } = renderProfileScreen();
 
       await waitFor(() => {
-        const editButton = getByText('Edit');
+        const editButton = getByTestId('profile_edit');
         fireEvent.press(editButton);
       });
 
@@ -148,10 +157,10 @@ describe('ProfileScreen Component', () => {
 
   describe('photo upload', () => {
     test('allows photo selection in edit mode', async () => {
-      const { getByText, getByTestId } = renderProfileScreen();
+      const { getByTestId } = renderProfileScreen();
 
       await waitFor(() => {
-        const editButton = getByText('Edit');
+        const editButton = getByTestId('profile_edit');
         fireEvent.press(editButton);
       });
 
@@ -170,10 +179,10 @@ describe('ProfileScreen Component', () => {
         status: 'denied',
       });
 
-      const { getByText, getByTestId } = renderProfileScreen();
+      const { getByTestId } = renderProfileScreen();
 
       await waitFor(() => {
-        const editButton = getByText('Edit');
+        const editButton = getByTestId('profile_edit');
         fireEvent.press(editButton);
       });
 

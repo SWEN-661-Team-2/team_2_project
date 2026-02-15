@@ -5,72 +5,98 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { AuthProvider } from '../../src/contexts/AuthContext';
-import LoginScreen from '../../src/screens/LoginScreen';
+import { AuthProvider, useAuth } from '../../src/contexts/AuthContext';
+import { AppProviders } from '../../src/contexts/AppProviders';
+import { DashboardProvider } from '../../src/contexts/DashboardContext';
 import WelcomeScreen from '../../src/screens/WelcomeScreen';
 import CaregiverDashboardScreen from '../../src/screens/CaregiverDashboardScreen';
 
-const Stack = createNativeStackNavigator();
-
-const AuthStack = () => (
-  <Stack.Navigator initialRouteName="Welcome" screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="Welcome" component={WelcomeScreen} />
-    <Stack.Screen name="Login" component={LoginScreen} />
-  </Stack.Navigator>
-);
-
-const AppStack = () => (
-  <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
-    <Stack.Screen name="Home" component={CaregiverDashboardScreen} />
-  </Stack.Navigator>
-);
-
-const renderNavigation = (isAuthenticated = false) => {
-  return render(
-    <AuthProvider>
-      <NavigationContainer>
-        {isAuthenticated ? <AppStack /> : <AuthStack />}
-      </NavigationContainer>
-    </AuthProvider>
-  );
-};
+// Mock navigation
+const mockNavigate = jest.fn();
+jest.mock('@react-navigation/native', () => {
+  const actualNav = jest.requireActual('@react-navigation/native');
+  return {
+    ...actualNav,
+    useNavigation: () => ({
+      navigate: mockNavigate,
+      replace: jest.fn(),
+      goBack: jest.fn(),
+    }),
+  };
+});
 
 describe('App Navigation', () => {
-  describe('authentication flow', () => {
-    test('starts on Welcome screen when not authenticated', () => {
-      const { getByText } = renderNavigation(false);
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-      expect(getByText(/Welcome/i)).toBeTruthy();
+  describe('authentication flow', () => {
+    test('Welcome screen renders when not authenticated', () => {
+      const { getByText } = render(
+        <AppProviders>
+          <AuthProvider>
+            <NavigationContainer>
+              <WelcomeScreen navigation={{ navigate: mockNavigate }} />
+            </NavigationContainer>
+          </AuthProvider>
+        </AppProviders>
+      );
+
+      expect(getByText(/CareConnect/i)).toBeTruthy();
+      expect(getByText(/Continue/i)).toBeTruthy();
     });
 
     test('navigates from Welcome to Login screen', async () => {
-      const { getByText } = renderNavigation(false);
+      const { getByText } = render(
+        <AppProviders>
+          <AuthProvider>
+            <NavigationContainer>
+              <WelcomeScreen navigation={{ navigate: mockNavigate }} />
+            </NavigationContainer>
+          </AuthProvider>
+        </AppProviders>
+      );
 
-      // Find and press the login/get started button
-      const getStartedButton = getByText(/Get Started/i) || getByText(/Login/i);
-      fireEvent.press(getStartedButton);
+      const continueButton = getByText(/Continue/i);
+      fireEvent.press(continueButton);
 
       await waitFor(() => {
-        expect(getByText('CareConnect')).toBeTruthy();
+        expect(mockNavigate).toHaveBeenCalledWith('Login');
       });
     });
   });
 
   describe('authenticated flow', () => {
-    test('shows Home screen when authenticated', () => {
-      const { getByText } = renderNavigation(true);
+    test('Dashboard screen renders for authenticated users', () => {
+      const { getByText } = render(
+        <AppProviders>
+          <AuthProvider>
+            <DashboardProvider>
+              <NavigationContainer>
+                <CaregiverDashboardScreen navigation={{ navigate: mockNavigate }} />
+              </NavigationContainer>
+            </DashboardProvider>
+          </AuthProvider>
+        </AppProviders>
+      );
 
       expect(getByText(/CareConnect/i)).toBeTruthy();
     });
   });
 
   describe('navigation stack', () => {
-    test('auth stack contains Welcome and Login screens', () => {
-      const { getByText } = renderNavigation(false);
+    test('Welcome screen has Continue button', () => {
+      const { getByText } = render(
+        <AppProviders>
+          <AuthProvider>
+            <NavigationContainer>
+              <WelcomeScreen navigation={{ navigate: mockNavigate }} />
+            </NavigationContainer>
+          </AuthProvider>
+        </AppProviders>
+      );
 
-      // Welcome screen should be visible
-      expect(getByText(/Welcome/i)).toBeTruthy();
+      expect(getByText(/Continue/i)).toBeTruthy();
     });
   });
 });

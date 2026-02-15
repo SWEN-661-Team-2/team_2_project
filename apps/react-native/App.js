@@ -1,8 +1,7 @@
-import React from 'react';
-import { View, Text } from 'react-native';
-import { SafeAreaView, SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Text, View } from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AppProviders } from './src/contexts/AppProviders';
 import { useAuth } from './src/contexts/AuthContext';
 import { DashboardProvider } from './src/contexts/DashboardContext';
@@ -11,20 +10,23 @@ import { PatientsProvider } from './src/contexts/PatientsContext';
 import MainTabNavigator from './src/navigation/MainTabNavigator';
 
 // Auth Screens
-import LoginScreen from './src/screens/LoginScreen';
 import ChangePasswordScreen from './src/screens/ChangePasswordScreen';
+import LoginScreen from './src/screens/LoginScreen';
 
 // App Screens
-import CaregiverDashboardScreen from './src/screens/CaregiverDashboardScreen';
-import WelcomeScreen from './src/screens/WelcomeScreen';
-import TasksScreen from './src/screens/TasksScreen';
-import PatientsListScreen from './src/screens/PatientsListScreen';
-import ScheduleScreen from './src/screens/ScheduleScreen';
-import ProfileScreen from './src/screens/ProfileScreen';
-import MessagesListScreen from './src/screens/MessagesListScreen';
-import MessageDetailScreen from './src/screens/MessageDetailScreen';
-import SettingsScreen from './src/screens/SettingsScreen';
+import AboutCareConnectScreen from './src/screens/AboutCareConnectScreen';
 import AccessibilityDetailScreen from './src/screens/AccessibilityDetailScreen';
+import HelpSupportScreen from './src/screens/HelpSupportScreen';
+import MessageDetailScreen from './src/screens/MessageDetailScreen';
+import MessagesListScreen from './src/screens/MessagesListScreen';
+import PatientsListScreen from './src/screens/PatientsListScreen';
+import PrivacyPolicyScreen from './src/screens/PrivacyPolicyScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
+import ScheduleScreen from './src/screens/ScheduleScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+import TasksScreen from './src/screens/TasksScreen';
+import TermsOfServiceScreen from './src/screens/TermsOfServiceScreen';
+import WelcomeScreen from './src/screens/WelcomeScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -100,6 +102,10 @@ function AppStack() {
                 animationEnabled: true,
               }}
             />
+            <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+            <Stack.Screen name="TermsOfService" component={TermsOfServiceScreen} />
+            <Stack.Screen name="HelpSupport" component={HelpSupportScreen} />
+            <Stack.Screen name="AboutCareConnect" component={AboutCareConnectScreen} />
           </Stack.Navigator>
         </PatientsProvider>
       </MessagesProvider>

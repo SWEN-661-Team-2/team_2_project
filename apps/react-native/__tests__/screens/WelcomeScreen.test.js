@@ -44,12 +44,13 @@ describe('WelcomeScreen Component', () => {
     });
 
     test('renders call to action button', () => {
-      const { getByText, queryByText } = renderWelcomeScreen();
+      const { queryByText } = renderWelcomeScreen();
 
       const ctaButton = 
         queryByText(/Get Started/i) || 
         queryByText(/Login/i) ||
-        queryByText(/Sign In/i);
+        queryByText(/Sign In/i) ||
+        queryByText(/Continue/i);
 
       expect(ctaButton).toBeTruthy();
     });

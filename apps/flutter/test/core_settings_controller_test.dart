@@ -119,16 +119,16 @@ void main() {
     var notified = 0;
     c.addListener(() => notified++);
 
-    await c.setLowVisionEnabled(true);
+    c.setLowVisionEnabled(true);
     expect(c.lowVisionEnabled, isTrue);
 
-    await c.setTremorSupportEnabled(true);
+    c.setTremorSupportEnabled(true);
     expect(c.tremorSupportEnabled, isTrue);
 
-    await c.setHearingImpairedEnabled(true);
+    c.setHearingImpairedEnabled(true);
     expect(c.hearingImpairedEnabled, isTrue);
 
-    await c.setGuidedModeEnabled(true);
+    c.setGuidedModeEnabled(true);
     expect(c.guidedModeEnabled, isTrue);
 
     expect(notified, greaterThanOrEqualTo(4));

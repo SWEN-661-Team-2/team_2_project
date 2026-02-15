@@ -1,18 +1,16 @@
-import React from 'react';
 import {
-  View,
+  Dimensions,
+  Image,
+  ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  Dimensions,
-  Platform,
+  View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useDashboard } from '../contexts/DashboardContext';
-import { useHandedness } from '../contexts/AppProviders';
-import { getCriticalityText, getCriticalityTag, getCriticalityColor } from '../repositories/PatientsRepository';
 import HandednessToggleOverlay from '../components/HandednessToggleOverlay';
+import { useHandedness } from '../contexts/AppProviders';
+import { useDashboard } from '../contexts/DashboardContext';
+import { getCriticalityColor, getCriticalityTag, getCriticalityText } from '../repositories/PatientsRepository';
 const { width } = Dimensions.get('window');
 const TABLET_BREAKPOINT = 600;
 
@@ -32,19 +30,6 @@ export default function CaregiverDashboardScreen({ navigation }) {
     unreadMessageCount = 0,
     needingTop3 = [],
   } = useDashboard();
-
-
-
-  console.log('dashboard:', {
-    allPatients,
-    upcomingVisits,
-    needingAttention,
-    unreadMessageCount,
-    needingTop3,
-  });
-
-
-
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -85,10 +70,14 @@ export default function CaregiverDashboardScreen({ navigation }) {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <View style={styles.header}>
-          <View style={styles.logoContainer}>
-            <Text style={styles.logoEmoji}>🏥</Text>
-          </View>
+          <Image
+            source={require('../../assets/logo/careconnect_logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+            accessibilityLabel="CareConnect logo"
+          />
           <Text style={styles.headerTitle}>CareConnect</Text>
+
           <TouchableOpacity style={styles.infoButton}>
             <Text style={styles.infoIcon}>ℹ️</Text>
           </TouchableOpacity>
@@ -216,17 +205,14 @@ const styles = StyleSheet.create({
     paddingTop: 50,
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
+  flexDirection: 'row',
+  alignItems: 'center',
+  marginBottom: 16,
   },
-  logoContainer: {
+  logoImage: {
     width: 22,
     height: 22,
     marginRight: 10,
-  },
-  logoEmoji: {
-    fontSize: 22,
   },
   headerTitle: {
     flex: 1,

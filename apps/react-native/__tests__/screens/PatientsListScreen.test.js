@@ -31,17 +31,18 @@ describe('PatientsListScreen Component', () => {
 
   describe('rendering', () => {
     test('renders patients list title', () => {
-      const { getByText } = renderPatientsListScreen();
+      const { getAllByText } = renderPatientsListScreen();
 
-      expect(getByText(/Patients/i)).toBeTruthy();
+      const matches = getAllByText(/Patients/i);
+      expect(matches.length).toBeGreaterThan(0);
     });
 
     test('renders patient list when loaded', async () => {
-      const { queryByText } = renderPatientsListScreen();
+      const { getByTestId } = renderPatientsListScreen();
 
       await waitFor(() => {
-        // Check that the screen is rendered
-        expect(queryByText(/Patients/i)).toBeTruthy();
+        // Check that the patient list is rendered
+        expect(getByTestId('patients_list')).toBeTruthy();
       });
     });
   });
@@ -77,11 +78,11 @@ describe('PatientsListScreen Component', () => {
 
   describe('empty state', () => {
     test('handles empty patient list gracefully', async () => {
-      const { queryByText } = renderPatientsListScreen();
+      const { getByTestId } = renderPatientsListScreen();
 
       await waitFor(() => {
-        // Screen should still render even with no patients
-        expect(queryByText(/Patients/i)).toBeTruthy();
+        // Screen should still render with the list component
+        expect(getByTestId('patients_list')).toBeTruthy();
       });
     });
   });

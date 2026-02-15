@@ -1,3 +1,4 @@
+// lib/features/auth/login_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -39,9 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     if (!_emailError && !_passwordError) {
-      Navigator.of(
-        context,
-      ).pushNamedAndRemoveUntil(Routes.app, (route) => false);
+      Navigator.of(context).pushNamedAndRemoveUntil(Routes.app, (route) => false);
     }
   }
 
@@ -50,6 +49,18 @@ class _LoginScreenState extends State<LoginScreen> {
     final text = Theme.of(context).textTheme;
     final settingsController = context.watch<AppSettingsController>();
     final isLeftAligned = settingsController.isLeftAligned;
+
+    // Ensure toggling works even if focus/IME is weird.
+    void togglePasswordVisibility() {
+      setState(() => _showPassword = !_showPassword);
+    }
+
+    // Use the same icon on left or right based on handedness.
+    Widget visibilityButton() => IconButton(
+          tooltip: _showPassword ? 'Hide password' : 'Show password',
+          icon: Icon(_showPassword ? Icons.visibility_off : Icons.visibility),
+          onPressed: togglePasswordVisibility,
+        );
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFB),
@@ -76,10 +87,21 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 12),
 
-              Text(
-                'Access your information securely\nSign in to your account',
-                textAlign: TextAlign.center,
-                style: text.bodyLarge,
+              // Make “Sign in to your account” bold like the reference.
+              Column(
+                children: [
+                  Text(
+                    'Access your information securely',
+                    textAlign: TextAlign.center,
+                    style: text.bodyLarge?.copyWith(color: Colors.grey.shade700),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Sign in to your account',
+                    textAlign: TextAlign.center,
+                    style: text.bodyLarge?.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                ],
               ),
 
               const SizedBox(height: 32),
@@ -92,12 +114,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 onChanged: (_) {
-                  if (_emailError) {
-                    setState(() => _emailError = false);
-                  }
+                  if (_emailError) setState(() => _emailError = false);
                 },
                 decoration: InputDecoration(
-                  hintText: 'Enter your email',
+                  hintText: 'you@example.com',
                   errorText: _emailError ? 'Email is required' : null,
                 ),
               ),
@@ -110,58 +130,33 @@ class _LoginScreenState extends State<LoginScreen> {
               TextField(
                 key: const Key('login_password'),
                 controller: _passwordController,
+                // This is what actually hides/reveals the password.
                 obscureText: !_showPassword,
+                enableSuggestions: false,
+                autocorrect: false,
                 onChanged: (_) {
-                  if (_passwordError) {
-                    setState(() => _passwordError = false);
-                  }
+                  if (_passwordError) setState(() => _passwordError = false);
                 },
                 decoration: InputDecoration(
-                  hintText: 'Enter your password',
+                  hintText: 'password',
                   errorText: _passwordError ? 'Password is required' : null,
-                  prefixIcon: isLeftAligned
-                      ? IconButton(
-                          icon: Icon(
-                            _showPassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                          ),
-                          onPressed: () {
-                            setState(() => _showPassword = !_showPassword);
-                          },
-                        )
-                      : null,
-                  suffixIcon: !isLeftAligned
-                      ? IconButton(
-                          icon: Icon(
-                            _showPassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                          ),
-                          onPressed: () {
-                            setState(() => _showPassword = !_showPassword);
-                          },
-                        )
-                      : null,
+                  // Keep your handedness behavior, but reuse the same button widget.
+                  prefixIcon: isLeftAligned ? visibilityButton() : null,
+                  suffixIcon: !isLeftAligned ? visibilityButton() : null,
                 ),
               ),
 
               const SizedBox(height: 12),
 
-              const SizedBox(height: 12),
-
               Align(
-                alignment: isLeftAligned
-                    ? Alignment.centerLeft
-                    : Alignment.centerRight,
+                alignment:
+                    isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
                 child: TextButton(
                   key: const Key('login_forgot'),
                   onPressed: () {},
                   child: const Text('Forgot your password?'),
                 ),
               ),
-
-              const SizedBox(height: 20),
 
               const SizedBox(height: 20),
 
@@ -176,21 +171,29 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 32),
 
+              // Shield: swap the Material icon for the image-like shield (matches your reference).
+              // Put the shield asset in: assets/logo/shield.png (or adjust the path below).
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: const Color(0xFFE6F7F5),
                   borderRadius: BorderRadius.circular(16),
                 ),
-                child: const Column(
+                child: Column(
                   children: [
-                    Icon(
-                      Icons.shield_outlined,
-                      size: 36,
-                      color: Color(0xFF0A8F84),
+                    Image.asset(
+                      'assets/logo/shield.png', // <-- adjust to your actual file name/path
+                      width: 44,
+                      height: 44,
+                      fit: BoxFit.contain,
+                      errorBuilder: (_, __, ___) => const Icon(
+                        Icons.shield_outlined,
+                        size: 36,
+                        color: Color(0xFF0A8F84),
+                      ),
                     ),
-                    SizedBox(height: 12),
-                    Text(
+                    const SizedBox(height: 12),
+                    const Text(
                       'We use bank-level encryption to keep your health information safe and secure.',
                       textAlign: TextAlign.center,
                     ),

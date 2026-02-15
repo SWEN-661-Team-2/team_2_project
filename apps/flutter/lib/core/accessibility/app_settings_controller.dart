@@ -1,4 +1,6 @@
+// lib/core/accessibility/app_settings_controller.dart
 import 'package:flutter/foundation.dart';
+
 import 'app_settings_storage.dart';
 import 'handedness.dart';
 import 'text_size_mode.dart';
@@ -12,26 +14,34 @@ class AppSettingsController extends ChangeNotifier {
   // =========================
   HandednessMode _handednessMode = HandednessMode.left;
   HandednessMode _currentToggleHandedness =
-      HandednessMode.left; // NEW: tracks toggle state
+      HandednessMode.left; // tracks toggle state
   bool _a11yOverlayEnabled = false;
   bool _notificationsEnabled = true;
 
   TextSizeMode _textSizeMode = TextSizeMode.medium;
+
+  /// Day/Night toggle (drives MaterialApp.themeMode)
+  bool _darkModeEnabled = false;
+
+  /// High contrast (separate from day/night; can remain persisted)
   bool _highContrastEnabled = false;
 
   ReminderFrequency _reminderFrequency = ReminderFrequency.daily;
 
   HandednessMode get handednessMode => _handednessMode;
-  HandednessMode get currentToggleHandedness => _currentToggleHandedness; // NEW
+  HandednessMode get currentToggleHandedness => _currentToggleHandedness;
   bool get a11yOverlayEnabled => _a11yOverlayEnabled;
   bool get notificationsEnabled => _notificationsEnabled;
 
   TextSizeMode get textSizeMode => _textSizeMode;
-  bool get highContrastEnabled => _highContrastEnabled;
 
+  /// use this to drive MaterialApp.themeMode
+  bool get darkModeEnabled => _darkModeEnabled;
+
+  bool get highContrastEnabled => _highContrastEnabled;
   ReminderFrequency get reminderFrequency => _reminderFrequency;
 
-  // NEW: Helper to get effective handedness (considers toggle mode)
+  // Helper: effective handedness (considers toggle mode)
   bool get isLeftAligned {
     if (_handednessMode == HandednessMode.toggle) {
       return _currentToggleHandedness == HandednessMode.left;
@@ -41,7 +51,6 @@ class AppSettingsController extends ChangeNotifier {
 
   // =========================
   // Accessibility "modes" (UI-only for now)
-  // NOTE: Not persisted yet (per your instruction: buttons active only).
   // =========================
   bool _lowVisionEnabled = false;
   bool _tremorSupportEnabled = false;
@@ -55,18 +64,22 @@ class AppSettingsController extends ChangeNotifier {
 
   Future<void> load() async {
     _handednessMode = await _storage.loadHandednessMode();
-    _currentToggleHandedness = await _storage
-        .loadCurrentToggleHandedness(); // NEW
+    _currentToggleHandedness = await _storage.loadCurrentToggleHandedness();
     _a11yOverlayEnabled = await _storage.loadA11yOverlay();
     _notificationsEnabled = await _storage.loadNotificationsEnabled();
 
     _textSizeMode = await _storage.loadTextSizeMode();
+
+    // If storage doesn't have these yet, add the methods there or
+    // keep the try/catch so the app still runs.
+    try {
+      _darkModeEnabled = await _storage.loadDarkModeEnabled();
+    } catch (_) {
+      _darkModeEnabled = false;
+    }
+
     _highContrastEnabled = await _storage.loadHighContrastEnabled();
-
     _reminderFrequency = await _storage.loadReminderFrequency();
-
-    // Accessibility modes intentionally default to false for now (UI-only).
-    // TODO(implement/persist): load these from storage once mitigations are implemented.
 
     notifyListeners();
   }
@@ -77,7 +90,6 @@ class AppSettingsController extends ChangeNotifier {
     await _storage.saveHandednessMode(mode);
   }
 
-  // NEW: Set the current toggle handedness (used by toggle button)
   Future<void> setCurrentToggleHandedness(HandednessMode mode) async {
     _currentToggleHandedness = mode;
     notifyListeners();
@@ -102,73 +114,49 @@ class AppSettingsController extends ChangeNotifier {
     await _storage.saveTextSizeMode(mode);
   }
 
-  Future<void> setHighContrastEnabled(bool enabled) async {
-    _highContrastEnabled = enabled;
-
-    // Rebuild UI immediately (fixes widget test + real UX)
+  /// Day/Night toggle should call this
+  Future<void> setDarkModeEnabled(bool enabled) async {
+    _darkModeEnabled = enabled;
     notifyListeners();
 
-    // Persist after UI updates
+    // Persist (recommended so it doesn't revert on restart)
+    await _storage.saveDarkModeEnabled(enabled);
+  }
+
+  Future<void> setHighContrastEnabled(bool enabled) async {
+    _highContrastEnabled = enabled;
+    notifyListeners();
     await _storage.saveHighContrastEnabled(enabled);
 
-    // TODO(implement): Apply high contrast theme globally:
-    // - switch ThemeData / ColorScheme
-    // - increase contrast ratios and borders
-    // - ensure tags/badges remain readable
+    // TODO(implement): Apply high contrast theme variants globally (if desired)
   }
 
   Future<void> setReminderFrequency(ReminderFrequency frequency) async {
     _reminderFrequency = frequency;
     notifyListeners();
     await _storage.saveReminderFrequency(frequency);
-
-    // TODO(implement): When backend/notifications exist, wire this to scheduling logic:
-    // - daily / weekly / custom triggers
-    // - if custom: store time + days-of-week selection
   }
 
   // =========================
-  // UI-only toggles
+  // UI-only toggles (instant repaint)
   // =========================
-
-  Future<void> setLowVisionEnabled(bool enabled) async {
+  void setLowVisionEnabled(bool enabled) {
     _lowVisionEnabled = enabled;
     notifyListeners();
-
-    // TODO(implement): Apply low-vision mitigations globally:
-    // - higher contrast theme
-    // - larger touch targets
-    // - bolder borders / clearer focus states
-    // - optional text scaling rules
   }
 
-  Future<void> setTremorSupportEnabled(bool enabled) async {
+  void setTremorSupportEnabled(bool enabled) {
     _tremorSupportEnabled = enabled;
     notifyListeners();
-
-    // TODO(implement): Apply tremor mitigations:
-    // - increased spacing
-    // - larger buttons
-    // - gesture tolerance / debounce
   }
 
-  Future<void> setHearingImpairedEnabled(bool enabled) async {
+  void setHearingImpairedEnabled(bool enabled) {
     _hearingImpairedEnabled = enabled;
     notifyListeners();
-
-    // TODO(implement): Apply hearing mitigations:
-    // - visual alerts in addition to audio
-    // - haptic confirmations (where supported)
-    // - captions / text reinforcement for icons
   }
 
-  Future<void> setGuidedModeEnabled(bool enabled) async {
+  void setGuidedModeEnabled(bool enabled) {
     _guidedModeEnabled = enabled;
     notifyListeners();
-
-    // TODO(implement): Apply guided mode:
-    // - step-by-step confirmations
-    // - simplified navigation
-    // - reduced cognitive load UI
   }
 }
