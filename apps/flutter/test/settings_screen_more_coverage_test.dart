@@ -1,5 +1,3 @@
-// File: test/settings_screen_more_coverage_test.dart
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
@@ -33,14 +31,16 @@ Future<void> pumpSettingsWithRoutes(
         home: const SettingsScreen(),
         routes: {
           Routes.profile: (_) => const Scaffold(body: Text('Profile Route')),
-          Routes.changePassword: (_) =>
-              const Scaffold(body: Text('Change Password Route')),
+          Routes.changePassword: (_) => const Scaffold(body: Text('Change Password Route')),
           Routes.login: (_) => const Scaffold(body: Text('Login Route')),
+
+          // ✅ ADD THESE ROUTES (these are what your SettingsScreen is navigating to now)
+          Routes.privacyPolicy: (_) => const Scaffold(body: Text('Privacy Policy Route')),
+          Routes.termsOfService: (_) => const Scaffold(body: Text('Terms of Service Route')),
+          Routes.helpSupport: (_) => const Scaffold(body: Text('Help / Support Route')),
+          Routes.aboutCareConnect: (_) => const Scaffold(body: Text('About CareConnect Route')),
         },
-        // Dart 3+: null-aware element avoids the lint.
-        navigatorObservers: observer != null
-            ? [observer]
-            : const <NavigatorObserver>[],
+        navigatorObservers: observer != null ? [observer] : const <NavigatorObserver>[],
       ),
     ),
   );
@@ -61,22 +61,7 @@ Finder firstMatchTextCI(List<String> options) {
     final f = findTextCI(s);
     if (f.evaluate().isNotEmpty) return f;
   }
-  // Return the first option finder for a clean error message later.
   return findTextCI(options.first);
-}
-
-/// If your Settings UI uses a collapsible group header (ExpansionTile), call this
-/// before looking for tiles inside it. Safe no-op if header not present.
-Future<void> expandIfPresent(
-  WidgetTester tester,
-  List<String> headerOptions,
-) async {
-  final header = firstMatchTextCI(headerOptions);
-  if (header.evaluate().isEmpty) return;
-
-  // If it's an ExpansionTile title, tapping expands it.
-  await tester.tap(header);
-  await tester.pumpAndSettle();
 }
 
 Future<void> tapEnsuringVisibleTextCI(
@@ -85,10 +70,7 @@ Future<void> tapEnsuringVisibleTextCI(
 ) async {
   final target = firstMatchTextCI(textOptions);
 
-  // If not built yet, try to bring it into existence by scrolling the nearest scroll view.
   if (target.evaluate().isEmpty) {
-    // Scroll a few times to trigger lazy-build lists.
-    // (Scrollable.ensureVisible requires an element, so we scroll the primary scrollable.)
     final scrollable = find.byType(Scrollable);
     if (scrollable.evaluate().isNotEmpty) {
       for (var i = 0; i < 25 && target.evaluate().isEmpty; i++) {
@@ -104,7 +86,6 @@ Future<void> tapEnsuringVisibleTextCI(
     reason: 'Could not find any of: ${textOptions.join(" | ")}',
   );
 
-  // Now it exists: use framework-level ensureVisible that doesn’t depend on your widget types.
   final element = tester.element(target);
   await Scrollable.ensureVisible(
     element,
@@ -115,23 +96,6 @@ Future<void> tapEnsuringVisibleTextCI(
 
   await tester.tap(target);
   await tester.pump();
-}
-
-Future<void> expectSnackBarTextOneOf(
-  WidgetTester tester,
-  List<String> options,
-) async {
-  await tester.pump(const Duration(milliseconds: 450));
-
-  for (final s in options) {
-    final f = find.text(s);
-    if (f.evaluate().isNotEmpty) {
-      expect(f, findsOneWidget);
-      return;
-    }
-  }
-
-  expect(find.byType(SnackBar), findsOneWidget);
 }
 
 void main() {
@@ -147,9 +111,10 @@ void main() {
       await tapEnsuringVisibleTextCI(tester, const ['Profile information']);
       await tester.pumpAndSettle();
       expect(nav.pushed.length, greaterThan(beforeProfile));
+      expect(find.text('Profile Route'), findsOneWidget);
     }
 
-    // Test Change Password navigation - completely fresh start
+    // Test Change Password navigation - fresh start
     {
       final nav = TestNavObserver();
       await tester.pumpWidget(Container());
@@ -158,12 +123,10 @@ void main() {
       await pumpSettingsWithRoutes(tester, controller, observer: nav);
 
       final beforeChange = nav.pushed.length;
-      await tapEnsuringVisibleTextCI(tester, const [
-        'Change password',
-        'Change Password',
-      ]);
+      await tapEnsuringVisibleTextCI(tester, const ['Change password', 'Change Password']);
       await tester.pumpAndSettle();
       expect(nav.pushed.length, greaterThan(beforeChange));
+      expect(find.text('Change Password Route'), findsOneWidget);
     }
   });
 
@@ -175,10 +138,7 @@ void main() {
 
       expect(controller.reminderFrequency, ReminderFrequency.daily);
 
-      await tapEnsuringVisibleTextCI(tester, const [
-        'Reminder frequency',
-        'Reminder Frequency',
-      ]);
+      await tapEnsuringVisibleTextCI(tester, const ['Reminder frequency', 'Reminder Frequency']);
       await tester.pumpAndSettle();
 
       expect(find.text('Weekly'), findsOneWidget);
@@ -190,50 +150,41 @@ void main() {
     },
   );
 
-  testWidgets('Privacy policy + Terms show snackbars', (tester) async {
+  testWidgets('Privacy policy + Terms navigate to routes', (tester) async {
     final controller = AppSettingsController();
     await pumpSettingsWithRoutes(tester, controller);
 
-    await tapEnsuringVisibleTextCI(tester, const [
-      'Privacy policy',
-      'Privacy Policy',
-    ]);
-    await expectSnackBarTextOneOf(tester, const [
-      'Privacy policy (coming soon)',
-    ]);
+    // ---- Privacy Policy ----
+    await tapEnsuringVisibleTextCI(tester, const ['Privacy policy', 'Privacy Policy']);
+    await tester.pumpAndSettle();
+    expect(find.text('Privacy Policy Route'), findsOneWidget);
 
-    await tapEnsuringVisibleTextCI(tester, const [
-      'Terms of service',
-      'Terms of Service',
-    ]);
-    await expectSnackBarTextOneOf(tester, const [
-      'Terms of service (coming soon)',
-      'Terms (coming soon)',
-    ]);
-  });
-
-  testWidgets('Help / Support shows snackbar', (tester) async {
-    final controller = AppSettingsController();
-    await pumpSettingsWithRoutes(tester, controller);
-
-    await tapEnsuringVisibleTextCI(tester, const [
-      'Help / Support',
-      'Help & Support',
-    ]);
-    await expectSnackBarTextOneOf(tester, const ['Support (coming soon)']);
-  });
-
-  testWidgets('About dialog opens', (tester) async {
-    final controller = AppSettingsController();
-    await pumpSettingsWithRoutes(tester, controller);
-
-    await tapEnsuringVisibleTextCI(tester, const [
-      'About CareConnect',
-      'About',
-    ]);
+    final nav = tester.state<NavigatorState>(find.byType(Navigator));
+    nav.pop();
     await tester.pumpAndSettle();
 
-    expect(find.byType(AboutDialog), findsOneWidget);
-    expect(find.textContaining('CareConnect'), findsWidgets);
+    await tapEnsuringVisibleTextCI(tester, const ['Terms of service', 'Terms of Service']);
+    await tester.pumpAndSettle();
+    expect(find.text('Terms of Service Route'), findsOneWidget);
+  });
+
+  testWidgets('Help / Support navigates to route', (tester) async {
+    final controller = AppSettingsController();
+    await pumpSettingsWithRoutes(tester, controller);
+
+    await tapEnsuringVisibleTextCI(tester, const ['Help / Support', 'Help & Support']);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Help / Support Route'), findsOneWidget);
+  });
+
+  testWidgets('About CareConnect navigates to route', (tester) async {
+    final controller = AppSettingsController();
+    await pumpSettingsWithRoutes(tester, controller);
+
+    await tapEnsuringVisibleTextCI(tester, const ['About CareConnect', 'About']);
+    await tester.pumpAndSettle();
+
+    expect(find.text('About CareConnect Route'), findsOneWidget);
   });
 }

@@ -36,6 +36,7 @@ export default function ChangePasswordScreen({ navigation }) {
     }
   };
 
+  // apps/react-native/src/screens/ChangePasswordScreen.js
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
@@ -47,11 +48,8 @@ export default function ChangePasswordScreen({ navigation }) {
           }}
           style={styles.backTouch}
           hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
-          accessibilityLabel="Back to Settings"
-          accessibilityRole="button"
-          accessibilityHint="Goes back to the previous screen"
         >
-          <Text style={styles.backButton} importantForAccessibility="no-hide-descendants">←</Text>
+          <Text style={styles.backButton}>←</Text>
         </TouchableOpacity>
         <Text style={styles.headerTitle} accessibilityRole="header">Change password</Text>
         <View style={{ width: 40 }} />
@@ -203,8 +201,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 20,
   },
-  buttonDisabled: { opacity: 0.6 },
-  buttonText: { color: '#FFF', fontSize: 16, fontWeight: '600' },
-  backTouch: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
-  backButton: { fontSize: 28, color: '#0A7A8A', fontWeight: '600' },
+  buttonDisabled: {
+    opacity: 0.6,
+  },
+  buttonText: {
+    color: '#FFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  backTouch: {
+    width: 44,
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  backButton: {
+    fontSize: 28,
+    color: '#0A7A8A',
+    fontWeight: '600',
+  },
 });

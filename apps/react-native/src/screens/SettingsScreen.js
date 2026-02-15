@@ -1,19 +1,26 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
-  View,
+  Alert, Image,
+  ScrollView,
+  StyleSheet,
+  Switch,
   Text,
   TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  Switch,
-  Image,
+  View
 } from 'react-native';
-import { useHandedness, useTheme, useAppSettings } from '../contexts/AppProviders';
 import HandednessToggleOverlay from '../components/HandednessToggleOverlay';
+import { useAppSettings, useHandedness, useTheme } from '../contexts/AppProviders';
+import { useAuth } from '../contexts/AuthContext';
+import {
+  cancelReminderAsync,
+  requestNotificationPermissionAsync,
+  scheduleReminderAsync,
+} from '../services/notificationService';
 
 export default function SettingsScreen({ navigation }) {
   const { isLeftHanded, handednessMode, setHandednessMode } = useHandedness();
   const { isDarkMode, toggleTheme, colors } = useTheme();
+  const { logout, loading } = useAuth();
   const {
     notificationsEnabled,
     setNotificationsEnabled,
@@ -77,30 +84,69 @@ export default function SettingsScreen({ navigation }) {
           title="Notifications"
           subtitle="Enable reminders and alerts"
           value={notificationsEnabled}
-          onValueChange={setNotificationsEnabled}
+          onValueChange={async (next) => {
+            if (next) {
+              const granted = await requestNotificationPermissionAsync();
+              if (!granted) {
+                Alert.alert(
+                  'Notifications disabled',
+                  'Permission was not granted. Enable notifications in system settings to receive reminders.'
+                );
+                setNotificationsEnabled(false);
+                return;
+              }
+
+              setNotificationsEnabled(true);
+              // schedule using current reminderFrequency
+              await scheduleReminderAsync(reminderFrequency);
+            } else {
+              setNotificationsEnabled(false);
+              await cancelReminderAsync();
+            }
+          }}
           isLeftAligned={isLeftHanded}
         />
-        <HandedListTile
-          title="Reminder frequency"
-          subtitle={getReminderLabel(reminderFrequency)}
-          icon="›"
-          isLeftAligned={isLeftHanded}
-          onPress={() => setShowReminderPicker(true)}
-          accessibilityHint="Opens a selection menu for reminder timing"
-        />
+  
+        {/* When user selects frequency: */}
+        {showReminderPicker && (
+          <ReminderFrequencyPicker
+            selected={reminderFrequency}
+            onSelect={async (freq) => {
+              setReminderFrequency(freq);
+              setShowReminderPicker(false);
+
+              // Only reschedule if notifications are enabled
+              if (notificationsEnabled) {
+                await scheduleReminderAsync(freq);
+              }
+            }}
+            onClose={() => setShowReminderPicker(false)}
+            isLeftAligned={isLeftHanded}
+          />
+        )}
+
+        <TouchableOpacity onPress={() => setShowReminderPicker(true)}>
+          <HandedListTile
+            title="Reminder frequency"
+            subtitle={getReminderLabel(reminderFrequency)}
+            icon="›"
+            isLeftAligned={isLeftHanded}
+            onPress={() => setShowReminderPicker(true)}
+          />
+        </TouchableOpacity>
 
         <Divider />
 
         {/* Display */}
         <SectionHeader title="Display" />
         <Text style={[styles.sectionSubtitle, styles.marginTop, { color: colors.text }]}>Text Size</Text>
-        <TextSizeSelector
-          selected={textSize}
+        <TextSizeSelector 
+          selected={textSize} 
           onSelect={setTextSize}
           isLeftAligned={isLeftHanded}
         />
 
-        <Text style={[styles.sectionSubtitle, styles.marginTop, { color: colors.text }]}>Contrast</Text>
+        <Text style={[styles.sectionSubtitle, styles.marginTop, { color: colors.text }]}>Theme / Appearance</Text>
         <View style={[styles.card, { backgroundColor: isDarkMode ? '#374151' : '#ffffff' }]}>
           <HandedListTile
             title={isDarkMode ? 'Night / High Contrast' : 'Day / Normal'}
@@ -180,19 +226,71 @@ export default function SettingsScreen({ navigation }) {
 
         <Divider />
 
+        {/* Privacy & Security */}
+        <SectionHeader title="Privacy & Security" />
+        <HandedListTile
+          title="Privacy policy"
+          icon="›"
+          isLeftAligned={isLeftHanded}
+          onPress={() => navigation.navigate('PrivacyPolicy')}
+        />
+
+        <HandedListTile
+          title="Terms of service"
+          icon="›"
+          isLeftAligned={isLeftHanded}
+          onPress={() => navigation.navigate('TermsOfService')}
+        />
+
+        <Divider />
+
+        {/* Help & About */}
+        <SectionHeader title="Help & About" />
+        <HandedListTile
+          title="Help / Support"
+          icon="›"
+          isLeftAligned={isLeftHanded}
+          onPress={() => navigation.navigate('HelpSupport')}
+        />
+
+        <HandedListTile
+          title="About CareConnect"
+          subtitle="Version, credits, licensing"
+          icon="›"
+          isLeftAligned={isLeftHanded}
+          onPress={() => navigation.navigate('AboutCareConnect')}
+        />
+
+        <Divider />
+
         {/* Logout */}
         <TouchableOpacity
-          style={styles.logoutButton}
-          accessibilityRole="button"
-          accessibilityLabel="Log out of application"
+          style={[styles.logoutButton, loading && { opacity: 0.6 }]}
+          disabled={loading}
           onPress={() => {
-            alert('Logged out');
-            navigation.navigate('Login');
+            Alert.alert(
+              'Log out?',
+              'Are you sure you want to log out?',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Log out',
+                  style: 'destructive',
+                  onPress: async () => {
+                    await logout();
+                  },
+                },
+              ]
+            );
           }}
         >
-          <Text style={styles.logoutIcon} accessibilityElementsHidden={true}>{isLeftHanded ? '🚪' : ''}</Text>
-          <Text style={styles.logoutText}>Logout</Text>
-          <Text style={styles.logoutIcon} accessibilityElementsHidden={true}>{!isLeftHanded ? '🚪' : ''}</Text>
+          <Text style={styles.logoutIcon}>{isLeftHanded ? '🚪' : ''}</Text>
+
+          <Text style={styles.logoutText}>
+            {loading ? 'Logging out...' : 'Logout'}
+          </Text>
+
+          <Text style={styles.logoutIcon}>{!isLeftHanded ? '🚪' : ''}</Text>
         </TouchableOpacity>
 
         <View style={{ height: 40 }} />

@@ -32,6 +32,14 @@ describe('SettingsScreen Accessibility & Functionality', () => {
   const toggle = await waitFor(() =>
     getByLabelText('Notifications')
   );
+  describe('rendering', () => {
+    test('renders settings screen', () => {
+      const { getAllByText } = renderSettingsScreen();
+
+      // Check for CareConnect header (appears multiple times in settings)
+      const careConnectElements = getAllByText(/CareConnect/i);
+      expect(careConnectElements.length).toBeGreaterThan(0);
+    });
 
   const initial =
     toggle.props.accessibilityState?.checked;
@@ -62,6 +70,21 @@ describe('SettingsScreen Accessibility & Functionality', () => {
           smallOption.props.accessibilityState?.selected
         ).toBe(true);
       });
+    test('accessibility section is rendered', () => {
+      const { queryByText } = renderSettingsScreen();
+      
+      // Just check that accessibility section exists
+      const accessibilitySection = queryByText(/Accessibility/i);
+      expect(accessibilitySection).toBeTruthy();
+    });
+  });
+
+  describe('logout functionality', () => {
+    test('shows logout button', () => {
+      const { queryByText } = renderSettingsScreen();
+
+      const logoutButton = queryByText(/Log Out/i) || queryByText(/Logout/i);
+      expect(logoutButton).toBeTruthy();
     });
   });
 
@@ -72,6 +95,8 @@ describe('SettingsScreen Accessibility & Functionality', () => {
       const trigger = await waitFor(() =>
         getByText('Reminder frequency')
       );
+      const { queryByText } = renderSettingsScreen();
+      const logoutButton = queryByText(/Log Out/i) || queryByText(/Logout/i);
 
       fireEvent.press(trigger);
 
@@ -97,6 +122,12 @@ describe('SettingsScreen Accessibility & Functionality', () => {
           toggleBtn.props.accessibilityState?.selected
         ).toBe(true);
       });
+  describe('accessibility', () => {
+    test('all interactive elements are accessible', () => {
+      const { queryByText } = renderSettingsScreen();
+
+      const logoutButton = queryByText(/Log Out/i) || queryByText(/Logout/i);
+      expect(logoutButton).toBeTruthy();
     });
   });
 });

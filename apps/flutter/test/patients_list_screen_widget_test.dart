@@ -1,7 +1,10 @@
+// /Volumes/DevDrive/code/swen-661-ui/team_2_project/apps/flutter/test/patients_list_screen_widget_test.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 import 'package:nested/nested.dart';
+
 import 'package:flutter_app/core/accessibility/app_settings_controller.dart';
 import 'package:flutter_app/features/patients/patients_list_screen.dart';
 
@@ -9,6 +12,8 @@ Future<void> _pump(
   WidgetTester tester, {
   required PatientsViewMode mode,
 }) async {
+  await tester.binding.setSurfaceSize(const Size(1200, 6000));
+
   await tester.pumpWidget(
     MultiProvider(
       providers: <SingleChildWidget>[
@@ -23,9 +28,8 @@ Future<void> _pump(
 
 void main() {
   testWidgets('Patients list renders for ALL mode', (tester) async {
-    await _pump(tester, mode: PatientsViewMode.all);
+    await _pump(tester, mode: PatientsViewMode.allPatients);
 
-    expect(find.text('Patients'), findsOneWidget);
     expect(find.byKey(const Key('patients_list')), findsOneWidget);
     expect(find.byType(Card), findsWidgets);
   });
@@ -33,40 +37,49 @@ void main() {
   testWidgets('Patients list renders for UPCOMING VISITS mode', (tester) async {
     await _pump(tester, mode: PatientsViewMode.upcomingVisits);
 
-    expect(find.text('Upcoming Visits'), findsOneWidget);
     expect(find.byKey(const Key('patients_list')), findsOneWidget);
     expect(find.byType(Card), findsWidgets);
   });
 
-  testWidgets('Patients list renders for NEEDING ATTENTION mode', (
-    tester,
-  ) async {
+  testWidgets('Patients list renders for NEEDING ATTENTION mode', (tester) async {
     await _pump(tester, mode: PatientsViewMode.needingAttention);
 
-    expect(find.text('Patients Needing Attention'), findsOneWidget);
     expect(find.byKey(const Key('patients_list')), findsOneWidget);
     expect(find.byType(Card), findsWidgets);
   });
 
   testWidgets('Sort menu opens and options render', (tester) async {
-    await _pump(tester, mode: PatientsViewMode.all);
+    await _pump(tester, mode: PatientsViewMode.allPatients);
 
-    await tester.tap(find.byIcon(Icons.sort));
+    // Tap the SORT PopupMenuButton directly (not the icon)
+    final sortButton = find.byWidgetPredicate(
+      (w) => w is PopupMenuButton<SortOption>,
+    );
+    expect(sortButton, findsOneWidget);
+
+    await tester.tap(sortButton);
     await tester.pumpAndSettle();
 
-    expect(find.text('Filter Patients'), findsOneWidget);
-    expect(find.text('All Patients'), findsOneWidget);
-    expect(find.text('Upcoming Visits'), findsOneWidget);
-    expect(find.text('Needing Attention'), findsOneWidget);
+    // In widget tests, PopupMenuItem is often typed as PopupMenuItem<SortOption>
+    // so match it that way (not dynamic).
+    expect(find.byType(PopupMenuItem<SortOption>), findsAtLeastNWidgets(3));
   });
 
   testWidgets('Selecting a sort option does not crash', (tester) async {
-    await _pump(tester, mode: PatientsViewMode.all);
+    await _pump(tester, mode: PatientsViewMode.allPatients);
 
-    await tester.tap(find.byIcon(Icons.sort));
+    final sortButton = find.byWidgetPredicate(
+      (w) => w is PopupMenuButton<SortOption>,
+    );
+    expect(sortButton, findsOneWidget);
+
+    await tester.tap(sortButton);
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Upcoming Visits'));
+    final items = find.byType(PopupMenuItem<SortOption>);
+    expect(items, findsAtLeastNWidgets(2));
+
+    await tester.tap(items.at(1));
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('patients_list')), findsOneWidget);

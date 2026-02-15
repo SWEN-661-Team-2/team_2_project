@@ -13,9 +13,7 @@ import 'package:flutter_app/features/settings/settings_screen.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('Logout navigates to login (and may show snackbar)', (
-    tester,
-  ) async {
+  testWidgets('Logout navigates to login (and may show snackbar)', (tester) async {
     SharedPreferences.setMockInitialValues(<String, Object>{});
 
     final controller = AppSettingsController();
@@ -40,6 +38,7 @@ void main() {
 
     await tester.pumpAndSettle();
 
+    // Scroll until logout is visible
     final settingsScroll = find
         .descendant(
           of: find.byType(SettingsScreen),
@@ -48,15 +47,26 @@ void main() {
         .first;
 
     await tester.scrollUntilVisible(
-      find.text('Logout'),
+      find.byKey(const Key('settings_logout_tile')),
       300,
       scrollable: settingsScroll,
     );
 
-    await tester.tap(find.text('Logout'));
+    // Tap logout tile (more stable than text)
+    await tester.tap(find.byKey(const Key('settings_logout_tile')));
     await tester.pumpAndSettle();
 
+    // Confirm dialog appears
+    expect(find.text('Logout?'), findsOneWidget);
+
+    // Confirm logout
+    await tester.tap(find.byKey(const Key('logout_confirm')));
+    await tester.pump(); // allow nav + snackbar enqueue
+    await tester.pumpAndSettle();
+
+    // Now we should be on LoginScreen
     expect(find.byKey(const Key('login_email')), findsOneWidget);
     expect(find.byKey(const Key('login_password')), findsOneWidget);
+    expect(find.byKey(const Key('login_submit')), findsOneWidget);
   });
 }

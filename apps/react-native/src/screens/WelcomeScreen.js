@@ -1,8 +1,8 @@
+// apps/react-native/src/screens/WelcomeScreen.js
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  StatusBar,
   ScrollView,
   TouchableOpacity,
   StyleSheet,
@@ -10,6 +10,7 @@ import {
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
 
 const { width } = Dimensions.get('window');
 
@@ -55,7 +56,7 @@ export default function WelcomeScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+      <StatusBar style="auto" />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         
         {/* Settings Button - Accessibility hardened */}
@@ -63,10 +64,7 @@ export default function WelcomeScreen({ navigation }) {
           <TouchableOpacity
             testID="welcome_settings_button"
             style={styles.settingsButton}
-            onPress={handleContinue}
-            accessibilityRole="button"
-            accessibilityLabel="Settings"
-            accessibilityHint="Navigates to the login screen"
+            onPress={handleSettingsPress}
           >
             <Text style={styles.settingsIcon} aria-hidden="true">⚙️</Text>
           </TouchableOpacity>
