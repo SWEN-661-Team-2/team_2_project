@@ -1,3 +1,12 @@
 
 # macOS
 .DS_Store
+
+# Coverage artifacts
+coverage/
+apps/react-native/coverage/
+apps/flutter/coverage/
+*.lcov
+lcov.info
+coverage-final.json
+clover.xml
