@@ -91,86 +91,140 @@ function ProfileInner({ navigation }) {
             }}
             style={styles.backTouch}
             hitSlop={{ top: 20, bottom: 20, left: 20, right: 20 }}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
+            accessibilityHint="Returns to the previous screen"
           >
-            <Text style={styles.backIcon}>←</Text>
+            <Text style={styles.backIcon} aria-hidden="true">←</Text>
           </TouchableOpacity>
 
-          <Text style={styles.title}>Profile information</Text>
+          <Text style={styles.title} accessibilityRole="header">
+            Profile information
+          </Text>
 
-          {/* Spacer to balance the back button width */}
-          <View style={{ width: 44 }} />
+          <View style={{ width: 44 }} aria-hidden="true" />
         </View>
 
         {editing ? (
           <View style={styles.form}>
-            <TouchableOpacity onPress={pickPhoto} style={styles.photoWrap} testID="profile_pick_photo">
+            <TouchableOpacity 
+              onPress={pickPhoto} 
+              style={styles.photoWrap} 
+              testID="profile_pick_photo"
+              accessibilityRole="button"
+              accessibilityLabel="Change profile photo"
+            >
               {profile.photoUri ? (
-                <Image source={{ uri: profile.photoUri }} style={styles.photo} />
+                <Image source={{ uri: profile.photoUri }} style={styles.photo} accessibilityLabel="Current profile photo" />
               ) : (
                 <View style={styles.photoPlaceholder}>
-                  <Text>Photo</Text>
+                  <Text>Add Photo</Text>
                 </View>
               )}
             </TouchableOpacity>
 
-            <TextInput style={styles.input} value={name} onChangeText={setName} placeholder="Name" />
-            <TextInput style={styles.input} value={titleRole} onChangeText={setTitleRole} placeholder="Title / Role" />
-            <TextInput style={styles.input} value={position} onChangeText={setPosition} placeholder="Position" />
-            <TextInput style={styles.input} value={organization} onChangeText={setOrganization} placeholder="Organization" />
-            <TextInput style={styles.input} value={email} onChangeText={setEmail} placeholder="Email" keyboardType="email-address" />
-            <TextInput style={styles.input} value={phone} onChangeText={setPhone} placeholder="Phone" keyboardType="phone-pad" />
+            <TextInput 
+              style={styles.input} 
+              value={name} 
+              onChangeText={setName} 
+              placeholder="Name" 
+              accessibilityLabel="Full Name"
+            />
+            <TextInput 
+              style={styles.input} 
+              value={titleRole} 
+              onChangeText={setTitleRole} 
+              placeholder="Title / Role" 
+              accessibilityLabel="Job Title or Role"
+            />
+            <TextInput 
+              style={styles.input} 
+              value={position} 
+              onChangeText={setPosition} 
+              placeholder="Position" 
+              accessibilityLabel="Work Position"
+            />
+            <TextInput 
+              style={styles.input} 
+              value={organization} 
+              onChangeText={setOrganization} 
+              placeholder="Organization" 
+              accessibilityLabel="Organization Name"
+            />
+            <TextInput 
+              style={styles.input} 
+              value={email} 
+              onChangeText={setEmail} 
+              placeholder="Email" 
+              keyboardType="email-address" 
+              accessibilityLabel="Email Address"
+              autoCapitalize="none"
+            />
+            <TextInput 
+              style={styles.input} 
+              value={phone} 
+              onChangeText={setPhone} 
+              placeholder="Phone" 
+              keyboardType="phone-pad" 
+              accessibilityLabel="Phone Number"
+            />
 
-            <TouchableOpacity style={styles.saveButton} onPress={save} testID="profile_save">
+            <TouchableOpacity 
+              style={styles.saveButton} 
+              onPress={save} 
+              testID="profile_save"
+              accessibilityRole="button"
+              accessibilityLabel="Save profile changes"
+            >
               <Text style={styles.saveButtonText}>Save</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.cancelButton} onPress={cancelEdit} testID="profile_cancel">
+            <TouchableOpacity 
+              style={styles.cancelButton} 
+              onPress={cancelEdit} 
+              testID="profile_cancel"
+              accessibilityRole="button"
+              accessibilityLabel="Cancel editing"
+            >
               <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.readOnly} testID="profile_readonly">
-            <View style={styles.photoWrap}>
+            <View style={styles.photoWrap} accessibilityRole="image" accessibilityLabel="Profile photo">
               {profile.photoUri ? (
                 <Image source={{ uri: profile.photoUri }} style={styles.photo} />
               ) : (
-                <View style={styles.photoPlaceholder}>
-                  <Text>Photo</Text>
-                </View>
+                <View style={styles.photoPlaceholder}><Text>No Photo</Text></View>
               )}
             </View>
 
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Name</Text>
-              <Text style={styles.value}>{profile.name || '—'}</Text>
-            </View>
+            {[
+              { label: 'Name', value: profile.name },
+              { label: 'Title / Role', value: profile.titleRole },
+              { label: 'Position', value: profile.position },
+              { label: 'Organization', value: profile.organization },
+              { label: 'Email', value: profile.email },
+              { label: 'Phone', value: profile.phone },
+            ].map((item, idx) => (
+              <View 
+                key={idx} 
+                style={styles.infoRow} 
+                accessibilityLabel={`${item.label}: ${item.value || 'Not provided'}`}
+              >
+                <Text style={styles.label}>{item.label}</Text>
+                <Text style={styles.value}>{item.value || '—'}</Text>
+              </View>
+            ))}
 
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Title / Role</Text>
-              <Text style={styles.value}>{profile.titleRole || '—'}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Position</Text>
-              <Text style={styles.value}>{profile.position || '—'}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Organization</Text>
-              <Text style={styles.value}>{profile.organization || '—'}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Email</Text>
-              <Text style={styles.value}>{profile.email || '—'}</Text>
-            </View>
-
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Phone</Text>
-              <Text style={styles.value}>{profile.phone || '—'}</Text>
-            </View>
-
-            <TouchableOpacity style={styles.editButton} onPress={startEdit} testID="profile_edit">
+            <TouchableOpacity 
+              style={styles.editButton} 
+              onPress={startEdit} 
+              testID="profile_edit"
+              accessibilityRole="button"
+              accessibilityLabel="Edit Profile"
+              accessibilityHint="Enables form fields to update your information"
+            >
               <Text style={styles.editButtonText}>Edit Profile</Text>
             </TouchableOpacity>
           </View>

@@ -1,6 +1,7 @@
-import { createContext, useContext, useState } from 'react';
-import { AppSettingsProvider, useAppSettings as useAppSettingsContext } from './AppSettingsContext';
+import React, { createContext, useContext, useState } from 'react';
 import { AuthProvider } from './AuthContext';
+import { AppSettingsProvider, useAppSettings as useAppSettingsContext } from './AppSettingsContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
  * App Providers for React Native
@@ -92,4 +93,3 @@ export function AppProviders({ children }) {
     </ThemeProvider>
   );
 }
-

@@ -1,5 +1,5 @@
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createContext, useContext, useEffect, useState } from 'react';
 
 const STORAGE_PREFIX = 'careconnect:settings_v1:';
 
@@ -120,7 +120,6 @@ export const AppSettingsProvider = ({ children }) => {
   };
 
   const value = {
-    // state
     handednessMode,
     currentToggleHandedness,
     a11yOverlay,
@@ -129,13 +128,11 @@ export const AppSettingsProvider = ({ children }) => {
     highContrastEnabled,
     reminderFrequency,
 
-    // UI-only toggles
     lowVisionEnabled,
     tremorSupportEnabled,
     hearingImpairedEnabled,
     guidedModeEnabled,
 
-    // canonical setters (what you already have)
     setHandedness,
     setCurrentToggle,
     setA11yOverlayEnabled,
@@ -144,12 +141,6 @@ export const AppSettingsProvider = ({ children }) => {
     setHighContrast,
     setReminder,
 
-    setNotificationsEnabled: setNotifications,
-    setReminderFrequency: setReminder,
-    textSize: textSizeMode,
-    highContrast: highContrastEnabled,
-
-    // UI-only setters
     setLowVisionEnabled,
     setTremorSupportEnabled,
     setHearingImpairedEnabled,
@@ -168,4 +159,3 @@ export const useAppSettings = () => {
   if (!ctx) throw new Error('useAppSettings must be used within AppSettingsProvider');
   return ctx;
 };
-
