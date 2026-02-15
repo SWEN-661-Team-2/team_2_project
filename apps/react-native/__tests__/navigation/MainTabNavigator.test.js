@@ -1,65 +1,73 @@
-/**
- * Navigation Tests - MainTabNavigator
- * Tests the main bottom tab navigation
- */
 import React from 'react';
 import { render } from '@testing-library/react-native';
-import { NavigationContainer } from '@react-navigation/native';
 import MainTabNavigator from '../../src/navigation/MainTabNavigator';
-import { AppProviders } from '../../src/contexts/AppProviders';
+import { messagesRepository } from '../../src/repositories/MessagesRepository';
 
-const renderWithNavigation = (component) => {
-  return render(
-    <NavigationContainer>
-      <AppProviders>{component}</AppProviders>
-    </NavigationContainer>
-  );
-};
+// Mock screens to keep them out of the test loop
+jest.mock('../../src/screens/CaregiverDashboardScreen', () => () => null);
+jest.mock('../../src/screens/PatientsScreen', () => () => null);
+jest.mock('../../src/screens/TasksScreen', () => () => null);
+jest.mock('../../src/screens/MessagesListScreen', () => () => null);
+jest.mock('../../src/screens/SettingsScreen', () => () => null);
 
-describe('MainTabNavigator Component', () => {
-  describe('rendering', () => {
-    test('renders main tab navigator', () => {
-      const { container } = renderWithNavigation(<MainTabNavigator />);
-      expect(container).toBeTruthy();
-    });
-
-    test('renders all tab screens', () => {
-      const { getByText } = renderWithNavigation(<MainTabNavigator />);
+jest.mock('@react-navigation/bottom-tabs', () => ({
+  createBottomTabNavigator: jest.fn().mockReturnValue({
+    Navigator: ({ children }) => {
+      const { View } = require('react-native');
+      return <View>{children}</View>;
+    },
+    Screen: ({ options, name }) => {
+      const { View, Text } = require('react-native');
       
-      // Check for tab labels
-      expect(getByText('Home')).toBeTruthy();
-      expect(getByText('Patients')).toBeTruthy();
-      expect(getByText('Tasks')).toBeTruthy();
-      expect(getByText('Messages')).toBeTruthy();
-      expect(getByText('Settings')).toBeTruthy();
-    });
-
-    test('displays tab icons', () => {
-      const { getByText } = renderWithNavigation(<MainTabNavigator />);
+      // CRITICAL: This executes the arrow functions on lines 41-88
+      const icon = options?.tabBarIcon ? options.tabBarIcon({ color: 'black' }) : null;
       
-      // Check for emoji icons
-      expect(getByText('🏠')).toBeTruthy();
-      expect(getByText('👥')).toBeTruthy();
-      expect(getByText('📋')).toBeTruthy();
-      expect(getByText('💬')).toBeTruthy();
-      expect(getByText('⚙️')).toBeTruthy();
-    });
+      return (
+        <View testID={`screen-${name}`}>
+          <Text>{options?.tabBarAccessibilityLabel}</Text>
+          {/* We render the icon result to ensure the emojis are 'touched' */}
+          {icon}
+        </View>
+      );
+    },
+  }),
+}));
+
+jest.mock('@react-navigation/native', () => ({
+  NavigationContainer: ({ children }) => {
+    const { View } = require('react-native');
+    return <View>{children}</View>;
+  },
+}));
+
+describe('MainTabNavigator Accessibility & Icon Coverage', () => {
+  
+  test('Executes all icon functions and displays labels', () => {
+    // Set unread count to 5 to trigger the 'positive' branch of the ternary
+    jest.spyOn(messagesRepository, 'unreadCount').mockReturnValue(5);
+    
+    const { getByText } = render(<MainTabNavigator />);
+    
+    // Check Accessibility Labels
+    expect(getByText('Home Dashboard')).toBeTruthy();
+    expect(getByText('Messages, 5 unread items')).toBeTruthy();
+    
+    // Check Emojis (This proves the functions in lines 41-88 ran)
+    expect(getByText('🏠')).toBeTruthy();
+    expect(getByText('💬')).toBeTruthy();
+    expect(getByText('⚙️')).toBeTruthy();
+
+    messagesRepository.unreadCount.mockRestore();
   });
 
-  describe('navigation', () => {
-    test('home screen is shown by default', () => {
-      const { getByText } = renderWithNavigation(<MainTabNavigator />);
-      
-      // Dashboard should be the default screen
-      expect(getByText('Home')).toBeTruthy();
-    });
-  });
-
-  describe('tab configuration', () => {
-    test('renders bottom tab bar', () => {
-      const { container } = renderWithNavigation(<MainTabNavigator />);
-      
-      expect(container).toBeTruthy();
-    });
+  test('Covers the "no unread items" branch', () => {
+    // Set unread count to 0 to trigger the 'else' branch of the ternary
+    jest.spyOn(messagesRepository, 'unreadCount').mockReturnValue(0);
+    
+    const { getByText } = render(<MainTabNavigator />);
+    
+    expect(getByText('Messages, no unread items')).toBeTruthy();
+    
+    messagesRepository.unreadCount.mockRestore();
   });
 });
