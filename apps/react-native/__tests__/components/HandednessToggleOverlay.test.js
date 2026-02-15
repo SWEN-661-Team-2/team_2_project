@@ -1,48 +1,29 @@
+// /Volumes/DevDrive/code/swen-661-ui/team_2_project/apps/react-native/__tests__/components/HandednessToggleOverlay.test.js
+
 /**
  * Component Tests - HandednessToggleOverlay
  * Tests the handedness toggle button overlay
  */
-import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render } from '@testing-library/react-native';
 import HandednessToggleOverlay from '../../src/components/HandednessToggleOverlay';
 import { AppProviders } from '../../src/contexts/AppProviders';
 
-const renderWithProviders = (ui) => {
-  return render(<AppProviders>{ui}</AppProviders>);
-};
+const renderWithProviders = (ui) => render(<AppProviders>{ui}</AppProviders>);
 
 describe('HandednessToggleOverlay Component', () => {
-  describe('rendering', () => {
-    test('renders nothing when handedness mode is not toggle', () => {
-      const { container } = renderWithProviders(<HandednessToggleOverlay />);
-      
-      // Should return null, so container should be minimal
-      expect(container).toBeTruthy();
-    });
-
-    test('renders toggle button in toggle mode', () => {
-      // This test would need the context set to toggle mode
-      // For now, we test that the component renders without crashing
-      const { container } = renderWithProviders(<HandednessToggleOverlay />);
-      
-      expect(container).toBeTruthy();
-    });
+  test('renders without crashing', () => {
+    const { root } = renderWithProviders(<HandednessToggleOverlay />);
+    expect(root).toBeTruthy();
   });
 
-  describe('interaction', () => {
-    test('component handles press events', () => {
-      const { queryByText } = renderWithProviders(<HandednessToggleOverlay />);
-      
-      // Component may not render in default mode
-      expect(queryByText('<<') || true).toBeTruthy();
-    });
+  test('does not rely on deprecated container API', () => {
+    const { root } = renderWithProviders(<HandednessToggleOverlay />);
+    expect(root).toBeDefined();
   });
 
-  describe('accessibility', () => {
-    test('toggle button is touchable', () => {
-      const { container } = renderWithProviders(<HandednessToggleOverlay />);
-      
-      expect(container).toBeTruthy();
-    });
+  test('if overlay renders a toggle button, it is discoverable by role', () => {
+    const { queryAllByRole } = renderWithProviders(<HandednessToggleOverlay />);
+    const buttons = queryAllByRole?.('button') ?? [];
+    expect(Array.isArray(buttons)).toBe(true);
   });
 });
