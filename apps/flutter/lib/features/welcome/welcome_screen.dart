@@ -90,6 +90,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       alignment: Alignment.topRight,
                       child: IconButton(
                         key: const Key('welcome_settings'),
+                        tooltip: 'Open settings',
                         icon: const Icon(Icons.settings),
                         onPressed: () {
                           Navigator.of(context).pushNamed(Routes.login);
@@ -127,7 +128,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         fontSize: subSize,
                         height: 1.35,
                         fontWeight: FontWeight.w500,
-                        color: Colors.grey,
+                        //color: Colors.black87,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
