@@ -115,10 +115,12 @@ class CaregiverDashboardScreen extends StatelessWidget {
               ),
             Align(
               alignment:
-                  isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
+                  isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,         
               child: Semantics(
                 button: true,
+                excludeSemantics: true,
                 label: 'View all patients needing attention',
+                hint: 'Opens the patients needing attention list',
                 child: TextButton(
                   onPressed: () => AppShell.of(context)?.openPatients(
                     PatientsViewMode.needingAttention,
@@ -148,7 +150,9 @@ class CaregiverDashboardScreen extends StatelessWidget {
                   isLeftAligned ? Alignment.centerLeft : Alignment.centerRight,
               child: Semantics(
                 button: true,
+                excludeSemantics: true,
                 label: 'View all upcoming visits',
+                hint: 'Opens the upcoming visits list',
                 child: TextButton(
                   onPressed: () => AppShell.of(context)?.openPatients(
                     PatientsViewMode.upcomingVisits,
@@ -338,6 +342,7 @@ class _StatCard extends StatelessWidget {
     return Semantics(
       button: true,
       enabled: enabled,
+      excludeSemantics: true,
       label: label,
       value: value,
       hint: enabled ? 'Double tap to open' : null,

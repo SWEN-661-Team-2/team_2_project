@@ -1,0 +1,6 @@
+# apps/flutter/maestro/00_reset.yaml
+appId: com.example.flutter_app
+---
+- stopApp
+- launchApp
+- waitForAnimationToEnd

@@ -1,0 +1,63 @@
+# apps/flutter/maestro/05_settings_handedness_and_logout.yaml
+appId: com.example.flutter_app
+---
+- stopApp
+- launchApp
+
+# Welcome -> Login
+- assertVisible: "CareConnect"
+- assertVisible: "Continue"
+- tapOn: "Continue"
+- assertVisible: "Sign In"
+
+- tapOn: "you@example.com"
+- inputText: "test@example.com"
+
+- tapOn: "password"
+- inputText: "password123"
+- hideKeyboard
+- tapOn: "Sign In"
+- waitForAnimationToEnd
+
+# Open Settings
+- tapOn: "Settings\nTab 5 of 5"
+- assertVisible: "Settings"
+
+# Scroll to handedness
+- scrollUntilVisible:
+    element: "Right-Handed View"
+    direction: DOWN
+- tapOn: "Right-Handed View"
+- assertVisible: "Right-Handed View"
+
+- scrollUntilVisible:
+    element: "Left-Handed View"
+    direction: DOWN
+- tapOn: "Left-Handed View"
+- assertVisible: "Left-Handed View"
+
+- scrollUntilVisible:
+    element: "Toggle Mode"
+    direction: DOWN
+- tapOn: "Toggle Mode"
+- assertVisible: "Toggle Mode"
+- assertVisible: |-
+    <<
+    >>
+
+# Logout flow
+- scrollUntilVisible:
+    element: "Logout"
+    direction: DOWN
+- tapOn: "Logout"
+- assertVisible: "Logout?"
+- assertVisible: "Are you sure you want to log out?"
+- tapOn: "Logout"
+- waitForAnimationToEnd
+
+# Robust “back at login” proof (don’t rely on title being visible)
+- assertVisible: "email address"
+- assertVisible: "password"
+- assertVisible: "Sign In"
+
+

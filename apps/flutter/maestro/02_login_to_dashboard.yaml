@@ -1,0 +1,31 @@
+# apps/flutter/maestro/02_login_to_dashboard.yaml
+appId: com.example.flutter_app
+---
+- stopApp
+- launchApp
+
+# Welcome -> Login
+- assertVisible: "CareConnect"
+- assertVisible: "Continue"
+- tapOn: "Continue"
+- assertVisible: "Sign In"
+
+# Fill credentials
+- tapOn: "you@example.com"
+- inputText: "test@example.com"
+
+- tapOn: "password"
+- inputText: "password123"
+
+- hideKeyboard
+
+# Submit
+- tapOn: "Sign In"
+- waitForAnimationToEnd
+
+# Dashboard proof: assert the KPI tiles by "number + newline + label"
+# This survives count changes (79 -> 80 etc.)
+- assertVisible:
+    text: "^[0-9]+, Active Patients, Double tap to open$"
+- assertVisible:
+    text: "^[0-9]+, Upcoming Visits, Double tap to open$"
