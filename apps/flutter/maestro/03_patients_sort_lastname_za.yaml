@@ -1,0 +1,54 @@
+# apps/flutter/maestro/03_patients_sort_lastname_za.yaml
+appId: com.example.flutter_app
+---
+- stopApp
+- launchApp
+
+# Welcome -> Login
+- assertVisible: "CareConnect"
+- assertVisible: "Continue"
+- tapOn: "Continue"
+- assertVisible: "Sign In"
+
+- tapOn: "you@example.com"
+- inputText: "test@example.com"
+
+- tapOn: "password"
+- inputText: "password123"
+- hideKeyboard
+
+- tapOn: "Sign In"
+- waitForAnimationToEnd
+
+# Tap Active Patients KPI tile
+- tapOn:
+    text: "^[0-9]+, Active Patients, Double tap to open$"
+- waitForAnimationToEnd
+
+- assertVisible: "Active Patients"
+
+# Open sort menu
+- tapOn: "Sort"
+
+# Choose sort option
+- tapOn: "Last Name (Z–A)"
+- waitForAnimationToEnd
+
+# Ensure we’re at the top after re-sort (important)
+- scrollUntilVisible:
+    element:
+      text: ".*Zimmerman.*"
+    direction: UP
+
+# Stable verification: check full names using regex
+- assertVisible:
+    text: ".*Zimmerman.*"
+
+- assertVisible:
+    text: ".*Xenon.*"
+
+# Ordering check (Zimmerman should be above Xenon in Z→A)
+- assertVisible:
+    text: ".*Zimmerman.*"
+    above:
+      text: ".*Xenon.*"

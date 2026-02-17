@@ -1,0 +1,101 @@
+appId: com.example.flutter_app
+---
+- stopApp
+- launchApp
+
+# Welcome -> Login
+- assertVisible: "CareConnect"
+- assertVisible: "Continue"
+- tapOn: "Continue"
+- assertVisible: "Sign In"
+
+- tapOn: "you@example.com"
+- inputText: "test@example.com"
+
+- tapOn: "password"
+- inputText: "password123"
+
+- hideKeyboard
+- tapOn: "Sign In"
+- waitForAnimationToEnd
+
+# Settings
+- tapOn: "Settings\nTab 5 of 5"
+- assertVisible: "Settings"
+- assertVisible: "Account & Profile"
+
+# Profile
+- tapOn: "Profile information"
+- waitForAnimationToEnd
+- assertVisible: "Edit Profile"
+
+- tapOn: "Edit Profile"
+- waitForAnimationToEnd
+
+# --- Edit fields (works whether blank or already filled) ---
+
+# Name
+- tapOn: "Name"
+- eraseText
+- inputText: "John"
+- hideKeyboard
+
+# Title / Role
+- tapOn: "Title / Role"
+- eraseText
+- inputText: "Manager"
+- hideKeyboard
+
+# Position
+- tapOn: "Position"
+- eraseText
+- inputText: "RN"
+- hideKeyboard
+
+# Organization
+- tapOn: "Organization"
+- eraseText
+- inputText: "CareConnect, LLC"
+- hideKeyboard
+
+# Email address
+- tapOn: "Email address"
+- eraseText
+- inputText: "jdoe@example.com"
+- hideKeyboard
+
+# Phone
+- tapOn: "Phone"
+- eraseText
+- inputText: "410-555-1212"
+- hideKeyboard
+
+# Save button is usually lower on the page
+- scroll
+- waitForAnimationToEnd
+
+# Try common save labels
+- tapOn:
+    text: "^Save$"
+    optional: true
+- tapOn:
+    text: "^SAVE$"
+    optional: true
+- tapOn:
+    text: "Save Changes"
+    optional: true
+
+- waitForAnimationToEnd
+
+# Verify we are back on Profile view with saved values
+- assertVisible: |-
+    Name
+    John
+- assertVisible: |-
+    Organization
+    CareConnect, LLC
+- assertVisible: |-
+    Phone
+    410-555-1212
+
+    
