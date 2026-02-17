@@ -1,3 +1,4 @@
+// lib/core/tasks/caregiver_task.dart
 enum TaskPriority { high, medium, low }
 
 enum TaskStatus { pending, inProgress, completed }
@@ -27,6 +28,8 @@ class CaregiverTask {
     this.completedAt,
   });
 
+  static const Object _unset = Object();
+
   CaregiverTask copyWith({
     String? id,
     String? title,
@@ -37,7 +40,7 @@ class CaregiverTask {
     String? patientId,
     String? patientName,
     DateTime? createdAt,
-    DateTime? completedAt,
+    Object? completedAt = _unset, 
   }) {
     return CaregiverTask(
       id: id ?? this.id,
@@ -49,15 +52,17 @@ class CaregiverTask {
       patientId: patientId ?? this.patientId,
       patientName: patientName ?? this.patientName,
       createdAt: createdAt ?? this.createdAt,
-      completedAt: completedAt ?? this.completedAt,
+      completedAt:
+          completedAt == _unset ? this.completedAt : completedAt as DateTime?,
     );
   }
 
   bool get isOverdue =>
       status != TaskStatus.completed && DateTime.now().isAfter(dueDate);
+
   bool get isDueToday {
     if (status == TaskStatus.completed) return false;
-    if (isOverdue) return false; // Exclude overdue tasks
+    if (isOverdue) return false;
 
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);

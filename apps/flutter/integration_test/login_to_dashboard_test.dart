@@ -1,7 +1,7 @@
 // apps/flutter/integration_test/login_to_dashboard_test.dart
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:flutter/widgets.dart';
 
 import 'package:flutter_app/main.dart' as app;
 
@@ -14,26 +14,27 @@ void main() {
 
     // Welcome
     expect(find.text('CareConnect'), findsOneWidget);
-    await tester.tap(find.text('Continue'));
+    expect(find.byKey(const Key('welcome_continue')), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('welcome_continue')));
     await tester.pumpAndSettle();
 
-    // Login screen (use whatever text is actually on your screen)
+    // Login
     expect(find.text('Sign In'), findsWidgets);
+    expect(find.byKey(const Key('login_email')), findsOneWidget);
+    expect(find.byKey(const Key('login_password')), findsOneWidget);
+    expect(find.byKey(const Key('login_submit')), findsOneWidget);
 
-    // Fill fields - these must match your actual widgets.
-    // If your TextFields have labels/hints like "email address" and "password",
-    // you can locate them by text, semantics, or keys.
-    await tester.enterText(find.byType(EditableText).at(0), 'test@example.com');
-    await tester.enterText(find.byType(EditableText).at(1), 'password123');
+    await tester.enterText(find.byKey(const Key('login_email')), 'test@example.com');
+    await tester.enterText(find.byKey(const Key('login_password')), 'password123');
     await tester.pumpAndSettle();
 
-    // Hide keyboard not needed here; just tap Sign In
-    await tester.tap(find.text('Sign In').first);
+    await tester.tap(find.byKey(const Key('login_submit')));
     await tester.pumpAndSettle();
 
-    // Dashboard proof - use something stable that is ALWAYS on dashboard
-    // (Based on your Maestro selectors, tiles exist.)
-    expect(find.textContaining('Active Patients'), findsOneWidget);
-    expect(find.textContaining('Upcoming Visits'), findsOneWidget);
+    // Dashboard proof (use Semantics labels on KPI tiles to avoid duplicates)
+    expect(find.text('CareConnect'), findsOneWidget);
+    expect(find.bySemanticsLabel('Active Patients'), findsOneWidget);
+    expect(find.bySemanticsLabel('Upcoming Visits'), findsOneWidget);
   });
 }
