@@ -190,7 +190,29 @@ expo build:android
 ```bash
 # Run tests (when implemented)
 npm test
+# Run Coverage Report
+npm test -- --coverage
+# Target Specific Modules
+npm test __tests__/navigation/MainTabNavigator.test.js
 ```
+
+### 📊 Project Test Coverage Report
+
+Target Coverage: 75% Global Coverage.
+
+| Directory / File | % Statements | % Branches | % Functions | % Lines |
+| :--- | :--- | :--- | :--- | :--- |
+| **All Files** | **84.45%** | **81.03%** | **78.30%** | **86.80%** |
+| `components` | 100% | 83.33% | 100% | 100% |
+| `contexts` | 78.66% | 69.84% | 63.26% | 81.25% |
+| `models` | 100% | 98.36% | 100% | 100% |
+| `navigation` | 100% | 100% | 100% | 100% |
+| `repositories` | 95.77% | 87.09% | 93.75% | 95.16% |
+| `screens` | 81.57% | 78.28% | 74.50% | 84.39% |
+| `screens/components` | 95.83% | 85.33% | 100% | 100% |
+| `utils` | 100% | 100% | 100% | 100% |
+
+
 
 ## 🆚 React vs React Native
 

@@ -62,7 +62,7 @@ describe('AuthContext', () => {
       expect(result.current.error).toBe('Email and password are required');
     });
 
-    test('succeeds login without strict email validation', async () => {
+    test('fails login with invalid email format', async () => {
       const { result } = renderHook(() => useAuth(), { wrapper });
 
       let success;
@@ -70,9 +70,9 @@ describe('AuthContext', () => {
         success = await result.current.login('invalid-email', 'password123');
       });
 
-      // Email validation is commented out in AuthContext
-      expect(success).toBe(true);
-      expect(result.current.isAuthenticated).toBe(true);
+      expect(success).toBe(false);
+      expect(result.current.isAuthenticated).toBe(false);
+      expect(result.current.error).toBe('Invalid email format');
     });
 
     test('sets loading state during login', async () => {

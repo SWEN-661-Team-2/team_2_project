@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useCallback } from 'react';
 
 /**
  * Auth Context for React Native
@@ -72,21 +72,10 @@ export function AuthProvider({ children }) {
   /**
    * Logout user
    */
-  const logout = useCallback(async () => {
-    setLoading(true);
-
-    try {
-      // simulate async logout work (clearing tokens, etc.)
-      await new Promise(resolve => setTimeout(resolve, 300));
-
-      setIsAuthenticated(false);
-      setCurrentUser(null);
-      setError(null);
-
-      return true;
-    } finally {
-      setLoading(false);
-    }
+  const logout = useCallback(() => {
+    setIsAuthenticated(false);
+    setCurrentUser(null);
+    setError(null);
   }, []);
 
   /**

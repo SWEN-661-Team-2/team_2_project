@@ -48,24 +48,23 @@ describe('TasksScreen Component', () => {
     });
 
     test('renders filter buttons', () => {
-      const { getByText, getAllByText } = renderWithProviders(
+      const { getByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
 
       expect(getByText(/all/i)).toBeTruthy();
-      expect(getAllByText(/pending/i).length).toBeGreaterThan(0);
-      expect(getAllByText(/completed/i).length).toBeGreaterThan(0);
+      expect(getByText(/pending/i)).toBeTruthy();
+      expect(getByText(/completed/i)).toBeTruthy();
     });
   });
 
   describe('filtering', () => {
     test('filters pending tasks', () => {
-      const { getAllByText } = renderWithProviders(
+      const { getByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
 
-      const pendingButtons = getAllByText(/pending/i);
-      const pendingButton = pendingButtons[0];
+      const pendingButton = getByText(/pending/i);
       fireEvent.press(pendingButton);
 
       // Should update the display
@@ -73,24 +72,22 @@ describe('TasksScreen Component', () => {
     });
 
     test('filters completed tasks', () => {
-      const { getAllByText } = renderWithProviders(
+      const { getByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
 
-      const completedButtons = getAllByText(/completed/i);
-      const completedButton = completedButtons[0];
+      const completedButton = getByText(/completed/i);
       fireEvent.press(completedButton);
 
       expect(completedButton).toBeTruthy();
     });
 
     test('filters high priority tasks', () => {
-      const { getAllByText } = renderWithProviders(
+      const { getByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
 
-      const highButtons = getAllByText(/high/i);
-      const highButton = highButtons[0];
+      const highButton = getByText(/high/i);
       fireEvent.press(highButton);
 
       expect(highButton).toBeTruthy();
@@ -119,12 +116,11 @@ describe('TasksScreen Component', () => {
     });
 
     test('returns to all tasks', () => {
-      const { getByText, getAllByText } = renderWithProviders(
+      const { getByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
 
-      const pendingButtons = getAllByText(/pending/i);
-      const pendingButton = pendingButtons[0];
+      const pendingButton = getByText(/pending/i);
       fireEvent.press(pendingButton);
 
       const allButton = getByText(/all/i);
@@ -137,30 +133,27 @@ describe('TasksScreen Component', () => {
   describe('task display', () => {
     test('shows task properties', () => {
       const tasks = TasksRepository.all();
-      const { getByText, getAllByText } = renderWithProviders(
+      const { getByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
 
       if (tasks.length > 0) {
         const task = tasks[0];
         expect(getByText(task.title)).toBeTruthy();
-        // Status like 'pending' might appear multiple times
-        const statusElements = getAllByText(new RegExp(task.status, 'i'));
-        expect(statusElements.length).toBeGreaterThan(0);
-        const priorityElements = getAllByText(new RegExp(task.priority, 'i'));
-        expect(priorityElements.length).toBeGreaterThan(0);
+        expect(getByText(task.status)).toBeTruthy();
+        expect(getByText(task.priority)).toBeTruthy();
       }
     });
 
     test('displays patient name', () => {
       const tasks = TasksRepository.all();
-      const { getAllByText } = renderWithProviders(
+      const { getByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
 
       if (tasks.length > 0) {
-        const patientElements = getAllByText(/patient:/i);
-        expect(patientElements.length).toBeGreaterThan(0);
+        const task = tasks[0];
+        expect(getByText(/patient:/i)).toBeTruthy();
       }
     });
   });

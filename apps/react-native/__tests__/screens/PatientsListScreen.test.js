@@ -43,19 +43,6 @@ describe('PatientsListScreen Component', () => {
       expect(titleMatches.length).toBeGreaterThan(0);
 
       await waitFor(() => {
-  describe('rendering', () => {
-    test('renders patients list title', () => {
-      const { getAllByText } = renderPatientsListScreen();
-
-      const matches = getAllByText(/Patients/i);
-      expect(matches.length).toBeGreaterThan(0);
-    });
-
-    test('renders patient list when loaded', async () => {
-      const { getByTestId } = renderPatientsListScreen();
-
-      await waitFor(() => {
-        // Check that the patient list is rendered
         expect(getByTestId('patients_list')).toBeTruthy();
       });
     });
@@ -132,16 +119,11 @@ describe('PatientsListScreen Component', () => {
         expect(true).toBeTruthy(); 
       });
     });
-  describe('empty state', () => {
-    test('handles empty patient list gracefully', async () => {
-      const { getByTestId } = renderPatientsListScreen();
 
     test('handles null or missing dates gracefully', async () => {
       const { queryByText } = renderPatientsListScreen();
       await waitFor(() => {
         expect(queryByText(/Invalid Date/i)).toBeNull();
-        // Screen should still render with the list component
-        expect(getByTestId('patients_list')).toBeTruthy();
       });
     });
   });

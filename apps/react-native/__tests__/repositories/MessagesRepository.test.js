@@ -1,80 +1,52 @@
-/**
- * Business Logic Tests - MessagesRepository
- * Tests message data fetching and management
- */
-import { MessagesRepository } from '../../src/repositories/MessagesRepository';
+import { messagesRepository } from '../../src/repositories/MessagesRepository';
 
 describe('MessagesRepository', () => {
-  let repository;
-
-  beforeEach(() => {
-    repository = new MessagesRepository();
-  });
-
-  describe('getAllMessages', () => {
-    test('returns array of messages', async () => {
-      const messages = await repository.getAllMessages();
-
+  
+  describe('Core Data', () => {
+    test('allMessages returns the full array of caregiver messages', () => {
+      const messages = messagesRepository.allMessages();
       expect(Array.isArray(messages)).toBe(true);
       expect(messages.length).toBeGreaterThan(0);
-    });
-
-    test('messages have required properties', async () => {
-      const messages = await repository.getAllMessages();
-      const message = messages[0];
-
-      expect(message).toHaveProperty('id');
-      expect(message).toHaveProperty('title');
-      expect(message).toHaveProperty('body');
+      
+      // Verify structure of a message
+      const firstMsg = messages[0];
+      expect(firstMsg).toHaveProperty('id');
+      expect(firstMsg).toHaveProperty('sender');
+      expect(firstMsg).toHaveProperty('subject');
     });
   });
 
-  describe('getMessageById', () => {
-    test('returns null for non-existent message', async () => {
-      const message = await repository.getMessageById('nonexistent-id');
-
-      expect(message).toBeNull();
+  describe('Unread Logic', () => {
+    test('unreadCount returns the correct number of unread messages', () => {
+      const count = messagesRepository.unreadCount();
+      expect(typeof count).toBe('number');
+      
+      // Ensure it matches the filtered unread list length
+      const unreadList = messagesRepository.unreadMessages();
+      expect(count).toBe(unreadList.length);
     });
 
-    test('returns message when found', async () => {
-      const allMessages = await repository.getAllMessages();
-      if (allMessages.length > 0) {
-        const testMessage = allMessages[0];
-        const foundMessage = await repository.getMessageById(testMessage.id);
-
-        expect(foundMessage).not.toBeNull();
-        expect(foundMessage.id).toBe(testMessage.id);
-      }
-    });
-  });
-
-  describe('getUnreadMessages', () => {
-    test('returns array of unread messages', async () => {
-      const unreadMessages = await repository.getUnreadMessages();
-
-      expect(Array.isArray(unreadMessages)).toBe(true);
-    });
-
-    test('unread messages have isRead as false', async () => {
-      const unreadMessages = await repository.getUnreadMessages();
-
-      unreadMessages.forEach(message => {
-        expect(message.isRead).toBe(false);
+    test('unreadMessages filters correctly', () => {
+      const unread = messagesRepository.unreadMessages();
+      unread.forEach(msg => {
+        expect(msg.unread).toBe(true);
       });
     });
   });
 
-  describe('markAsRead', () => {
-    test('marks message as read', async () => {
-      const messages = await repository.getAllMessages();
-      if (messages.length > 0) {
-        const message = messages[0];
-        await repository.markAsRead(message.id);
+  describe('Accessibility Support', () => {
+    // These tests ensure coverage for the summary methods
+    test('getInboxStatusSummary returns a descriptive string', () => {
+      const summary = messagesRepository.getInboxStatusSummary();
+      expect(typeof summary).toBe('string');
+      expect(summary).toContain('messages');
+    });
 
-        // Verify the message is marked as read
-        const updatedMessage = await repository.getMessageById(message.id);
-        expect(updatedMessage.isRead).toBe(true);
-      }
+    test('getMessageAccessibilitySummary returns formatted details', () => {
+      const messages = messagesRepository.allMessages();
+      const summary = messagesRepository.getMessageAccessibilitySummary(messages[0]);
+      expect(typeof summary).toBe('string');
+      expect(summary.length).toBeGreaterThan(0);
     });
   });
 });

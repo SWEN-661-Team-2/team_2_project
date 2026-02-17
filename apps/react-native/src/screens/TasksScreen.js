@@ -1,26 +1,24 @@
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-import { useMemo, useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
-  FlatList,
-  ScrollView,
-  StyleSheet,
+  View,
   Text,
   TouchableOpacity,
-  View,
+  StyleSheet,
+  ScrollView,
+  FlatList,
 } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-import HandednessToggleOverlay from '../components/HandednessToggleOverlay';
 import { useHandedness, useTheme } from '../contexts/AppProviders';
 import TasksRepository from '../repositories/TasksRepository';
+import HandednessToggleOverlay from '../components/HandednessToggleOverlay';
 
+/**
+ * Tasks Screen
+ * React Native equivalent of Flutter TasksScreen
+ * Features: filtering, back button navigation
+ */
 export default function TasksScreen({ navigation }) {
-  const insets = useSafeAreaInsets();
-  const tabBarHeight = useBottomTabBarHeight();
-
-  const { handednessMode, isLeftHanded } = useHandedness();
+  const { isLeftHanded } = useHandedness();
   const { colors } = useTheme();
-
   const [filter, setFilter] = useState('all');
   const repo = TasksRepository;
 
@@ -35,7 +33,7 @@ export default function TasksScreen({ navigation }) {
       case 'completed':
         return repo.completed();
       case 'high':
-        return tasks.filter((t) => t.priority === 'high');
+        return tasks.filter(t => t.priority === 'high');
       case 'overdue':
         return repo.overdue();
       case 'dueToday':
@@ -45,8 +43,6 @@ export default function TasksScreen({ navigation }) {
     }
   }, [filter, repo, tasks]);
 
-  const listBottomPadding = tabBarHeight + insets.bottom + 16;
-
   const FilterButton = ({ filterValue, label, count }) => (
     <TouchableOpacity
       style={[
@@ -55,25 +51,14 @@ export default function TasksScreen({ navigation }) {
         { borderColor: colors.border },
       ]}
       onPress={() => setFilter(filterValue)}
-      activeOpacity={0.85}
     >
       <Text
-        numberOfLines={1}
         style={[
-          styles.filterTitle,
-          { color: filter === filterValue ? '#fff' : colors.text },
+          styles.filterText,
+          { color: filter === filterValue ? '#ffffff' : colors.text },
         ]}
       >
-        {label}
-      </Text>
-
-      <Text
-        style={[
-          styles.filterCount,
-          { color: filter === filterValue ? '#fff' : colors.textSecondary },
-        ]}
-      >
-        ({count})
+        {label} ({count})
       </Text>
     </TouchableOpacity>
   );
@@ -81,23 +66,25 @@ export default function TasksScreen({ navigation }) {
   const TaskCard = ({ task }) => (
     <View style={[styles.taskCard, { backgroundColor: colors.surface }]}>
       <View style={[styles.taskHeader, isLeftHanded && styles.taskHeaderReversed]}>
-        <View style={isLeftHanded ? { alignItems: 'flex-end' } : null}>
-          <Text style={[styles.taskTitle, { color: colors.text }]}>{task.title}</Text>
+        <View style={isLeftHanded ? { alignItems: 'flex-end' } : {}}>
+          <Text style={[styles.taskTitle, { color: colors.text }]}>
+            {task.title}
+          </Text>
           <Text style={[styles.taskPatient, { color: colors.textSecondary }]}>
             Patient: {task.patient}
           </Text>
         </View>
-
         <View style={[styles.badges, isLeftHanded && styles.badgesReversed]}>
           <View
             style={[
               styles.badge,
-              task.status === 'completed' ? styles.badgeCompleted : styles.badgePending,
+              task.status === 'completed'
+                ? styles.badgeCompleted
+                : styles.badgePending,
             ]}
           >
             <Text style={styles.badgeText}>{task.status}</Text>
           </View>
-
           <View
             style={[
               styles.badge,
@@ -113,18 +100,13 @@ export default function TasksScreen({ navigation }) {
         </View>
       </View>
     </View>
+    // NO overlay here!
   );
 
-  const HeaderAndFilters = () => (
-    <View>
-      {/* Header */}
-      <View
-        style={[
-          styles.header,
-          { paddingTop: insets.top + 12 },
-          isLeftHanded && styles.headerReversed,
-        ]}
-      >
+  return (
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* Header with Back Button */}
+      <View style={[styles.header, isLeftHanded && styles.headerReversed]}>
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
@@ -132,110 +114,101 @@ export default function TasksScreen({ navigation }) {
         >
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
-
         <Text style={[styles.title, { color: colors.text }]}>Tasks</Text>
       </View>
 
-      {/* Filters (tiles) */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filters}
-        contentContainerStyle={styles.filtersContent}
-      >
+      {/* Filters */}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filters}>
         <FilterButton filterValue="all" label="All" count={tasks.length} />
-        <FilterButton filterValue="pending" label="Pending" count={repo.pending().length} />
-        <FilterButton filterValue="completed" label="Completed" count={repo.completed().length} />
+        <FilterButton
+          filterValue="pending"
+          label="Pending"
+          count={repo.pending().length}
+        />
+        <FilterButton
+          filterValue="completed"
+          label="Completed"
+          count={repo.completed().length}
+        />
         <FilterButton
           filterValue="high"
           label="High Priority"
-          count={tasks.filter((t) => t.priority === 'high').length}
+          count={tasks.filter(t => t.priority === 'high').length}
         />
-        <FilterButton filterValue="dueToday" label="Due Today" count={repo.dueToday().length} />
-        <FilterButton filterValue="overdue" label="Overdue" count={repo.overdue().length} />
+        <FilterButton
+          filterValue="dueToday"
+          label="Due Today"
+          count={repo.dueToday().length}
+        />
+        <FilterButton
+          filterValue="overdue"
+          label="Overdue"
+          count={repo.overdue().length}
+        />
       </ScrollView>
 
-      {/* Tiny, controlled gap between tiles and list */}
-      <View style={{ height: 6 }} />
-    </View>
-  );
-
-  return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* Tasks List */}
       <FlatList
         data={filteredTasks}
         renderItem={({ item }) => <TaskCard task={item} />}
-        keyExtractor={(item) => item.id}
-        ListHeaderComponent={HeaderAndFilters}
-        contentContainerStyle={[
-          styles.listContent,
-          { paddingBottom: listBottomPadding },
-        ]}
-        automaticallyAdjustContentInsets={false}
-        contentInsetAdjustmentBehavior="never"
+        keyExtractor={item => item.id}
+        contentContainerStyle={styles.list}
+        ListEmptyComponent={
+          <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
+            No tasks match the current filter
+          </Text>
+        }
       />
-
-      {handednessMode === 'toggle' ? <HandednessToggleOverlay /> : null}
+      
+      <HandednessToggleOverlay />  
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-
+  container: {
+    flex: 1,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 20,
-    paddingBottom: 12, 
+    paddingTop: 50,
+    paddingBottom: 16,
   },
-  headerReversed: { flexDirection: 'row-reverse' },
-
-  backButton: { padding: 8, marginRight: 12 },
-  backIcon: { fontSize: 24 },
-
-  title: { fontSize: 24, fontWeight: 'bold' },
-
-  filters: {
-    marginBottom: 0, 
+  headerReversed: {
+    flexDirection: 'row-reverse',
   },
-  filtersContent: {
-    paddingHorizontal: 20,
-    paddingTop: 4,    
-    paddingBottom: 2,  
-    paddingRight: 32,
-  },
-
-  filterButton: {
-    width: 110,
-    height: 110,
-    borderRadius: 12,
-    borderWidth: 1,
+  backButton: {
+    padding: 8,
     marginRight: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 10,
   },
-  filterTitle: {
-    fontSize: 14,
-    fontWeight: '700',
-    textAlign: 'center',
-    lineHeight: 18,
-    flexShrink: 1,
+  backIcon: {
+    fontSize: 24,
   },
-  filterCount: {
-    marginTop: 6,
-    fontSize: 12,
-    fontWeight: '600',
-    textAlign: 'center',
-    lineHeight: 16,
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
   },
-
-  listContent: {
+  filters: {
     paddingHorizontal: 20,
-    paddingTop: 0, // tasks land right under tiles
+    marginBottom: 16,
   },
-
+  filterButton: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    marginRight: 8,
+  },
+  filterText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  list: {
+    paddingHorizontal: 20,
+    paddingBottom: 20,
+  },
   taskCard: {
     padding: 16,
     borderRadius: 12,
@@ -251,20 +224,52 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
-  taskHeaderReversed: { flexDirection: 'row-reverse' },
-
-  taskTitle: { fontSize: 16, fontWeight: '600', marginBottom: 4 },
-  taskPatient: { fontSize: 14 },
-
-  badges: { flexDirection: 'column', gap: 4 },
-  badgesReversed: { alignItems: 'flex-end' },
-
-  badge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12 },
-  badgeText: { fontSize: 12, fontWeight: '600', color: '#ffffff' },
-
-  badgeCompleted: { backgroundColor: '#10b981' },
-  badgePending: { backgroundColor: '#f59e0b' },
-  badgeHigh: { backgroundColor: '#ef4444' },
-  badgeMedium: { backgroundColor: '#f97316' },
-  badgeLow: { backgroundColor: '#3b82f6' },
+  taskHeaderReversed: {
+    flexDirection: 'row-reverse',
+  },
+  taskTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  taskPatient: {
+    fontSize: 14,
+  },
+  badges: {
+    flexDirection: 'column',
+    gap: 4,
+  },
+  badgesReversed: {
+    alignItems: 'flex-end',
+  },
+  badge: {
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  badgeText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#ffffff',
+  },
+  badgeCompleted: {
+    backgroundColor: '#10b981',
+  },
+  badgePending: {
+    backgroundColor: '#f59e0b',
+  },
+  badgeHigh: {
+    backgroundColor: '#ef4444',
+  },
+  badgeMedium: {
+    backgroundColor: '#f97316',
+  },
+  badgeLow: {
+    backgroundColor: '#3b82f6',
+  },
+  emptyText: {
+    textAlign: 'center',
+    fontSize: 16,
+    marginTop: 32,
+  },
 });

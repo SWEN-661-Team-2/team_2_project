@@ -11,7 +11,6 @@ import {
   Image,
   StatusBar,
 } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
 import { useHandedness } from '../contexts/AppProviders';
 import { useAuth } from '../contexts/AuthContext';
 

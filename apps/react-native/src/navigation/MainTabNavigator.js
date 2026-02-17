@@ -11,13 +11,11 @@ import MessagesListScreen from '../screens/MessagesListScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
-const unreadCount = messagesRepository.unreadCount();
 
-/**
- * Main Tab Navigator
- * Bottom navigation: Home | Patients | Tasks | Messages | Settings
- */
 export default function MainTabNavigator() {
+  // Moving this inside the component ensures it stays reactive if the screen re-renders
+  const unreadCount = messagesRepository.unreadCount();
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -39,36 +37,57 @@ export default function MainTabNavigator() {
         name="Home"
         component={CaregiverDashboardScreen}
         options={{
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>🏠</Text>,
+          tabBarIcon: ({ color }) => (
+            <Text 
+              style={{ fontSize: 24 }} 
+              accessible={false} // Icon is decorative since label exists
+            >🏠</Text>
+          ),
+          tabBarAccessibilityLabel: "Home Dashboard",
         }}
       />
       <Tab.Screen
         name="Patients"
         component={PatientsScreen}
         options={{
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>👥</Text>,
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 24 }} accessible={false}>👥</Text>
+          ),
+          tabBarAccessibilityLabel: "Patients List",
         }}
       />
       <Tab.Screen
         name="Tasks"
         component={TasksScreen}
         options={{
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>✓</Text>,
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 24 }} accessible={false}>✓</Text>
+          ),
+          tabBarAccessibilityLabel: "My Tasks",
         }}
       />
       <Tab.Screen
         name="Messages"
         component={MessagesListScreen}
         options={{
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>💬</Text>,
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 24 }} accessible={false}>💬</Text>
+          ),
           tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
+          // Important: Announces "Messages, 3 unread items" instead of just "Messages"
+          tabBarAccessibilityLabel: unreadCount > 0 
+            ? `Messages, ${unreadCount} unread items` 
+            : "Messages, no unread items",
         }}
       />
       <Tab.Screen
         name="Settings"
         component={SettingsScreen}
         options={{
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>⚙️</Text>,
+          tabBarIcon: ({ color }) => (
+            <Text style={{ fontSize: 24 }} accessible={false}>⚙️</Text>
+          ),
+          tabBarAccessibilityLabel: "App Settings",
         }}
       />
     </Tab.Navigator>
