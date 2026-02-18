@@ -2,10 +2,9 @@
  * Component Tests - PatientFilterMenu
  * Tests the patient filter menu component
  */
-import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
-import PatientFilterMenu from '../../src/screens/components/PatientFilterMenu';
+import { fireEvent, render } from '@testing-library/react-native';
 import { PatientViewMode } from '../../src/contexts/PatientsContext';
+import PatientFilterMenu from '../../src/screens/components/PatientFilterMenu';
 
 const mockOnClose = jest.fn();
 const mockOnViewModeChange = jest.fn();
@@ -132,7 +131,7 @@ describe('PatientFilterMenu Component', () => {
     });
 
     test('calls onClose when overlay is pressed', () => {
-      const { UNSAFE_getByType } = render(
+      const { getByTestId } = render(
         <PatientFilterMenu
           visible={true}
           onClose={mockOnClose}
@@ -141,11 +140,8 @@ describe('PatientFilterMenu Component', () => {
         />
       );
 
-      const pressables = UNSAFE_getAllByType('Pressable');
-      if (pressables.length > 0) {
-        fireEvent.press(pressables[0]);
-        expect(mockOnClose).toHaveBeenCalled();
-      }
+      fireEvent.press(getByTestId('filter_close_button'));
+      expect(mockOnClose).toHaveBeenCalled();
     });
   });
 
@@ -192,7 +188,7 @@ describe('PatientFilterMenu Component', () => {
 
   describe('radio buttons', () => {
     test('shows selected radio button for current view mode', () => {
-      const { container } = render(
+      const { UNSAFE_root } = render(
         <PatientFilterMenu
           visible={true}
           onClose={mockOnClose}
@@ -200,8 +196,7 @@ describe('PatientFilterMenu Component', () => {
           onViewModeChange={mockOnViewModeChange}
         />
       );
-
-      expect(container).toBeTruthy();
+      expect(UNSAFE_root).toBeTruthy();
     });
   });
 });

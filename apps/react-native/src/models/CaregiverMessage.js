@@ -13,3 +13,5 @@ export class CaregiverMessage {
     this.unread = unread;
   }
 }
+
+export default CaregiverMessage;

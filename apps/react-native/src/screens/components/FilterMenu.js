@@ -3,14 +3,13 @@
  * Modal for filtering messages (all/unread)
  */
 
-import React from 'react';
 import {
-  View,
-  Text,
   Modal,
-  TouchableOpacity,
-  StyleSheet,
   ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 export default function FilterMenu({
@@ -97,7 +96,7 @@ export default function FilterMenu({
               onPress={onClose}
               activeOpacity={0.7}
             >
-              <Text style={styles.closeButtonText}>Done</Text>
+              <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>

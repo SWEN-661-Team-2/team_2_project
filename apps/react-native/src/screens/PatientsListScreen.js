@@ -3,23 +3,23 @@
  * Handles 4 view modes: needingAttention, upcomingVisits, active, all (tab)
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  Modal,
   Alert,
+  FlatList,
+  Modal,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useHandedness } from '../contexts/AppProviders';
 import {
-  patientsRepository,
-  getCriticalityText,
-  getCriticalityTag,
   getCriticalityColor,
+  getCriticalityTag,
+  getCriticalityText,
+  patientsRepository,
 } from '../repositories/PatientsRepository';
 
 import HandednessToggleOverlay from '../components/HandednessToggleOverlay';

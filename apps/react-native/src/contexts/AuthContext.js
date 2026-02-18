@@ -1,9 +1,10 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+// Path: src/contexts/AuthContext.js
+import { createContext, useCallback, useContext, useState } from 'react';
 
 /**
  * Auth Context for React Native
  * Equivalent to Flutter's auth feature management
- * 
+ *
  * Handles authentication state, login/logout, and password management
  */
 
@@ -16,6 +17,9 @@ export const useAuth = () => {
   }
   return context;
 };
+
+// Basic email format check (enough to satisfy tests + common validation)
+const isValidEmail = (email) => /^\S+@\S+\.\S+$/.test(String(email).trim());
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -39,18 +43,19 @@ export function AuthProvider({ children }) {
         throw new Error('Email and password are required');
       }
 
-      //if (!email.includes('@')) {
-        //throw new Error('Invalid email format');
-      //}
+      // Validate email format (your tests expect this)
+      if (!isValidEmail(email)) {
+        throw new Error('Invalid email format');
+      }
 
       // Simulate API call for authentication
       // In a real app, this would call your backend
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // Mock user data
       const userData = {
         id: '1',
-        email: email,
+        email: String(email).trim(),
         name: 'User',
         createdAt: new Date().toISOString(),
       };
@@ -85,35 +90,38 @@ export function AuthProvider({ children }) {
    * @param {string} confirmPassword - Confirm new password
    * @returns {Promise<boolean>} - Success status
    */
-  const changePassword = useCallback(async (oldPassword, newPassword, confirmPassword) => {
-    setLoading(true);
-    setError(null);
+  const changePassword = useCallback(
+    async (oldPassword, newPassword, confirmPassword) => {
+      setLoading(true);
+      setError(null);
 
-    try {
-      // Validate inputs
-      if (!oldPassword || !newPassword || !confirmPassword) {
-        throw new Error('All fields are required');
+      try {
+        // Validate inputs
+        if (!oldPassword || !newPassword || !confirmPassword) {
+          throw new Error('All fields are required');
+        }
+
+        if (newPassword !== confirmPassword) {
+          throw new Error('New password and confirmation must match.');
+        }
+
+        if (newPassword.length < 6) {
+          throw new Error('Password must be at least 6 characters');
+        }
+
+        // Simulate API call to change password
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        return true;
+      } catch (err) {
+        setError(err.message);
+        return false;
+      } finally {
+        setLoading(false);
       }
-
-      if (newPassword !== confirmPassword) {
-        throw new Error('New password and confirmation must match.');
-      }
-
-      if (newPassword.length < 6) {
-        throw new Error('Password must be at least 6 characters');
-      }
-
-      // Simulate API call to change password
-      await new Promise(resolve => setTimeout(resolve, 500));
-
-      return true;
-    } catch (err) {
-      setError(err.message);
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    []
+  );
 
   const value = {
     isAuthenticated,
@@ -125,9 +133,5 @@ export function AuthProvider({ children }) {
     changePassword,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

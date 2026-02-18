@@ -2,8 +2,7 @@
  * Component Tests - FilterMenu
  * Tests the message filter menu component
  */
-import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { fireEvent, render } from '@testing-library/react-native';
 import FilterMenu from '../../src/screens/components/FilterMenu';
 
 const mockOnModeChange = jest.fn();
@@ -25,7 +24,6 @@ describe('FilterMenu Component', () => {
           isLeftHanded={false}
         />
       );
-
       expect(getByText('Filter Messages')).toBeTruthy();
     });
 
@@ -39,7 +37,6 @@ describe('FilterMenu Component', () => {
           isLeftHanded={false}
         />
       );
-
       expect(queryByText('Filter Messages')).toBeFalsy();
     });
 
@@ -53,7 +50,6 @@ describe('FilterMenu Component', () => {
           isLeftHanded={false}
         />
       );
-
       expect(getByText(/All Messages/i)).toBeTruthy();
     });
 
@@ -67,7 +63,6 @@ describe('FilterMenu Component', () => {
           isLeftHanded={false}
         />
       );
-
       expect(getByText(/Unread/i)).toBeTruthy();
     });
   });
@@ -83,7 +78,6 @@ describe('FilterMenu Component', () => {
           isLeftHanded={false}
         />
       );
-
       fireEvent.press(getByText(/All Messages/i));
       expect(mockOnModeChange).toHaveBeenCalledWith('all');
     });
@@ -98,7 +92,6 @@ describe('FilterMenu Component', () => {
           isLeftHanded={false}
         />
       );
-
       fireEvent.press(getByText(/Unread/i));
       expect(mockOnModeChange).toHaveBeenCalledWith('unread');
     });
@@ -113,7 +106,6 @@ describe('FilterMenu Component', () => {
           isLeftHanded={false}
         />
       );
-
       fireEvent.press(getByText('Close'));
       expect(mockOnClose).toHaveBeenCalled();
     });
@@ -121,7 +113,7 @@ describe('FilterMenu Component', () => {
 
   describe('selection state', () => {
     test('highlights current mode', () => {
-      const { container } = render(
+      const { UNSAFE_root } = render(
         <FilterMenu
           visible={true}
           currentMode="all"
@@ -130,8 +122,7 @@ describe('FilterMenu Component', () => {
           isLeftHanded={false}
         />
       );
-
-      expect(container).toBeTruthy();
+      expect(UNSAFE_root).toBeTruthy();
     });
   });
 });

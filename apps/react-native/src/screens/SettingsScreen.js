@@ -1,35 +1,36 @@
-import React, { useState } from 'react';
+// Path: src/screens/SettingsScreen.js
+import { useState } from 'react';
 import {
-  View,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Switch,
   Text,
   TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  Switch,
-  Image,
+  View,
 } from 'react-native';
-import { useHandedness, useTheme, useAppSettings } from '../contexts/AppProviders';
 import HandednessToggleOverlay from '../components/HandednessToggleOverlay';
+import { useAppSettings, useHandedness, useTheme } from '../contexts/AppProviders';
 
 export default function SettingsScreen({ navigation }) {
   const { isLeftHanded, handednessMode, setHandednessMode } = useHandedness();
   const { isDarkMode, toggleTheme, colors } = useTheme();
   const {
-    notificationsEnabled,
-    setNotificationsEnabled,
-    reminderFrequency,
-    setReminderFrequency,
-    textSize,
-    setTextSize,
-    lowVisionEnabled,
-    setLowVisionEnabled,
-    tremorSupportEnabled,
-    setTremorSupportEnabled,
-    guidedModeEnabled,
-    setGuidedModeEnabled,
-    hearingImpairedEnabled,
-    setHearingImpairedEnabled,
-  } = useAppSettings();
+  notificationsEnabled,
+  setNotifications: setNotificationsEnabled,
+  reminderFrequency,
+  setReminder: setReminderFrequency,
+  textSizeMode: textSize,
+  setTextSize,
+  lowVisionEnabled,
+  setLowVisionEnabled,
+  tremorSupportEnabled,
+  setTremorSupportEnabled,
+  guidedModeEnabled,
+  setGuidedModeEnabled,
+  hearingImpairedEnabled,
+  setHearingImpairedEnabled,
+} = useAppSettings();
 
   const [showReminderPicker, setShowReminderPicker] = useState(false);
 
@@ -256,14 +257,37 @@ function HandedListTile({ title, subtitle, icon, isLeftAligned, onPress, accessi
 
 function HandedSwitchListTile({ title, subtitle, value, onValueChange, isLeftAligned }) {
   const { colors } = useTheme();
+
   return (
-    <View style={styles.switchTile} accessibilityRole="switch" accessibilityLabel={title} accessibilityState={{ checked: value }}>
-      {isLeftAligned && <Switch value={value} onValueChange={onValueChange} />}
-      <View style={styles.listContent}>
+    <View style={styles.switchTile}>
+      {isLeftAligned && (
+        <Switch
+          value={value}
+          onValueChange={onValueChange}
+          accessibilityRole="switch"
+          accessibilityLabel={title}
+          accessibilityState={{ checked: value }}
+        />
+      )}
+
+      <View style={styles.listContent} accessible={false}>
         <Text style={[styles.listTitle, { color: colors.text }]}>{title}</Text>
-        {subtitle && <Text style={[styles.listSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>}
+        {subtitle && (
+          <Text style={[styles.listSubtitle, { color: colors.textSecondary }]}>
+            {subtitle}
+          </Text>
+        )}
       </View>
-      {!isLeftAligned && <Switch value={value} onValueChange={onValueChange} />}
+
+      {!isLeftAligned && (
+        <Switch
+          value={value}
+          onValueChange={onValueChange}
+          accessibilityRole="switch"
+          accessibilityLabel={title}
+          accessibilityState={{ checked: value }}
+        />
+      )}
     </View>
   );
 }
@@ -319,7 +343,13 @@ function HandednessRadioGroup({ selected, onSelect, isLeftAligned }) {
   return (
     <View style={styles.radioGroup}>
       {options.map((opt) => (
-        <TouchableOpacity key={opt.value} style={styles.radioItem} onPress={() => onSelect(opt.value)} accessibilityRole="radio" accessibilityState={{ selected: selected === opt.value }}>
+        <TouchableOpacity
+          key={opt.value}
+          style={styles.radioItem}
+          onPress={() => onSelect(opt.value)}
+          accessibilityRole="radio"
+          accessibilityState={{ selected: selected === opt.value }}
+        >
           {isLeftAligned && <View style={[styles.radio, selected === opt.value && styles.radioSelected]} />}
           <Text style={[styles.radioLabel, { color: colors.text }]}>{opt.label}</Text>
           {!isLeftAligned && <View style={[styles.radio, selected === opt.value && styles.radioSelected]} />}
@@ -338,7 +368,6 @@ function ReminderFrequencyPicker({ selected, onSelect, onClose, isLeftAligned })
   return (
     <View style={styles.modalOverlay}>
       <View style={styles.modalContent}>
-        {/* Changed this line to ensure getByText or getByRole matches */}
         <Text style={styles.modalTitle} accessibilityRole="header">Reminder frequency</Text>
         {options.map((opt) => (
           <TouchableOpacity
