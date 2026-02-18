@@ -2,48 +2,25 @@
  * Patient Row Component
  * Displays a patient in a list with name, subtitle, and optional tag
  */
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-
-export default function PatientRow({
-  name,
-  subtitle,
-  tag,
-  color,
-}) {
+export default function PatientRow({ patient, name, subtitle, tag, color, onPress }) {
+  const displayName = patient ? patient.fullName : name;
+  const displaySubtitle = patient ? (patient.nextVisit ? patient.nextVisit.toLocaleDateString() : '') : subtitle;
   const showTag = tag && tag.trim().length > 0;
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={() => onPress && onPress(patient)}>
       <View style={styles.content}>
-        <Text style={styles.name} numberOfLines={1}>
-          {name}
-        </Text>
-        <Text style={styles.subtitle} numberOfLines={2}>
-          {subtitle}
-        </Text>
+        <Text style={styles.name} numberOfLines={1}>{displayName}</Text>
+        <Text style={styles.subtitle} numberOfLines={2}>{displaySubtitle}</Text>
       </View>
-
       {showTag && (
-        <View
-          style={[
-            styles.tag,
-            { backgroundColor: `${color}20` }, // 20% opacity
-          ]}
-        >
-          <Text
-            style={[
-              styles.tagText,
-              { color },
-            ]}
-            numberOfLines={1}
-          >
-            {tag}
-          </Text>
+        <View style={[styles.tag, { backgroundColor: `${color}20` }]}>
+          <Text style={[styles.tagText, { color }]} numberOfLines={1}>{tag}</Text>
         </View>
       )}
-    </View>
+    </TouchableOpacity>
   );
 }
 

@@ -232,6 +232,16 @@ class MessagesRepository {
   unreadMessages() {
     return this._messages.filter(m => m.unread);
   }
+
+  getInboxStatusSummary() {
+    const total = this._messages.length;
+    const unread = this.unreadCount();
+    return `${total} messages, ${unread} unread`;
+  }
+
+  getMessageAccessibilitySummary(message) {
+    return `From ${message.sender}: ${message.subject}. ${message.preview}`;
+  }
 }
 
 export const messagesRepository = new MessagesRepository();

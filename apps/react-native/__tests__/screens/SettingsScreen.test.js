@@ -1,17 +1,16 @@
+// Path: /__tests__/screens/SettingsScreen.test.js
 /**
  * Component Tests - SettingsScreen
  */
-import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import SettingsScreen from '../../src/screens/SettingsScreen';
+import { fireEvent, render, waitFor } from '@testing-library/react-native';
 import { AppProviders } from '../../src/contexts/AppProviders';
+import SettingsScreen from '../../src/screens/SettingsScreen';
 
 // Mock navigation
 const mockNavigation = {
   navigate: jest.fn(),
 };
 
-// Do NOT wrap render in act
 const renderSettings = () => {
   return render(
     <AppProviders>
@@ -27,40 +26,33 @@ describe('SettingsScreen Accessibility & Functionality', () => {
 
   describe('Interaction & State', () => {
     test('toggles notification switch accessibility state', async () => {
-  const { getByLabelText } = renderSettings();
+      const { getByRole } = renderSettings();
 
-  const toggle = await waitFor(() =>
-    getByLabelText('Notifications')
-  );
+      const toggle = await waitFor(() =>
+        getByRole('switch', { name: 'Notifications' })
+      );
 
-  const initial =
-    toggle.props.accessibilityState?.checked;
+      const initialChecked = toggle.props.accessibilityState?.checked ?? false;
 
-  fireEvent.press(toggle);
+      fireEvent(toggle, 'valueChange', !initialChecked);
 
-  await waitFor(() => {
-    const updatedToggle = getByLabelText('Notifications');
-    expect(
-      updatedToggle.props.accessibilityState?.checked
-    ).toBe(!initial);
-  });
-});
-
+      await waitFor(() => {
+        const updatedToggle = getByRole('switch', { name: 'Notifications' });
+        const checked = updatedToggle.props.accessibilityState?.checked ?? false;
+        expect(checked).toBe(!initialChecked);
+      });
+    });
 
     test('text size selector uses radio roles and shows selection state', async () => {
       const { getByRole } = renderSettings();
 
-      // Wait for radios to render after AsyncStorage load
-      const smallOption = await waitFor(() =>
-        getByRole('radio', { name: /small/i })
-      );
+      await waitFor(() => getByRole('radio', { name: /small/i }));
 
-      fireEvent.press(smallOption);
+      fireEvent.press(getByRole('radio', { name: /small/i }));
 
       await waitFor(() => {
-        expect(
-          smallOption.props.accessibilityState?.selected
-        ).toBe(true);
+        const updatedSmall = getByRole('radio', { name: /small/i });
+        expect(updatedSmall.props.accessibilityState?.selected ?? false).toBe(true);
       });
     });
   });
@@ -69,10 +61,7 @@ describe('SettingsScreen Accessibility & Functionality', () => {
     test('opens reminder frequency picker', async () => {
       const { getByText, getAllByText } = renderSettings();
 
-      const trigger = await waitFor(() =>
-        getByText('Reminder frequency')
-      );
-
+      const trigger = await waitFor(() => getByText('Reminder frequency'));
       fireEvent.press(trigger);
 
       await waitFor(() => {
@@ -86,16 +75,15 @@ describe('SettingsScreen Accessibility & Functionality', () => {
     test('updates handedness when radio button is pressed', async () => {
       const { getByRole } = renderSettings();
 
-      const toggleBtn = await waitFor(() =>
+      const toggleMode = await waitFor(() =>
         getByRole('radio', { name: /toggle mode/i })
       );
 
-      fireEvent.press(toggleBtn);
+      fireEvent.press(toggleMode);
 
       await waitFor(() => {
-        expect(
-          toggleBtn.props.accessibilityState?.selected
-        ).toBe(true);
+        const updatedToggleMode = getByRole('radio', { name: /toggle mode/i });
+        expect(updatedToggleMode.props.accessibilityState?.selected ?? false).toBe(true);
       });
     });
   });

@@ -2,10 +2,9 @@
  * Component Tests - MessageCard
  * Focus: High Coverage and Accessibility
  */
-import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
-import MessageCard from '../../src/screens/components/MessageCard';
+import { fireEvent, render } from '@testing-library/react-native';
 import { AppProviders } from '../../src/contexts/AppProviders';
+import MessageCard from '../../src/screens/components/MessageCard';
 
 // FIX: Mock the handedness context specifically for branch testing
 jest.mock('../../src/contexts/AppProviders', () => {
@@ -113,7 +112,7 @@ describe('MessageCard Coverage Tests', () => {
       const { getByTestId } = renderMessageCard({ message, index: 0, onPress: mockOnPress });
       
       const card = getByTestId('message_0');
-      expect(card.props.style).toContainEqual(
+      expect(card.props.style).toEqual(
         expect.objectContaining({ backgroundColor: '#E3F2FD' })
       );
     });

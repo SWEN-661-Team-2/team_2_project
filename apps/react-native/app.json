@@ -7,7 +7,7 @@
     "icon": "../react-native/assets/logo/careconnect_logo.png",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "../react-native/assets/carousel/caregiver_pair_01.jpg",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },

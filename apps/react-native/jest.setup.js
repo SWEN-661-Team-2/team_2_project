@@ -1,10 +1,33 @@
-// Test setup file
+// Path: /jest.setup.js
+
 import '@testing-library/react-native/extend-expect';
 
-// Mock AsyncStorage
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
-);
+// ✅ AsyncStorage mock (no recursion)
+jest.mock('@react-native-async-storage/async-storage', () => {
+  let store = {};
+
+  return {
+    __esModule: true,
+    default: {
+      setItem: jest.fn(async (key, value) => {
+        store[key] = value;
+        return null;
+      }),
+      getItem: jest.fn(async (key) => {
+        return store.hasOwnProperty(key) ? store[key] : null;
+      }),
+      removeItem: jest.fn(async (key) => {
+        delete store[key];
+        return null;
+      }),
+      clear: jest.fn(async () => {
+        store = {};
+        return null;
+      }),
+      getAllKeys: jest.fn(async () => Object.keys(store)),
+    },
+  };
+});
 
 // Mock expo-image-picker
 jest.mock('expo-image-picker', () => ({
@@ -43,10 +66,6 @@ jest.mock('@react-navigation/native', () => {
   };
 });
 
-// Silence console warnings in tests (only if not already mocked)
-if (global.console && typeof global.console.warn !== 'function') {
-  global.console.warn = jest.fn();
-}
-if (global.console && typeof global.console.error !== 'function') {
-  global.console.error = jest.fn();
-}
+// Silence console warnings in tests
+global.console.warn = jest.fn();
+global.console.error = jest.fn();

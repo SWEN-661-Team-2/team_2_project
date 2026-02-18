@@ -783,6 +783,23 @@ export class PatientsRepository {
     return this.patients;
   }
 
+  getAllPatients() {
+    return Promise.resolve(this.patients);
+  }
+
+  getPatientsByCriticality(criticality) {
+    return Promise.resolve(
+      this.patients.filter(p => p.criticality === criticality)
+    );
+  }
+
+getPatientById(id) {
+  return Promise.resolve(
+    this.patients.find(p => p.id === id) ?? null
+  );
+}
+
+
   needingAttentionSorted() {
     return [...this.patients]
       .filter(p => p.criticality !== null)

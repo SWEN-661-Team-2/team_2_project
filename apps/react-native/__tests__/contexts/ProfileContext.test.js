@@ -2,21 +2,18 @@
  * Context Tests - ProfileContext
  * Tests caregiver profile management context
  */
-import React from 'react';
-import { renderHook, act, waitFor } from '@testing-library/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { act, renderHook, waitFor } from '@testing-library/react-native';
 import * as FileSystem from 'expo-file-system';
 import { ProfileProvider, useProfile } from '../../src/contexts/ProfileContext';
 import CaregiverProfile from '../../src/models/CaregiverProfile';
 
-// Mock AsyncStorage
 jest.mock('@react-native-async-storage/async-storage', () => ({
   setItem: jest.fn(() => Promise.resolve()),
   getItem: jest.fn(() => Promise.resolve(null)),
   removeItem: jest.fn(() => Promise.resolve()),
 }));
 
-// Mock FileSystem
 jest.mock('expo-file-system', () => ({
   documentDirectory: 'file:///mock/documents/',
   makeDirectoryAsync: jest.fn(() => Promise.resolve()),
@@ -42,10 +39,7 @@ describe('ProfileContext', () => {
     });
 
     test('loads profile from storage on mount', async () => {
-      const mockProfile = new CaregiverProfile({
-        firstName: 'John',
-        lastName: 'Doe',
-      });
+      const mockProfile = new CaregiverProfile({ name: 'John Doe' });
       AsyncStorage.getItem.mockResolvedValueOnce(
         JSON.stringify(mockProfile.toJson())
       );
@@ -57,8 +51,7 @@ describe('ProfileContext', () => {
       });
 
       expect(AsyncStorage.getItem).toHaveBeenCalledWith('careconnect:caregiver_profile_v1');
-      expect(result.current.profile.firstName).toBe('John');
-      expect(result.current.profile.lastName).toBe('Doe');
+      expect(result.current.profile.name).toBe('John Doe');
     });
 
     test('handles loading errors gracefully', async () => {
@@ -96,10 +89,7 @@ describe('ProfileContext', () => {
         expect(result.current.loaded).toBe(true);
       });
 
-      const newProfile = new CaregiverProfile({
-        firstName: 'Jane',
-        lastName: 'Smith',
-      });
+      const newProfile = new CaregiverProfile({ name: 'Jane Smith' });
 
       await act(async () => {
         await result.current.save(newProfile);
@@ -109,8 +99,7 @@ describe('ProfileContext', () => {
         'careconnect:caregiver_profile_v1',
         JSON.stringify(newProfile.toJson())
       );
-      expect(result.current.profile.firstName).toBe('Jane');
-      expect(result.current.profile.lastName).toBe('Smith');
+      expect(result.current.profile.name).toBe('Jane Smith');
     });
 
     test('handles save errors gracefully', async () => {
@@ -123,10 +112,7 @@ describe('ProfileContext', () => {
         expect(result.current.loaded).toBe(true);
       });
 
-      const newProfile = new CaregiverProfile({
-        firstName: 'Error',
-        lastName: 'Test',
-      });
+      const newProfile = new CaregiverProfile({ name: 'Error Test' });
 
       await act(async () => {
         await result.current.save(newProfile);
@@ -146,20 +132,16 @@ describe('ProfileContext', () => {
       });
 
       await act(async () => {
-        await result.current.updateField({
-          firstName: 'Updated',
-          phone: '555-1234',
-        });
+        await result.current.updateField({ name: 'Updated', phone: '555-1234' });
       });
 
-      expect(result.current.profile.firstName).toBe('Updated');
+      expect(result.current.profile.name).toBe('Updated');
       expect(result.current.profile.phone).toBe('555-1234');
     });
 
     test('preserves other fields when updating', async () => {
       const initialProfile = new CaregiverProfile({
-        firstName: 'John',
-        lastName: 'Doe',
+        name: 'John',
         email: 'john@example.com',
       });
       AsyncStorage.getItem.mockResolvedValueOnce(
@@ -173,11 +155,10 @@ describe('ProfileContext', () => {
       });
 
       await act(async () => {
-        await result.current.updateField({ firstName: 'Jane' });
+        await result.current.updateField({ name: 'Jane' });
       });
 
-      expect(result.current.profile.firstName).toBe('Jane');
-      expect(result.current.profile.lastName).toBe('Doe');
+      expect(result.current.profile.name).toBe('Jane');
       expect(result.current.profile.email).toBe('john@example.com');
     });
   });
@@ -237,7 +218,7 @@ describe('ProfileContext', () => {
       });
 
       expect(consoleWarnSpy).toHaveBeenCalled();
-      expect(savedUri).toBe(mockUri); // Returns original URI on error
+      expect(savedUri).toBe(mockUri);
       consoleWarnSpy.mockRestore();
     });
 
@@ -284,10 +265,7 @@ describe('ProfileContext', () => {
         expect(result.current.loaded).toBe(true);
       });
 
-      const newProfile = new CaregiverProfile({
-        firstName: 'Reloaded',
-        lastName: 'Profile',
-      });
+      const newProfile = new CaregiverProfile({ name: 'Reloaded Profile' });
       AsyncStorage.getItem.mockResolvedValueOnce(
         JSON.stringify(newProfile.toJson())
       );
@@ -296,14 +274,12 @@ describe('ProfileContext', () => {
         await result.current.load();
       });
 
-      expect(result.current.profile.firstName).toBe('Reloaded');
-      expect(result.current.profile.lastName).toBe('Profile');
+      expect(result.current.profile.name).toBe('Reloaded Profile');
     });
   });
 
   describe('error handling', () => {
     test('throws error when used outside provider', () => {
-      // Suppress console error for this test
       const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       expect(() => {

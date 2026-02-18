@@ -3,18 +3,10 @@
  * Displays full message content
  */
 
-import React from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  Share,
-} from 'react-native';
+import { ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { formatDtYmdHmm } from '../utils/dtFormat';
 import { useHandedness } from '../contexts/AppProviders';
+import { formatDtYmdHmm } from '../utils/dtFormat';
 
 export default function MessageDetailScreen({ navigation, route }) {
   const { message } = route.params;

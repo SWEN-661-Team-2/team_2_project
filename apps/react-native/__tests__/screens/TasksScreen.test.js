@@ -2,13 +2,11 @@
  * Component Tests - TasksScreen
  * Tests the tasks listing and filtering screen
  */
-import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import TasksScreen from '../../src/screens/TasksScreen';
+import { fireEvent, render } from '@testing-library/react-native';
 import { AppProviders } from '../../src/contexts/AppProviders';
 import TasksRepository from '../../src/repositories/TasksRepository';
+import TasksScreen from '../../src/screens/TasksScreen';
 
-// Mock navigation
 const mockNavigate = jest.fn();
 const mockGoBack = jest.fn();
 const navigation = {
@@ -27,12 +25,10 @@ describe('TasksScreen Component', () => {
 
   describe('rendering', () => {
     test('renders tasks screen', () => {
-      const { getByText } = renderWithProviders(
+      const { getAllByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
-
-      // Should show at least the filter buttons
-      expect(getByText(/all/i)).toBeTruthy();
+      expect(getAllByText(/all/i)[0]).toBeTruthy();
     });
 
     test('displays all tasks by default', () => {
@@ -40,56 +36,46 @@ describe('TasksScreen Component', () => {
       const { getByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
-
-      // Check if at least one task title is displayed
       if (tasks.length > 0) {
         expect(getByText(tasks[0].title)).toBeTruthy();
       }
     });
 
     test('renders filter buttons', () => {
-      const { getByText } = renderWithProviders(
+      const { getAllByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
-
-      expect(getByText(/all/i)).toBeTruthy();
-      expect(getByText(/pending/i)).toBeTruthy();
-      expect(getByText(/completed/i)).toBeTruthy();
+      expect(getAllByText(/all/i)[0]).toBeTruthy();
+      expect(getAllByText(/pending/i)[0]).toBeTruthy();
+      expect(getAllByText(/completed/i)[0]).toBeTruthy();
     });
   });
 
   describe('filtering', () => {
     test('filters pending tasks', () => {
-      const { getByText } = renderWithProviders(
+      const { getAllByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
-
-      const pendingButton = getByText(/pending/i);
+      const pendingButton = getAllByText(/pending/i)[0];
       fireEvent.press(pendingButton);
-
-      // Should update the display
       expect(pendingButton).toBeTruthy();
     });
 
     test('filters completed tasks', () => {
-      const { getByText } = renderWithProviders(
+      const { getAllByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
-
-      const completedButton = getByText(/completed/i);
+      const completedButton = getAllByText(/completed/i)[0];
       fireEvent.press(completedButton);
-
       expect(completedButton).toBeTruthy();
     });
 
     test('filters high priority tasks', () => {
-      const { getByText } = renderWithProviders(
+      const { getAllByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
-
-      const highButton = getByText(/high/i);
+      const highButton = getAllByText(/high/i)[0];
       fireEvent.press(highButton);
-
       expect(highButton).toBeTruthy();
     });
 
@@ -97,10 +83,8 @@ describe('TasksScreen Component', () => {
       const { getByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
-
       const overdueButton = getByText(/overdue/i);
       fireEvent.press(overdueButton);
-
       expect(overdueButton).toBeTruthy();
     });
 
@@ -108,24 +92,18 @@ describe('TasksScreen Component', () => {
       const { getByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
-
       const dueTodayButton = getByText(/due today/i);
       fireEvent.press(dueTodayButton);
-
       expect(dueTodayButton).toBeTruthy();
     });
 
     test('returns to all tasks', () => {
-      const { getByText } = renderWithProviders(
+      const { getAllByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
-
-      const pendingButton = getByText(/pending/i);
-      fireEvent.press(pendingButton);
-
-      const allButton = getByText(/all/i);
+      fireEvent.press(getAllByText(/pending/i)[0]);
+      const allButton = getAllByText(/all/i)[0];
       fireEvent.press(allButton);
-
       expect(allButton).toBeTruthy();
     });
   });
@@ -133,27 +111,24 @@ describe('TasksScreen Component', () => {
   describe('task display', () => {
     test('shows task properties', () => {
       const tasks = TasksRepository.all();
-      const { getByText } = renderWithProviders(
+      const { getAllByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
-
       if (tasks.length > 0) {
         const task = tasks[0];
-        expect(getByText(task.title)).toBeTruthy();
-        expect(getByText(task.status)).toBeTruthy();
-        expect(getByText(task.priority)).toBeTruthy();
+        expect(getAllByText(task.title)[0]).toBeTruthy();
+        expect(getAllByText(task.status)[0]).toBeTruthy();
+        expect(getAllByText(task.priority)[0]).toBeTruthy();
       }
     });
 
     test('displays patient name', () => {
       const tasks = TasksRepository.all();
-      const { getByText } = renderWithProviders(
+      const { getAllByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
-
       if (tasks.length > 0) {
-        const task = tasks[0];
-        expect(getByText(/patient:/i)).toBeTruthy();
+        expect(getAllByText(/patient:/i)[0]).toBeTruthy();
       }
     });
   });
@@ -161,11 +136,7 @@ describe('TasksScreen Component', () => {
   describe('task toggling', () => {
     test('toggles task status when checkbox pressed', async () => {
       const tasks = TasksRepository.pending();
-      const { getAllByRole } = renderWithProviders(
-        <TasksScreen navigation={navigation} />
-      );
-
-      // This test verifies the screen can handle task toggle events
+      renderWithProviders(<TasksScreen navigation={navigation} />);
       expect(tasks.length).toBeGreaterThan(0);
     });
   });
@@ -175,10 +146,8 @@ describe('TasksScreen Component', () => {
       const { getByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
-
       const backButton = getByText('←');
       fireEvent.press(backButton);
-
       expect(mockGoBack).toHaveBeenCalled();
     });
   });
@@ -189,13 +158,13 @@ describe('TasksScreen Component', () => {
       const pendingTasks = TasksRepository.pending();
       const completedTasks = TasksRepository.completed();
 
-      const { getByText } = renderWithProviders(
+      const { getAllByText } = renderWithProviders(
         <TasksScreen navigation={navigation} />
       );
 
-      expect(getByText(new RegExp(`all.*${allTasks.length}`, 'i'))).toBeTruthy();
-      expect(getByText(new RegExp(`pending.*${pendingTasks.length}`, 'i'))).toBeTruthy();
-      expect(getByText(new RegExp(`completed.*${completedTasks.length}`, 'i'))).toBeTruthy();
+      expect(getAllByText(new RegExp(`all.*${allTasks.length}`, 'i'))[0]).toBeTruthy();
+      expect(getAllByText(new RegExp(`pending.*${pendingTasks.length}`, 'i'))[0]).toBeTruthy();
+      expect(getAllByText(new RegExp(`completed.*${completedTasks.length}`, 'i'))[0]).toBeTruthy();
     });
   });
 });

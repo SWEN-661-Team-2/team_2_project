@@ -10,34 +10,34 @@ describe('CaregiverMessage Model', () => {
       const date = new Date('2024-03-15T10:30:00');
       const message = new CaregiverMessage(
         '1',
+        'Care Team',
         'Meeting Reminder',
         'Team meeting tomorrow',
-        'info',
         date,
         false
       );
 
       expect(message.id).toBe('1');
-      expect(message.title).toBe('Meeting Reminder');
-      expect(message.body).toBe('Team meeting tomorrow');
-      expect(message.category).toBe('info');
-      expect(message.timestamp).toEqual(date);
-      expect(message.isRead).toBe(false);
+      expect(message.sender).toBe('Care Team');
+      expect(message.subject).toBe('Meeting Reminder');
+      expect(message.preview).toBe('Team meeting tomorrow');
+      expect(message.sentAt).toEqual(date);
+      expect(message.unread).toBe(false);
     });
 
     test('creates message with minimal fields', () => {
       const message = new CaregiverMessage(
         '2',
+        'System',
         'Alert',
         'Important message'
       );
 
       expect(message.id).toBe('2');
-      expect(message.title).toBe('Alert');
-      expect(message.body).toBe('Important message');
-      expect(message.category).toBeUndefined();
-      expect(message.timestamp).toBeUndefined();
-      expect(message.isRead).toBeUndefined();
+      expect(message.sender).toBe('System');
+      expect(message.subject).toBe('Alert');
+      expect(message.preview).toBe('Important message');
+      expect(message.unread).toBe(false); // default
     });
-  });
+  });  
 });
