@@ -1,5 +1,5 @@
 // path: /Volumes/DevDrive/code/swen-661-ui/team_2_project/apps/electron/renderer/components/Settings.js
-module.exports = function Settings({ layoutMode, onSave, onBack }) {
+export function Settings({ layoutMode, onSave, onBack }) {
   const root = document.createElement("div");
   root.className = "card";
 
@@ -66,4 +66,4 @@ module.exports = function Settings({ layoutMode, onSave, onBack }) {
   backBtn.addEventListener("click", () => onBack());
 
   return root;
-};
+}

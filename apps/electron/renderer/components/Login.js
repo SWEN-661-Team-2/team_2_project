@@ -1,11 +1,19 @@
 // path: /Volumes/DevDrive/code/swen-661-ui/team_2_project/apps/electron/renderer/components/Login.js
-module.exports = function Login({ onLogin }) {
+export function Login({ onLogin }) {
   const wrap = document.createElement("div");
-  wrap.className = "card";
+  wrap.className = "card login-card";
   wrap.style.maxWidth = "520px";
 
   wrap.innerHTML = `
-    <h1>Login</h1>
+    <div class="login-brand" aria-label="CareConnect Desktop - Electron branding">
+      <img class="login-logo" src="../assets/logos/careconnect_logo.png" alt="CareConnect" />
+      <div class="login-subtitle">
+        <img class="login-shield" src="../assets/logos/shield.png" alt="" aria-hidden="true" />
+        Secure caregiver access
+      </div>
+    </div>
+
+    <h1 style="margin-top: 8px;">Login</h1>
 
     <form id="loginForm" class="grid" aria-label="Login form">
       <div>
@@ -63,4 +71,4 @@ module.exports = function Login({ onLogin }) {
   });
 
   return wrap;
-};
+}

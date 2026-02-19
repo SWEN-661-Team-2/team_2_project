@@ -4,7 +4,7 @@ const path = require("path");
 const { buildMainMenu } = require("./menus/mainMenu");
 
 let mainWindow = null;
-let layoutMode = "right"; // "left" | "right"
+let layoutMode = "left"; // "left" | "right"
 
 function createWindow() {
   mainWindow = new BrowserWindow({

@@ -1,12 +1,12 @@
 // path: /Volumes/DevDrive/code/swen-661-ui/team_2_project/apps/electron/renderer/index.js
+import { Login } from "./components/Login.js";
+import { Dashboard } from "./components/Dashboard.js";
+import { Settings } from "./components/Settings.js";
+
 const mainEl = document.getElementById("main");
 const statusLeft = document.getElementById("statusLeft");
 const layoutPill = document.getElementById("layoutPill");
 const openSettingsBtn = document.getElementById("openSettingsBtn");
-
-const Login = require("./components/Login");
-const Dashboard = require("./components/Dashboard");
-const Settings = require("./components/Settings");
 
 let route = "login";
 let layoutMode = "right";
@@ -34,6 +34,7 @@ function focusMain() {
 
 function render() {
   mainEl.innerHTML = "";
+
   if (!isAuthed && route !== "login") route = "login";
 
   if (route === "login") {

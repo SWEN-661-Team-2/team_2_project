@@ -1,5 +1,5 @@
 // path: /Volumes/DevDrive/code/swen-661-ui/team_2_project/apps/electron/renderer/components/Dashboard.js
-module.exports = function Dashboard({ layoutMode, onOpenSettings, onLogout }) {
+export function Dashboard({ layoutMode, onOpenSettings, onLogout }) {
   const root = document.createElement("div");
   root.className = "dashboard";
 
@@ -79,4 +79,4 @@ module.exports = function Dashboard({ layoutMode, onOpenSettings, onLogout }) {
   });
 
   return root;
-};
+}
