@@ -45,7 +45,7 @@ jobs:
           grype sbom:reports/sbom/sbom.spdx.json -o sarif > reports/sbom/grype.sarif || true
 
       - name: Upload Grype SARIF as artifact (GitHub SARIF upload incompatible)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: grype-sarif
           path: reports/sbom/grype.sarif
@@ -53,7 +53,7 @@ jobs:
 
 
       - name: Upload SBOM artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: sbom-and-grype
           path: reports/sbom/

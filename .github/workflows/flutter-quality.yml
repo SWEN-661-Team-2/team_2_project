@@ -86,7 +86,7 @@ jobs:
           pana --no-warning > ../reports/pana.txt || true
 
       - name: Upload pana report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: pana
           path: reports/pana.*
