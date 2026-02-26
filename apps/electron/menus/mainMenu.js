@@ -1,85 +1,167 @@
-// path: /Volumes/DevDrive/code/swen-661-ui/team_2_project/apps/electron/menus/mainMenu.js
-const { Menu, app } = require("electron");
+// path: menus/mainMenu.js
+const { Menu, app } = require('electron');
 
 function accel(key) {
-  return process.platform === "darwin" ? `Command+${key}` : `Ctrl+${key}`;
+  return process.platform === 'darwin' ? `Command+${key}` : `Ctrl+${key}`;
+}
+
+function shiftAccel(key) {
+  return process.platform === 'darwin' ? `Command+Shift+${key}` : `Ctrl+Shift+${key}`;
 }
 
 function buildMainMenu({ onNavigate, onLogout, onToggleLayout, onSetLayout }) {
   const template = [
     {
-      label: "File",
+      label: 'File',
       submenu: [
-        { label: "New Client Note", accelerator: accel("N"), click: () => onNavigate("dashboard") },
         {
-          label: "New Care Plan",
-          accelerator: process.platform === "darwin" ? "Command+Shift+P" : "Ctrl+Shift+P",
-          click: () => onNavigate("dashboard")
+          label: 'New Task',
+          accelerator: accel('N'),
+          click: () => onNavigate('tasks')
         },
-        { type: "separator" },
-        { label: "Save Changes", accelerator: accel("S"), click: () => onNavigate("dashboard") },
-        { type: "separator" },
         {
-          label: "Settings",
-          accelerator: process.platform === "darwin" ? "Command+," : "Ctrl+,",
-          click: () => onNavigate("settings")
+          label: 'New Appointment',
+          accelerator: shiftAccel('N'),
+          click: () => onNavigate('schedule')
         },
-        { type: "separator" },
-        { label: "Logout", accelerator: accel("L"), click: () => onLogout() },
         {
-          label: process.platform === "darwin" ? "Quit" : "Exit",
-          accelerator: accel("Q"),
+          label: 'New Patient',
+          accelerator: accel('P'),
+          click: () => onNavigate('patients')
+        },
+        { type: 'separator' },
+        {
+          label: 'Export Data',
+          accelerator: accel('E'),
+          click: () => onNavigate('dashboard')
+        },
+        {
+          label: 'Import Data',
+          accelerator: accel('I'),
+          click: () => onNavigate('dashboard')
+        },
+        { type: 'separator' },
+        {
+          label: 'Settings',
+          accelerator: process.platform === 'darwin' ? 'Command+,' : 'Ctrl+,',
+          click: () => onNavigate('settings')
+        },
+        { type: 'separator' },
+        { label: 'Logout', click: () => onLogout() },
+        {
+          label: process.platform === 'darwin' ? 'Quit' : 'Exit',
+          accelerator: accel('Q'),
           click: () => app.quit()
         }
       ]
     },
     {
-      label: "View",
+    label: 'Edit',
       submenu: [
-        { label: "Go to Dashboard", accelerator: accel("D"), click: () => onNavigate("dashboard") },
-        {
-          label: "Focus Sidebar",
-          accelerator: process.platform === "darwin" ? "Command+Shift+S" : "Ctrl+Shift+S",
-          click: () => onNavigate("dashboard:focusSidebar")
-        },
-        {
-          label: "Focus Messages Panel",
-          accelerator: accel("M"),
-          click: () => onNavigate("dashboard:focusMessages")
-        },
-        { type: "separator" },
-        {
-          label: "Switch to Left-Handed Layout",
-          accelerator: process.platform === "darwin" ? "Command+Shift+L" : "Ctrl+Shift+L",
-          click: () => onSetLayout("left")
-        },
-        {
-          label: "Switch to Right-Handed Layout",
-          accelerator: process.platform === "darwin" ? "Command+Shift+R" : "Ctrl+Shift+R",
-          click: () => onSetLayout("right")
-        },
-        {
-          label: "Toggle Layout Mode",
-          accelerator: process.platform === "darwin" ? "Command+Alt+L" : "Ctrl+Alt+L",
-          click: () => onToggleLayout()
-        },
-        { type: "separator" },
-        { role: "reload" },
-        { role: "toggledevtools" }
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'selectAll' }
       ]
     },
     {
-      label: "Help",
+      label: 'View',
       submenu: [
         {
-          label: "Keyboard Shortcuts",
-          accelerator: process.platform === "darwin" ? "Command+/" : "Ctrl+/",
-          click: () => onNavigate("shortcuts")
+          label: 'Dashboard',
+          accelerator: accel('1'),
+          click: () => onNavigate('dashboard')
         },
-        { label: "About CareConnect Desktop - Electron", click: () => onNavigate("about") }
+        {
+          label: 'Tasks',
+          accelerator: accel('2'),
+          click: () => onNavigate('tasks')
+        },
+        {
+          label: 'Schedule',
+          accelerator: accel('3'),
+          click: () => onNavigate('schedule')
+        },
+        {
+          label: 'Patients',
+          accelerator: accel('4'),
+          click: () => onNavigate('patients')
+        },
+        { type: 'separator' },
+        {
+          label: 'Toggle Sidebar',
+          accelerator: accel('B'),
+          click: () => onNavigate('toggleSidebar')
+        },
+        {
+          label: 'Quick Search',
+          accelerator: accel('K'),
+          click: () => onNavigate('quickSearch')
+        },
+        { type: 'separator' },
+        {
+          label: 'Switch to Left-Handed Layout',
+          accelerator: shiftAccel('L'),
+          click: () => onSetLayout('left')
+        },
+        {
+          label: 'Switch to Right-Handed Layout',
+          accelerator: shiftAccel('R'),
+          click: () => onSetLayout('right')
+        },
+        {
+          label: 'Toggle Layout Mode',
+          accelerator: process.platform === 'darwin' ? 'Command+Alt+L' : 'Ctrl+Alt+L',
+          click: () => onToggleLayout()
+        },
+        { type: 'separator' },
+        { role: 'reload' },
+        { role: 'toggleDevTools' }
+      ]
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'Keyboard Shortcuts',
+          accelerator: process.platform === 'darwin' ? 'Command+/' : 'Ctrl+/',
+          click: () => onNavigate('shortcuts')
+        },
+        { type: 'separator' },
+        {
+          label: 'About CareConnect',
+          click: () => onNavigate('about')
+        }
       ]
     }
   ];
+
+  // On macOS, prepend the app menu
+  if (process.platform === 'darwin') {
+    template.unshift({
+      label: app.getName(),
+      submenu: [
+        { role: 'about' },
+        { type: 'separator' },
+        {
+          label: 'Preferences',
+          accelerator: 'Command+,',
+          click: () => onNavigate('settings')
+        },
+        { type: 'separator' },
+        { role: 'services' },
+        { type: 'separator' },
+        { role: 'hide' },
+        { role: 'hideOthers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { role: 'quit' }
+      ]
+    });
+  }
 
   return Menu.buildFromTemplate(template);
 }
