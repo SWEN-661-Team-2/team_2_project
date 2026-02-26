@@ -1,32 +1,13 @@
-<!-- path: /Volumes/DevDrive/code/swen-661-ui/team_2_project/apps/electron/renderer/index.html -->
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>CareConnect Desktop - Electron</title>
-    <link rel="stylesheet" href="./styles/main.css" />
-  </head>
-  <body>
-    <a class="skip-link" href="#main">Skip to main content</a>
+<!DOCTYPE html>
 
-    <div id="app">
-      <header class="topbar" role="banner">
-        <div class="brand" aria-label="CareConnect">CareConnect</div>
-        <div class="topbar-right">
-          <div class="pill" id="layoutPill" aria-live="polite">Layout: …</div>
-          <button id="openSettingsBtn" class="btn" type="button">Settings</button>
-        </div>
-      </header>
-
-      <main id="main" tabindex="-1" class="main" role="main"></main>
-
-      <footer class="statusbar" role="contentinfo">
-        <div id="statusLeft">Logged out</div>
-        <div id="statusRight">Zoom: 100%</div>
-      </footer>
-    </div>
-
-    <script type="module" src="./index.js"></script>
-  </body>
+<html lang="en" data-layout="right">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CareConnect</title>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
 </html>
