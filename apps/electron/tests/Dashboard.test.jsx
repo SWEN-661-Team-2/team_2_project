@@ -1,7 +1,8 @@
 /**
  * @jest-environment jsdom
- * Tests for Dashboard component logic
  */
+ // Tests for Dashboard component logic
+ 
 import React from 'react';
 import '@testing-library/jest-dom';
 

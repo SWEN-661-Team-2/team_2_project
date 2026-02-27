@@ -1,7 +1,8 @@
 /**
  * @jest-environment jsdom
- * Tests for Login component
  */
+//Tests for Login component
+
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';

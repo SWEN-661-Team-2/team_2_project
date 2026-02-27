@@ -1,7 +1,8 @@
 /**
  * @jest-environment jsdom
- * Tests for Tasks component logic
  */
+// Tests for Tasks component logic
+
 import React from 'react';
 import '@testing-library/jest-dom';
 

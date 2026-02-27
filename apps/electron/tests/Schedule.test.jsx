@@ -1,7 +1,8 @@
 /**
  * @jest-environment jsdom
- * Tests for Schedule component logic
  */
+//Tests for Schedule component logic
+
 import React from 'react';
 import '@testing-library/jest-dom';
 

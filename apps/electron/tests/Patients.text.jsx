@@ -1,7 +1,8 @@
 /**
  * @jest-environment jsdom
- * Tests for Patients component logic
  */
+//Tests for Patients component logic
+
 import React from 'react';
 import '@testing-library/jest-dom';
 

@@ -1,7 +1,8 @@
 /**
  * @jest-environment jsdom
- * Tests for Settings component logic
  */
+// Tests for Settings component logic
+
 import React from 'react';
 import '@testing-library/jest-dom';
 
