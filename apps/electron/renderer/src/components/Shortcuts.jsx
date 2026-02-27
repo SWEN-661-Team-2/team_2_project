@@ -17,7 +17,7 @@ const SHORTCUT_GROUPS = [
     shortcuts: [
       { action: 'New Task', keys: 'Cmd/Ctrl + N' },
       { action: 'New Appointment', keys: 'Cmd/Ctrl + Shift + N' },
-      { action: 'New Patient', keys: 'Cmd/Ctrl + P' },
+      { action: 'New Patient', keys: 'Cmd/Ctrl + J' },
       { action: 'Export Data', keys: 'Cmd/Ctrl + E' },
       { action: 'Import Data', keys: 'Cmd/Ctrl + I' },
     ],
