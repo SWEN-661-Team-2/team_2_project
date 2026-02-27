@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 
 import NewAppointmentModal from './NewAppointmentModal';
 import NewTaskModal from './NewTaskModal';
+import NewPatientModal from './NewPatientModal';
 
 const URGENT_TASKS = [
   { id: 1, name: 'John Davis', priority: 'high', task: 'Medication Administration', time: '2:00 PM' },
@@ -28,6 +29,12 @@ function Dashboard({ onNavigate }) {
   const [toast, setToast] = useState('');
   const [showAppointmentModal, setShowAppointmentModal] = useState(false);
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showPatientModal, setShowPatientModal] = useState(false);
+
+  const handlePatientSave = (data) => {
+    showToast(`Patient ${data.lastName} registered.`);
+    setShowPatientModal(false);
+  };
 
 
   const handleSaveTask = (taskData) => {
@@ -47,7 +54,7 @@ function Dashboard({ onNavigate }) {
       <div className="toolbar" role="toolbar" aria-label="Quick actions">
         <button className="btn toolbar-btn" onClick={() => setShowTaskModal(true)}>+ New Task</button>
         <button className="btn toolbar-btn" onClick={() => setShowAppointmentModal(true)}>📅 New Appointment</button>
-        <button className="btn toolbar-btn" onClick={() => onNavigate('patients')}>👤 New Patient</button>
+        <button className="btn toolbar-btn" onClick={() => setShowPatientModal(true)}>👤 New Patient</button>
         <button className="btn toolbar-btn" onClick={() => showToast('Saved!')}>💾 Save</button>
         <span className="toolbar-spacer"></span>
         <input
@@ -176,6 +183,13 @@ function Dashboard({ onNavigate }) {
         <NewTaskModal
           onClose={() => setShowTaskModal(false)}
           onSave={handleSaveTask}
+        />
+      )}
+
+      {showPatientModal && (
+        <NewPatientModal
+          onClose={() => setShowPatientModal(false)}
+          onSave={handlePatientSave}
         />
       )}
 

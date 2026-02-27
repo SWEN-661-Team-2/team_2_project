@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import NewPatientModal from './NewPatientModal'; // Import the new component
 
 const PATIENTS = [
   { id: 1, name: 'John Davis', initials: 'JD', room: '301A', age: 58, status: 'stable', lastVisit: '2 hours ago' },
@@ -24,6 +25,14 @@ function Patients() {
 
   function showToast(msg) { setToast(msg); setTimeout(() => setToast(''), 2500); }
 
+  // Logic to handle saving a patient from the new component
+  const handleSavePatient = (data) => {
+    console.log('Patient Data Received:', data);
+    setShowModal(false);
+    showToast(`Patient ${data.lastName} added successfully!`);
+    // Note: In a real app, you'd add 'data' to your PATIENTS state here
+  };
+
   const filtered = PATIENTS.filter(p =>
     !search ||
     p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -42,6 +51,7 @@ function Patients() {
       <p className="page-subtitle">Manage patient information and care plans</p>
 
       <div className="patients-layout">
+        {/* Left Panel: List */}
         <div className="card patients-list-panel">
           <input
             className="input"
@@ -49,8 +59,6 @@ function Patients() {
             placeholder="Search patients by name or room..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            aria-label="Search patients"
-            data-search
           />
           <h3 className="panel-section-title">Patients ({filtered.length})</h3>
           <ul className="patient-list" role="list">
@@ -60,14 +68,13 @@ function Patients() {
                   className={`patient-item ${selected?.id === p.id ? 'active' : ''}`}
                   onClick={() => setSelected(p)}
                 >
-                  <div className="patient-avatar" aria-hidden="true">{p.initials}</div>
+                  <div className="patient-avatar">{p.initials}</div>
                   <div className="patient-info">
                     <div className="patient-name">
                       {p.name}
-                      <span className={`status-dot status-dot--${p.status}`} title={p.status}></span>
+                      <span className={`status-dot status-dot--${p.status}`}></span>
                     </div>
                     <div className="patient-meta">Room {p.room} · Age {p.age}</div>
-                    <div className="patient-meta">Last visit: {p.lastVisit}</div>
                   </div>
                 </button>
               </li>
@@ -75,10 +82,11 @@ function Patients() {
           </ul>
         </div>
 
+        {/* Right Panel: Details */}
         <div className="card patients-detail-panel">
           {!selected ? (
             <div className="empty-state-center">
-              <span className="empty-icon" aria-hidden="true">👤</span>
+              <span className="empty-icon">👤</span>
               <p>Select a patient from the list to view details</p>
             </div>
           ) : (
@@ -87,86 +95,31 @@ function Patients() {
                 <div className="patient-avatar patient-avatar--lg">{selected.initials}</div>
                 <div>
                   <h2>{selected.name}</h2>
-                  <p>
-                    Room {selected.room} · Age {selected.age} ·{' '}
-                    <span className={`status-badge status-badge--${selected.status}`}>{selected.status}</span>
-                  </p>
+                  <p>Room {selected.room} · Age {selected.age}</p>
                 </div>
               </div>
               <div className="detail-section"><h3>Diagnosis</h3><p>{details.diagnosis}</p></div>
               <div className="detail-section">
                 <h3>Medications</h3>
-                <ul className="medication-list">
-                  {details.medications.map((m, i) => <li key={i}>{m}</li>)}
-                </ul>
+                <ul>{details.medications.map((m, i) => <li key={i}>{m}</li>)}</ul>
               </div>
-              <div className="detail-section">
-                <h3>Allergies</h3>
-                <p>{details.allergies.length ? details.allergies.join(', ') : 'None on record'}</p>
-              </div>
-              <div className="detail-section"><h3>Next Appointment</h3><p>{details.nextAppt}</p></div>
               <div className="btn-group">
                 <button className="btn primary" onClick={() => showToast('Care plan updated.')}>Update Care Plan</button>
-                <button className="btn" onClick={() => showToast('Note added.')}>Add Note</button>
               </div>
             </div>
           )}
         </div>
       </div>
 
-      {toast && <div className="toast" role="status" aria-live="polite">{toast}</div>}
-
+      {/* NEW MODAL PATTERN */}
       {showModal && (
-        <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="patient-modal-title">
-          <div className="modal modal--wide">
-            <div className="modal-header">
-              <h2 id="patient-modal-title">Add New Patient</h2>
-              <button className="modal-close" onClick={() => setShowModal(false)} aria-label="Close">✕</button>
-            </div>
-            <p className="modal-subtitle">Fields marked * are required.</p>
-            <div className="field-row">
-              <div className="field">
-                <label className="label" htmlFor="first-name">First Name *</label>
-                <input className="input" id="first-name" type="text" placeholder="John" />
-              </div>
-              <div className="field">
-                <label className="label" htmlFor="last-name">Last Name *</label>
-                <input className="input" id="last-name" type="text" placeholder="Smith" />
-              </div>
-            </div>
-            <div className="field-row">
-              <div className="field">
-                <label className="label" htmlFor="dob">Date of Birth *</label>
-                <input className="input" id="dob" type="date" />
-              </div>
-              <div className="field">
-                <label className="label" htmlFor="gender">Gender</label>
-                <select className="input" id="gender">
-                  <option value="">Select gender</option>
-                  <option>Male</option>
-                  <option>Female</option>
-                  <option>Non-binary</option>
-                  <option>Prefer not to say</option>
-                </select>
-              </div>
-            </div>
-            <div className="field">
-              <label className="label" htmlFor="phone">Phone *</label>
-              <input className="input" id="phone" type="tel" placeholder="(555) 123-4567" />
-            </div>
-            <div className="field">
-              <label className="label" htmlFor="p-email">Email</label>
-              <input className="input" id="p-email" type="email" placeholder="patient@example.com" />
-            </div>
-            <div className="modal-footer">
-              <button className="btn" onClick={() => setShowModal(false)}>Cancel</button>
-              <button className="btn primary" onClick={() => { setShowModal(false); showToast('Patient added (demo).'); }}>
-                Add Patient
-              </button>
-            </div>
-          </div>
-        </div>
+        <NewPatientModal 
+          onClose={() => setShowModal(false)} 
+          onSave={handleSavePatient} 
+        />
       )}
+
+      {toast && <div className="toast" role="status">{toast}</div>}
     </div>
   );
 }
