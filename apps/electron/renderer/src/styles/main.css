@@ -642,6 +642,21 @@ max-height: 90vh;
 overflow-y: auto;
 box-shadow: var(--shadow-md);
 }
+
+/* Make single-column fields take full width but respect modal padding */
+.modal-body .field {
+  width: 100%;
+  box-sizing: border-box; /* ensure padding is counted inside width */
+  margin-bottom: 16px;
+}
+
+.modal-body .field input,
+.modal-body .field select {
+  width: 100%;      /* full width of container */
+  max-width: 100%;  /* prevents accidental overflow */
+  box-sizing: border-box;
+}
+
 .modal--wide { max-width: 680px; }
 
 .modal-header {
@@ -705,7 +720,11 @@ color: var(--primary-text);
 
 /* === Form Elements === */
 .field { margin-bottom: 14px; }
-.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: 16px;
+}
 
 .label {
 display: block;
@@ -768,3 +787,7 @@ z-index: 9999;
 font-size: 14px;
 }
 .skip-link:focus { top: 8px; }
+
+.modal-body {
+  padding-top: 16px;
+}
