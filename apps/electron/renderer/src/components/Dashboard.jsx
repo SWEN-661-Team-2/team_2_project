@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+import NewAppointmentModal from './NewAppointmentModal';
+
 const URGENT_TASKS = [
 { id: 1, name: 'John Davis', priority: 'high', task: 'Medication Administration', time: '2:00 PM' },
 { id: 2, name: 'Mary Wilson', priority: 'medium', task: 'Vital Signs Check', time: '2:30 PM' },
@@ -18,9 +20,12 @@ const RECENT_ACTIVITY = [
 { text: 'Scheduled appointment for Robert Brown', ago: '1 hr ago' },
 ];
 
+
+
 function Dashboard({ onNavigate }) {
 const [noteText, setNoteText] = useState('');
 const [toast, setToast] = useState('');
+const [showAppointmentModal, setShowAppointmentModal] = useState(false);
 
 function showToast(msg) {
 setToast(msg);
@@ -31,7 +36,7 @@ return (
 <div className="page-content">
 <div className="toolbar" role="toolbar" aria-label="Quick actions">
 <button className="btn toolbar-btn" onClick={() => onNavigate('tasks')}>+ New Task</button>
-<button className="btn toolbar-btn" onClick={() => onNavigate('schedule')}>📅 New Appointment</button>
+<button className="btn toolbar-btn" onClick={() => setShowAppointmentModal(true)}>📅 New Appointment</button>
 <button className="btn toolbar-btn" onClick={() => onNavigate('patients')}>👤 New Patient</button>
 <button className="btn toolbar-btn" onClick={() => showToast('Saved!')}>💾 Save</button>
 <span className="toolbar-spacer"></span>
@@ -146,8 +151,23 @@ data-search
     </div>
   </div>
 
+  {showAppointmentModal && (
+        <NewAppointmentModal
+          onClose={() => setShowAppointmentModal(false)}
+          onSave={(data) => {
+            console.log('Appointment saved:', data);
+            showToast('Appointment created!');
+            setShowAppointmentModal(false);
+          }}
+        />
+  )}
+
   {toast && <div className="toast" role="status" aria-live="polite">{toast}</div>}
+
+  
 </div>
+
+
 
 
 );
