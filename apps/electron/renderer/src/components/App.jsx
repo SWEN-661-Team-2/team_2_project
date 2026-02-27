@@ -7,12 +7,14 @@ import Schedule from './Schedule';
 import Settings from './Settings';
 import Shortcuts from './Shortcuts';
 import Sidebar from './Sidebar';
+import NewPatientModal from './NewPatientModal'; // ADDED THIS IMPORT
 
 function App({ initialLayout = 'right' }) {
   const [route, setRoute] = useState('login');
   const [layoutMode, setLayoutMode] = useState(initialLayout);
   const [isAuthed, setIsAuthed] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isPatientModalOpen, setIsPatientModalOpen] = useState(false); // Modal state
 
   useEffect(() => {
     document.documentElement.dataset.layout = layoutMode;
@@ -53,42 +55,84 @@ function App({ initialLayout = 'right' }) {
     setLayoutMode(saved);
   }, []);
 
-  // CROSS-PLATFORM KEYBOARD SHORTCUTS
+  // CROSS-PLATFORM KEYBOARD SHORTCUTS & QUICK ACTIONS
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!isAuthed) return;
 
-      // Check for Modifier (Cmd on Mac, Ctrl on Windows)
       const modifier = e.metaKey || e.ctrlKey;
-      
-      // Map keys to routes
-      const shortcuts = {
-        'F1': 'dashboard',
-        '1':  'dashboard',
-        'F2': 'tasks',
-        '2':  'tasks',
-        'F3': 'schedule',
-        '3':  'schedule',
-        'F4': 'patients',
-        '4':  'patients'
+      const shift = e.shiftKey;
+      const key = e.key.toLowerCase();
+
+      if (modifier) {
+        // --- GLOBAL MODAL TRIGGER: Cmd/Ctrl + J ---
+        if (key === 'j') {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsPatientModalOpen(true);
+          return;
+        }
+
+        // 1. Sidebar Toggle (Cmd/Ctrl + B)
+        if (key === 'b') {
+          e.preventDefault();
+          setSidebarOpen(prev => !prev);
+          return;
+        }
+
+        // 2. Quick Search (Cmd/Ctrl + K)
+        if (key === 'k') {
+          e.preventDefault();
+          document.querySelector('[data-search]')?.focus();
+          return;
+        }
+
+        // 3. Creation Actions (N / Shift + N)
+        if (key === 'n') {
+          e.preventDefault();
+          if (shift) {
+            navigate('schedule');
+            window.history.replaceState({}, '', '#/schedule?openNew=true');
+          } else {
+            navigate('tasks');
+            window.history.replaceState({}, '', '#/tasks?openNew=true');
+          }
+          return;
+        }
+
+        // 4. Data Actions (E / I)
+        if (key === 'e') {
+          e.preventDefault();
+          console.log("Export triggered...");
+          return;
+        }
+        if (key === 'i') {
+          e.preventDefault();
+          console.log("Import triggered...");
+          return;
+        }
+      }
+
+      // 5. Navigation (F1-F4 or Cmd/Ctrl + 1-4)
+      const navShortcuts = {
+        '1': 'dashboard', 'f1': 'dashboard',
+        '2': 'tasks',     'f2': 'tasks',
+        '3': 'schedule',  'f3': 'schedule',
+        '4': 'patients',  'f4': 'patients'
       };
 
-      const targetRoute = shortcuts[e.key];
-
-      if (targetRoute) {
-        // If it's a number key (1-4), require the modifier (Cmd/Ctrl)
-        // If it's an F-key, trigger directly (for Windows/Linux or Mac with fn)
-        const isNumber = e.key >= '1' && e.key <= '4';
-        
+      if (navShortcuts[key]) {
+        const isNumber = key >= '1' && key <= '4';
         if (!isNumber || (isNumber && modifier)) {
           e.preventDefault();
-          navigate(targetRoute);
+          navigate(navShortcuts[key]);
         }
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    // Use 'true' (Capture phase) to ensure we beat system defaults like Cmd+P
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
   }, [isAuthed, navigate]);
 
   if (!isAuthed || route === 'login') {
@@ -130,6 +174,18 @@ function App({ initialLayout = 'right' }) {
           </div>
         )}
       </div>
+
+      {/* GLOBAL MODALS */}
+      {isPatientModalOpen && (
+        <NewPatientModal 
+          onClose={() => setIsPatientModalOpen(false)}
+          onSave={(newPatient) => {
+            console.log("Saving patient:", newPatient);
+            setIsPatientModalOpen(false);
+            navigate('patients'); // Go to patients list to see the update
+          }}
+        />
+      )}
     </div>
   );
 }
