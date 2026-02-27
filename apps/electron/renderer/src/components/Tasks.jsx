@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';    // Added useLocation
+
 
 const INITIAL_TASKS = [
   { id: 1, title: 'Medication Administration', patient: 'John Davis', time: '2:00 PM', priority: 'high', category: 'Medication', status: 'pending' },
@@ -11,12 +13,23 @@ const INITIAL_TASKS = [
 const TASK_FILTERS = ['All Tasks', 'Pending', 'In Progress', 'Completed'];
 
 function Tasks() {
+  const location = useLocation();
   const [tasks, setTasks] = useState(INITIAL_TASKS);
   const [filter, setFilter] = useState('All Tasks');
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [newTask, setNewTask] = useState({ title: '', priority: 'medium', category: 'Medication' });
   const [toast, setToast] = useState('');
+
+useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('openNew') === 'true') {
+      setShowModal(true);
+      
+      // Clean up the URL so the modal doesn't pop up again if they refresh
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [location]);
 
   function showToast(msg) { setToast(msg); setTimeout(() => setToast(''), 2500); }
 
