@@ -8,6 +8,10 @@ const NAV_ITEMS = [
 ];
 
 function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout }) {
+  // Detect if user is on Mac to show the correct symbol
+  const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+  const modifier = isMac ? '⌘' : 'Ctrl+';
+
   return (
     <nav
       className={`sidebar ${open ? 'sidebar--open' : 'sidebar--closed'}`}
@@ -19,19 +23,51 @@ function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout
       </div>
 
       <ul className="sidebar-nav" role="list">
-        {NAV_ITEMS.map(item => (
+        {NAV_ITEMS.map((item, index) => (
           <li key={item.id}>
             <button
               className={`sidebar-nav-item ${route === item.id ? 'active' : ''}`}
               onClick={() => onNavigate(item.id)}
               aria-current={route === item.id ? 'page' : undefined}
-              title={item.label}
+              title={`${item.label} (${modifier}${index + 1})`}
             >
               <span className="nav-icon" aria-hidden="true">{item.icon}</span>
-              {open && <span className="nav-label">{item.label}</span>}
+              {open && (
+                <div className="nav-label-container" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                  <span className="nav-label">{item.label}</span>
+                  {/* Shortcut Badge */}
+                  <span className="nav-shortcut-hint" style={{ fontSize: '10px', opacity: 0.5, marginLeft: '8px' }}>
+                    {modifier}{index + 1}
+                  </span>
+                </div>
+              )}
             </button>
           </li>
         ))}
+
+        {/* --- ADDITION: SETTINGS NAVIGATION ITEM --- */}
+        <div className="sidebar-divider" style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.1)', margin: '8px 12px' }} />
+        <li>
+          <button
+            className={`sidebar-nav-item ${route === 'settings' ? 'active' : ''}`}
+            onClick={() => onNavigate('settings')}
+            aria-current={route === 'settings' ? 'page' : undefined}
+            title={`Settings (${modifier},)`}
+          >
+            <span className="nav-icon" aria-hidden="true">⚙</span>
+            {open && (
+              <div className="nav-label-container" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                <span className="nav-label">Settings</span>
+                <span className="nav-shortcut-hint" style={{ fontSize: '10px', opacity: 0.5, marginLeft: '8px' }}>
+                  {modifier},
+                </span>
+              </div>
+            )}
+          </button>
+        </li>
+        {/* --- END ADDITION --- */}
+
+
       </ul>
 
       <div className="sidebar-footer">
