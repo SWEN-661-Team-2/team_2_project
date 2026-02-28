@@ -8,7 +8,8 @@
     "vite": "vite renderer",
     "build": "vite build renderer",
     "start": "npm run dev",
-    "test": "jest --coverage",
+    "test": "jest",
+    "test:coverage": "jest --coverage --coverageReporters='html' --coverageReporters='text'",
     "dist": "npm run build && electron-builder"
   },
   "dependencies": {
@@ -40,35 +41,31 @@
     "appId": "com.careconnect.desktop",
     "productName": "CareConnect",
     "mac": {
-      "target": [
-        "dmg"
-      ],
-      "arch": [
-        "arm64",
-        "x64"
-      ]
+      "target": ["dmg"],
+      "arch": ["arm64", "x64"]
     },
     "directories": {
       "output": "dist"
     }
   },
   "jest": {
-  "testEnvironment": "jsdom",
-  "collectCoverage": true,
-  "collectCoverageFrom": [
-    "<rootDir>/src/**/*.{js,jsx}",
-    "!<rootDir>/src/main.jsx"
-  ],
-  "moduleNameMapper": {
-    "\\.(css|less|scss|sass)$": "identity-obj-proxy",
-    "^@/(.*)$": "<rootDir>/src/$1" 
-  },
-  "transform": {
-    "^.+\\.(js|jsx)$": "babel-jest"
-  },
-  "setupFilesAfterEnv": [
-    "<rootDir>/tests/setupTests.js"
-  ],
-  "verbose": true
-}
+    "testEnvironment": "jsdom",
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "<rootDir>/renderer/**/*.{js,jsx}",
+      "!<rootDir>/renderer/main.jsx"
+    ],
+    "moduleNameMapper": {
+      "\\.(css|less|scss|sass)$": "identity-obj-proxy",
+      "^@/(.*)$": "<rootDir>/renderer/$1"
+    },
+    "transform": {
+      "^.+\\.(js|jsx)$": "babel-jest"
+    },
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setupTests.js"
+    ],
+    "verbose": true,
+    "coverageDirectory": "coverage"
+  }
 }
