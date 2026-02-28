@@ -52,10 +52,10 @@ function Dashboard({ onNavigate }) {
   return (
     <div className="page-content">
       <div className="toolbar" role="toolbar" aria-label="Quick actions">
-        <button className="btn toolbar-btn" onClick={() => setShowTaskModal(true)}>+ New Task</button>
-        <button className="btn toolbar-btn" onClick={() => setShowAppointmentModal(true)}>📅 New Appointment</button>
-        <button className="btn toolbar-btn" onClick={() => setShowPatientModal(true)}>👤 New Patient</button>
-        <button className="btn toolbar-btn" onClick={() => showToast('Saved!')}>💾 Save</button>
+        <button aria-label="Create New task" className="btn toolbar-btn" onClick={() => setShowTaskModal(true)}>+ New Task</button>
+        <button aria-label="Create New appointment" className="btn toolbar-btn" onClick={() => setShowAppointmentModal(true)}>📅 New Appointment</button>
+        <button aria-label="Create New patient" className="btn toolbar-btn" onClick={() => setShowPatientModal(true)}>👤 New Patient</button>
+        <button aria-label="save information" className="btn toolbar-btn" onClick={() => showToast('Saved!')}>💾 Save</button>
         <span className="toolbar-spacer"></span>
         <input
           className="input toolbar-search"
@@ -70,17 +70,19 @@ function Dashboard({ onNavigate }) {
       <p className="page-subtitle">Welcome back, Sarah. Here's your overview for today.</p>
 
       <div className="summary-grid">
-        <div className="summary-card">
+        <div aria-label="active tasks"
+          className="summary-card">
           <div className="summary-label">Active Tasks</div>
           <div className="summary-number">12</div>
           <div className="summary-sub">8 completed today</div>
         </div>
-        <div className="summary-card urgent">
+        <div aria-label="Urgent Tasks" 
+          className="summary-card urgent">
           <div className="summary-label">Urgent Tasks</div>
           <div className="summary-number">3</div>
           <div className="summary-sub">Require immediate attention</div>
         </div>
-        <div className="summary-card">
+        <div aria-label="today's appointments" className="summary-card">
           <div className="summary-label">Today's Appointments</div>
           <div className="summary-number">5</div>
           <div className="summary-sub">Next: 2:00 PM</div>
