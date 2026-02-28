@@ -1,146 +1,120 @@
-/**
- * @jest-environment jsdom
- */
-// Tests for Settings component logic
-
 import React from 'react';
+import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import Settings from '../renderer/src/components/Settings';
 
-describe('Settings Component Logic', () => {
-  describe('Layout mode management', () => {
-    test('left-handed mode is detected correctly', () => {
-      const layoutMode = 'left';
-      expect(layoutMode === 'left').toBe(true);
-    });
+describe('Settings Component', () => {
+  const mockOnSave = jest.fn(() => Promise.resolve());
+  const mockOnBack = jest.fn();
+  const defaultProps = {
+    layoutMode: 'right',
+    onSave: mockOnSave,
+    onBack: mockOnBack,
+  };
 
-    test('right-handed mode is detected correctly', () => {
-      const layoutMode = 'right';
-      expect(layoutMode === 'right').toBe(true);
-    });
-
-    test('toggle converts left to right', () => {
-      let layout = 'left';
-      layout = layout === 'left' ? 'right' : 'left';
-      expect(layout).toBe('right');
-    });
-
-    test('toggle converts right to left', () => {
-      let layout = 'right';
-      layout = layout === 'left' ? 'right' : 'left';
-      expect(layout).toBe('left');
-    });
-
-    test('only valid layout modes are accepted', () => {
-      const validModes = ['left', 'right'];
-      expect(validModes).toContain('left');
-      expect(validModes).toContain('right');
-      expect(validModes).not.toContain('center');
-    });
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.clearAllMocks();
   });
 
-  describe('Zoom level options', () => {
-    const ZOOM_OPTIONS = ['75%', '90%', '100%', '110%', '125%', '150%'];
-
-    test('default zoom is 100%', () => {
-      const defaultZoom = '100%';
-      expect(ZOOM_OPTIONS).toContain(defaultZoom);
-    });
-
-    test('zoom options include expected values', () => {
-      expect(ZOOM_OPTIONS).toContain('75%');
-      expect(ZOOM_OPTIONS).toContain('150%');
-    });
-
-    test('has 6 zoom options', () => {
-      expect(ZOOM_OPTIONS).toHaveLength(6);
-    });
+  afterEach(() => {
+    jest.runOnlyPendingTimers();
+    jest.useRealTimers();
   });
 
-  describe('Settings tabs', () => {
-    const TABS = ['General', 'Accessibility', 'Notifications'];
+  test('renders and switches between all tabs', () => {
+    render(<Settings {...defaultProps} />);
+    
+    // Check initial tab (General)
+    expect(screen.getByText('Layout Preferences')).toBeInTheDocument();
 
-    test('has correct number of tabs', () => {
-      expect(TABS).toHaveLength(3);
-    });
+    // Switch to Accessibility
+    fireEvent.click(screen.getByRole('tab', { name: 'Accessibility' }));
+    expect(screen.getByText('Keyboard & Navigation')).toBeInTheDocument();
 
-    test('General tab exists', () => {
-      expect(TABS).toContain('General');
-    });
-
-    test('Accessibility tab exists', () => {
-      expect(TABS).toContain('Accessibility');
-    });
-
-    test('Notifications tab exists', () => {
-      expect(TABS).toContain('Notifications');
-    });
-
-    test('tab switching updates active tab', () => {
-      let activeTab = 'General';
-      activeTab = 'Accessibility';
-      expect(activeTab).toBe('Accessibility');
-    });
+    // Switch to Notifications
+    fireEvent.click(screen.getByRole('tab', { name: 'Notifications' }));
+    expect(screen.getByText('Task Notifications')).toBeInTheDocument();
+    
+    // Switch back to General
+    fireEvent.click(screen.getByRole('tab', { name: 'General' }));
+    expect(screen.getByText('Layout Preferences')).toBeInTheDocument();
   });
 
-  describe('Accessibility settings', () => {
-    test('enhanced keyboard navigation defaults to true', () => {
-      const enhancedKb = true;
-      expect(enhancedKb).toBe(true);
-    });
+  test('handles General tab inputs (Layout, Zoom, and Text inputs)', () => {
+    render(<Settings {...defaultProps} />);
 
-    test('focus indicators default to true', () => {
-      const focusIndicators = true;
-      expect(focusIndicators).toBe(true);
-    });
+    // Toggle Left-Handed Mode
+    const layoutToggle = screen.getByLabelText('', { selector: 'input[type="checkbox"]' }); // First checkbox
+    fireEvent.click(layoutToggle);
+    expect(layoutToggle.checked).toBe(true);
+    
+    fireEvent.click(layoutToggle);
+    expect(layoutToggle.checked).toBe(false);
 
-    test('high contrast defaults to false', () => {
-      const highContrast = false;
-      expect(highContrast).toBe(false);
-    });
+    // Change Zoom Level
+    const zoomSelect = screen.getByLabelText('Default Zoom Level');
+    fireEvent.change(zoomSelect, { target: { value: '150%' } });
+    expect(zoomSelect.value).toBe('150%');
 
-    test('reduce motion defaults to false', () => {
-      const reduceMotion = false;
-      expect(reduceMotion).toBe(false);
-    });
+    // Name and Role inputs (testing defaultValue/render)
+    expect(screen.getByLabelText('Name')).toHaveValue('Sarah Johnson, RN');
+    expect(screen.getByLabelText('Role')).toHaveValue('Registered Nurse');
   });
 
-  describe('onSave callback', () => {
-    test('calls onSave with current layout mode', async () => {
-      const onSave = jest.fn().mockResolvedValue('left');
-      await onSave('left');
-      expect(onSave).toHaveBeenCalledWith('left');
-    });
+  test('handles Accessibility tab toggles', () => {
+    render(<Settings {...defaultProps} />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Accessibility' }));
 
-    test('shows saved message after successful save', async () => {
-      const onSave = jest.fn().mockResolvedValue('right');
-      let savedMsg = '';
-      await onSave('right');
-      savedMsg = 'Settings saved.';
-      expect(savedMsg).toBe('Settings saved.');
-    });
+    const toggles = screen.getAllByRole('checkbox');
+    // enhancedKb (idx 0), focusIndicators (idx 1), highContrast (idx 2), reduceMotion (idx 3)
+    
+    fireEvent.click(toggles[0]); // Disable Enhanced KB
+    expect(toggles[0].checked).toBe(false);
 
-    test('onBack callback navigates away', () => {
-      const onBack = jest.fn();
-      onBack();
-      expect(onBack).toHaveBeenCalledTimes(1);
-    });
+    fireEvent.click(toggles[2]); // Enable High Contrast
+    expect(toggles[2].checked).toBe(true);
   });
 
-  describe('Notification settings', () => {
-    test('task reminders default to enabled', () => {
-      const taskReminders = true;
-      expect(taskReminders).toBe(true);
+  test('handles Notifications tab toggles and selects', () => {
+    render(<Settings {...defaultProps} />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Notifications' }));
+
+    const taskToggle = screen.getAllByRole('checkbox')[0];
+    fireEvent.click(taskToggle);
+    expect(taskToggle.checked).toBe(false);
+
+    const leadTime = screen.getByLabelText('Reminder Lead Time');
+    fireEvent.change(leadTime, { target: { value: '1 hour before' } });
+  });
+
+  test('triggers onBack when Cancel is clicked', () => {
+    render(<Settings {...defaultProps} />);
+    fireEvent.click(screen.getByText('Cancel'));
+    expect(mockOnBack).toHaveBeenCalledTimes(1);
+  });
+
+  test('handles handleSave, shows toast, and clears it via timer', async () => {
+    render(<Settings {...defaultProps} />);
+    
+    const saveBtn = screen.getByText('Save Changes');
+    
+    await act(async () => {
+      fireEvent.click(saveBtn);
     });
 
-    test('urgent alerts default to enabled', () => {
-      const urgentAlerts = true;
-      expect(urgentAlerts).toBe(true);
+    expect(mockOnSave).toHaveBeenCalledWith('right');
+    
+    // Check toast appearance
+    const toast = screen.getByRole('status');
+    expect(toast).toHaveTextContent('Settings saved.');
+
+    // Fast-forward 2.5 seconds
+    act(() => {
+      jest.advanceTimersByTime(2500);
     });
 
-    test('reminder lead time options', () => {
-      const options = ['5 minutes before', '15 minutes before', '30 minutes before', '1 hour before'];
-      expect(options).toHaveLength(4);
-      expect(options[1]).toBe('15 minutes before');
-    });
+    // Check toast disappearance
+    expect(screen.queryByText('Settings saved.')).not.toBeInTheDocument();
   });
 });
