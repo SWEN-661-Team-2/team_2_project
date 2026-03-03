@@ -1,11 +1,112 @@
-/**
- * @jest-environment jsdom
- * Tests for Dashboard component logic
- */
+/** @jest-environment jsdom */
+
+// Tests for Dashboard component logic
 import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import Dashboard from '../renderer/src/components/Dashboard';
+
+const mockNavigate = jest.fn();
+
+beforeEach(() => {
+  mockNavigate.mockClear();
+});
 
 describe('Dashboard Component Logic', () => {
+  describe('Rendering', () => {
+    test('renders dashboard heading', () => {
+      render(<Dashboard onNavigate={mockNavigate} />);
+      expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    });
+
+    test('renders urgent tasks section', () => {
+      render(<Dashboard onNavigate={mockNavigate} />);
+      expect(screen.getAllByText(/urgent tasks/i)[0]).toBeInTheDocument();
+    });
+
+    test('renders welcome message', () => {
+      render(<Dashboard onNavigate={mockNavigate} />);
+      expect(screen.getByText(/welcome back/i)).toBeInTheDocument();
+    });
+
+    test('renders care log note section', () => {
+      render(<Dashboard onNavigate={mockNavigate} />);
+      expect(screen.getByText(/care log note/i)).toBeInTheDocument();
+    });
+
+    test('renders recent activity section', () => {
+      render(<Dashboard onNavigate={mockNavigate} />);
+      expect(screen.getByText(/recent activity/i)).toBeInTheDocument();
+    });
+
+    test('renders save changes button', () => {
+      render(<Dashboard onNavigate={mockNavigate} />);
+      expect(screen.getByRole('button', { name: /save changes/i })).toBeInTheDocument();
+    });
+
+    test('renders note textarea', () => {
+      render(<Dashboard onNavigate={mockNavigate} />);
+      expect(screen.getByLabelText(/care log note/i)).toBeInTheDocument();
+    });
+
+    test('renders new task toolbar button', () => {
+      render(<Dashboard onNavigate={mockNavigate} />);
+      expect(screen.getByRole('button', { name: /new task/i })).toBeInTheDocument();
+    });
+
+    test('renders today schedule section', () => {
+      render(<Dashboard onNavigate={mockNavigate} />);
+      expect(screen.getByText(/today's schedule/i)).toBeInTheDocument();
+    });
+
+    test('renders active tasks summary card', () => {
+      render(<Dashboard onNavigate={mockNavigate} />);
+      expect(screen.getByText('Active Tasks')).toBeInTheDocument();
+    });
+
+    test('renders patients assigned summary card', () => {
+      render(<Dashboard onNavigate={mockNavigate} />);
+      expect(screen.getByText('Patients Assigned')).toBeInTheDocument();
+    });
+
+    test('clicking Start button triggers toast', () => {
+      render(<Dashboard onNavigate={mockNavigate} />);
+      const startButtons = screen.getAllByRole('button', { name: /start/i });
+      fireEvent.click(startButtons[0]);
+      expect(screen.getByRole('status')).toBeInTheDocument();
+    });
+    test('clicking New Appointment toolbar button navigates', () => {
+    render(<Dashboard onNavigate={mockNavigate} />);
+      fireEvent.click(screen.getByRole('button', { name: /new appointment/i }));
+      expect(mockNavigate).toHaveBeenCalledWith('schedule');
+    });
+
+    test('clicking New Patient toolbar button navigates', () => {
+      render(<Dashboard onNavigate={mockNavigate} />);
+      fireEvent.click(screen.getByRole('button', { name: /new patient/i }));
+      expect(mockNavigate).toHaveBeenCalledWith('patients');
+    });
+
+    test('clicking Save toolbar button shows toast', () => {
+      render(<Dashboard onNavigate={mockNavigate} />);
+      fireEvent.click(screen.getByRole('button', { name: /💾 save/i }));
+      expect(screen.getByRole('status')).toBeInTheDocument();
+    });
+
+    test('typing in note textarea updates value', () => {
+      render(<Dashboard onNavigate={mockNavigate} />);
+      const textarea = screen.getByLabelText(/care log note/i);
+      fireEvent.change(textarea, { target: { value: 'Patient doing well' } });
+      expect(textarea.value).toBe('Patient doing well');
+    });
+
+    test('clicking Mark Resolved shows toast', () => {
+      render(<Dashboard onNavigate={mockNavigate} />);
+      fireEvent.click(screen.getByRole('button', { name: /mark resolved/i }));
+      expect(screen.getByRole('status')).toBeInTheDocument();
+    });
+  });
+
   describe('Toast notification', () => {
     test('sets toast message', () => {
       let toast = '';
@@ -109,8 +210,8 @@ describe('Dashboard Component Logic', () => {
 
   describe('Schedule items', () => {
     const SCHEDULE_ITEMS = [
-      { time: '2:00 PM', title: 'Medication Round – Floor 3' },
-      { time: '3:30 PM', title: 'Patient Assessment – Room 302' },
+      { time: '2:00 PM', title: 'Medication Round - Floor 3' },
+      { time: '3:30 PM', title: 'Patient Assessment - Room 302' },
       { time: '4:00 PM', title: 'Team Meeting' }
     ];
 

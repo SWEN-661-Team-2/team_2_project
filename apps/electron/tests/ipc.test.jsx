@@ -1,8 +1,6 @@
-/**
- * @jest-environment node
- * Tests for IPC communication and main menu logic
- */
+/** @jest-environment node */
 
+// Tests for IPC communication and main menu logic
 describe('IPC Communication Logic', () => {
   describe('Layout mode IPC handler', () => {
     function layoutSetModeHandler(currentMode, requestedMode) {

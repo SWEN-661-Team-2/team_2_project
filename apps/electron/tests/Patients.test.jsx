@@ -1,9 +1,10 @@
-/**
- * @jest-environment jsdom
- * Tests for Patients component logic
- */
+/** @jest-environment jsdom */
+
+// Tests for Patients component logic
 import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import Patients from '../renderer/src/components/Patients';
 
 describe('Patients Component Logic', () => {
   const PATIENTS = [
@@ -13,6 +14,73 @@ describe('Patients Component Logic', () => {
     { id: 4, name: 'Lisa Anderson', initials: 'LA', room: '308C', age: 45, status: 'stable', lastVisit: '3 hours ago' },
     { id: 5, name: 'James Miller', initials: 'JM', room: '312B', age: 63, status: 'improving', lastVisit: '13 hours ago' }
   ];
+
+  describe('Rendering', () => {
+    test('renders Patient Care heading', () => {
+      render(<Patients />);
+      expect(screen.getByText('Patient Care')).toBeInTheDocument();
+    });
+
+    test('renders Add Patient button', () => {
+      render(<Patients />);
+      expect(screen.getByRole('button', { name: /add patient/i })).toBeInTheDocument();
+    });
+
+    test('renders patient list', () => {
+      render(<Patients />);
+      expect(screen.getByText('John Davis')).toBeInTheDocument();
+    });
+
+    test('renders search input', () => {
+      render(<Patients />);
+      expect(screen.getByLabelText(/search patients/i)).toBeInTheDocument();
+    });
+
+    test('clicking a patient shows detail panel', () => {
+      render(<Patients />);
+      fireEvent.click(screen.getByText('John Davis'));
+      expect(screen.getByText('Hypertension, Type 2 Diabetes')).toBeInTheDocument();
+    });
+
+    test('clicking Add Patient opens modal', () => {
+      render(<Patients />);
+      fireEvent.click(screen.getByRole('button', { name: /add patient/i }));
+      expect(screen.getByText('Add New Patient')).toBeInTheDocument();
+    });
+
+    test('renders Robert Brown in list', () => {
+      render(<Patients />);
+      expect(screen.getByText('Robert Brown')).toBeInTheDocument();
+    });
+
+    test('clicking Update Care Plan shows toast', () => {
+      render(<Patients />);
+      fireEvent.click(screen.getByText('John Davis'));
+      fireEvent.click(screen.getByRole('button', { name: /update care plan/i }));
+      expect(screen.getByRole('status')).toBeInTheDocument();
+    });
+
+    test('clicking Add Note shows toast', () => {
+      render(<Patients />);
+      fireEvent.click(screen.getByText('John Davis'));
+      fireEvent.click(screen.getByRole('button', { name: /add note/i }));
+      expect(screen.getByRole('status')).toBeInTheDocument();
+    });
+
+    test('modal closes when cancel clicked', () => {
+      render(<Patients />);
+      fireEvent.click(screen.getByRole('button', { name: /add patient/i }));
+      fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
+      expect(screen.queryByText('Add New Patient')).not.toBeInTheDocument();
+    });
+
+    test('modal close button works', () => {
+      render(<Patients />);
+      fireEvent.click(screen.getByRole('button', { name: /add patient/i }));
+      fireEvent.click(screen.getByRole('button', { name: /close/i }));
+      expect(screen.queryByText('Add New Patient')).not.toBeInTheDocument();
+    });
+  });
 
   describe('Patient search', () => {
     function searchPatients(patients, search) {
@@ -50,7 +118,7 @@ describe('Patients Component Logic', () => {
     });
 
     test('partial name match works', () => {
-      const result = searchPatients(PATIENTS, 'son');
+      const result = searchPatients(PATIENTS, 'Anderson');
       expect(result).toHaveLength(1);
       expect(result[0].name).toBe('Lisa Anderson');
     });

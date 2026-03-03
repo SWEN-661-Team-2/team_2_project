@@ -1,9 +1,10 @@
-/**
- * @jest-environment jsdom
- * Tests for Schedule component logic
- */
+/** @jest-environment jsdom */
+
+// Tests for Schedule component logic
 import React from 'react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import Schedule from '../renderer/src/components/Schedule';
 
 describe('Schedule Component Logic', () => {
   const APPOINTMENTS = [
@@ -13,6 +14,33 @@ describe('Schedule Component Logic', () => {
     { time: '02:00 PM', patient: 'John Davis', duration: '15 min', type: 'Medication Administration', status: 'scheduled' },
     { time: '03:00 PM', patient: 'Robert Brown', duration: '60 min', type: 'Physical Therapy', status: 'scheduled' }
   ];
+
+  describe('Rendering', () => {
+    test('renders Calendar heading', () => {
+      render(<Schedule />);
+      expect(screen.getByText('Calendar')).toBeInTheDocument();
+    });
+
+    test('renders New Appointment button', () => {
+      render(<Schedule />);
+      expect(screen.getByRole('button', { name: /new appointment/i })).toBeInTheDocument();
+    });
+
+    test('renders daily schedule section', () => {
+      render(<Schedule />);
+      expect(screen.getByText('Daily Schedule')).toBeInTheDocument();
+    });
+
+    test('renders February 2026 calendar', () => {
+      render(<Schedule />);
+      expect(screen.getByText('February 2026')).toBeInTheDocument();
+    });
+
+    test('renders appointment patient names', () => {
+      render(<Schedule />);
+      expect(screen.getAllByText('John Davis')[0]).toBeInTheDocument();
+    });
+  });
 
   describe('Appointment counting', () => {
     function getAppointmentCounts(appointments) {

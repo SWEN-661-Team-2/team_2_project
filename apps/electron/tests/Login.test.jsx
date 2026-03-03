@@ -1,17 +1,51 @@
-/**
- * @jest-environment jsdom
- * Tests for Login component
- */
+/** @jest-environment jsdom */
+
+// Tests for Login component
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import Login from '../renderer/src/components/Login';
 
 describe('Login Component', () => {
   const mockOnLogin = jest.fn();
 
   beforeEach(() => {
     mockOnLogin.mockClear();
+  });
+
+  describe('Rendering', () => {
+    test('renders CareConnect title', () => {
+      render(<Login onLogin={mockOnLogin} />);
+      expect(screen.getByText('CareConnect')).toBeInTheDocument();
+    });
+
+    test('renders email input', () => {
+      render(<Login onLogin={mockOnLogin} />);
+      expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    });
+
+    test('renders password input', () => {
+      render(<Login onLogin={mockOnLogin} />);
+      expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
+    });
+
+    test('renders sign in button', () => {
+      render(<Login onLogin={mockOnLogin} />);
+      expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+    });
+
+    test('renders remember me checkbox', () => {
+      render(<Login onLogin={mockOnLogin} />);
+      expect(screen.getByLabelText(/remember me/i)).toBeInTheDocument();
+    });
+
+    test('shows error on invalid login attempt', () => {
+      render(<Login onLogin={mockOnLogin} />);
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'bad' } });
+      fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'ab' } });
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+      expect(screen.getByText(/invalid/i)).toBeInTheDocument();
+    });
   });
 
   describe('Email validation', () => {
@@ -111,7 +145,6 @@ describe('Login Component', () => {
       const onLogin = jest.fn();
       const email = 'nurse@hospital.com';
       const password = 'securePass';
-
       if (email.includes('@') && password.length >= 4) {
         onLogin();
       }
@@ -122,7 +155,6 @@ describe('Login Component', () => {
       const onLogin = jest.fn();
       const email = 'bademail';
       const password = 'ab';
-
       if (email.includes('@') && password.length >= 4) {
         onLogin();
       }

@@ -1,9 +1,21 @@
-/**
- * @jest-environment jsdom
- * Tests for App component routing and state logic
- */
+/** @jest-environment jsdom */
+
+// Tests for App component routing and state logic
 import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import App from '../renderer/src/components/App';
+
+beforeEach(() => {
+  window.careconnect = {
+    getLayoutMode: jest.fn().mockResolvedValue('right'),
+    getAppVersion: jest.fn().mockResolvedValue('0.1.0'),
+    onNavigate: jest.fn(),
+    onLogout: jest.fn(),
+    onLayoutChanged: jest.fn(),
+    setLayoutMode: jest.fn().mockResolvedValue('left'),
+  };
+});
 
 describe('App Routing Logic', () => {
   describe('Authentication state', () => {
@@ -22,6 +34,69 @@ describe('App Routing Logic', () => {
       let isAuthed = true;
       isAuthed = false;
       expect(isAuthed).toBe(false);
+    });
+
+    test('renders login screen by default', () => {
+      render(<App initialLayout="right" />);
+      expect(screen.getByText('CareConnect')).toBeInTheDocument();
+    });
+
+    test('renders sign in button on login screen', () => {
+      render(<App initialLayout="right" />);
+      expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+    });
+  });
+
+  describe('Authenticated rendering', () => {
+    test('renders sidebar after login', () => {
+      render(<App initialLayout="right" />);
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nurse@hospital.com' } });
+      fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'securePass' } });
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+      expect(screen.getAllByText('Dashboard')[0]).toBeInTheDocument();
+    });
+
+    test('renders dashboard content after login', () => {
+      render(<App initialLayout="right" />);
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nurse@hospital.com' } });
+      fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'securePass' } });
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+      expect(screen.getByText(/welcome back/i)).toBeInTheDocument();
+    });
+
+    test('navigates to tasks via sidebar', () => {
+      render(<App initialLayout="right" />);
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nurse@hospital.com' } });
+      fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'securePass' } });
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+      fireEvent.click(screen.getByText('Tasks'));
+      expect(screen.getByText('Task Management')).toBeInTheDocument();
+    });
+
+    test('navigates to patients via sidebar', () => {
+      render(<App initialLayout="right" />);
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nurse@hospital.com' } });
+      fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'securePass' } });
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+      fireEvent.click(screen.getByText('Patients'));
+      expect(screen.getByText('Patient Care')).toBeInTheDocument();
+    });
+
+    test('navigates to schedule via sidebar', () => {
+      render(<App initialLayout="right" />);
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nurse@hospital.com' } });
+      fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'securePass' } });
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+      fireEvent.click(screen.getByText('Schedule'));
+      expect(screen.getByText('Calendar')).toBeInTheDocument();
+    });
+    test('logout returns to login screen', () => {
+      render(<App initialLayout="right" />);
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nurse@hospital.com' } });
+      fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'securePass' } });
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+      fireEvent.click(screen.getByTitle('Logout'));
+      expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
     });
   });
 
@@ -88,6 +163,11 @@ describe('App Routing Logic', () => {
       document.documentElement.dataset.layout = 'left';
       expect(document.documentElement.dataset.layout).toBe('left');
       document.documentElement.dataset.layout = 'right';
+    });
+
+    test('renders with left layout', () => {
+      render(<App initialLayout="left" />);
+      expect(screen.getByText('CareConnect')).toBeInTheDocument();
     });
   });
 

@@ -1,9 +1,10 @@
-/**
- * @jest-environment jsdom
- * Tests for Tasks component logic
- */
+/** @jest-environment jsdom */
+
+// Tests for Tasks component logic
 import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import Tasks from '../renderer/src/components/Tasks';
 
 describe('Tasks Component Logic', () => {
   const TASKS = [
@@ -13,6 +14,79 @@ describe('Tasks Component Logic', () => {
     { id: 4, title: 'Patient Education', patient: 'Lisa Anderson', priority: 'low', status: 'completed', category: 'Education' },
     { id: 5, title: 'Documentation Review', patient: 'James Miller', priority: 'medium', status: 'completed', category: 'Documentation' }
   ];
+
+  describe('Rendering', () => {
+    test('renders Task Management heading', () => {
+      render(<Tasks />);
+      expect(screen.getByText('Task Management')).toBeInTheDocument();
+    });
+
+    test('renders New Task button', () => {
+      render(<Tasks />);
+      expect(screen.getByRole('button', { name: /new task/i })).toBeInTheDocument();
+    });
+
+    test('renders task list with items', () => {
+      render(<Tasks />);
+      expect(screen.getByText('Medication Administration')).toBeInTheDocument();
+    });
+
+    test('renders search input', () => {
+      render(<Tasks />);
+      expect(screen.getByLabelText(/search tasks/i)).toBeInTheDocument();
+    });
+
+    test('renders filter tabs', () => {
+      render(<Tasks />);
+      expect(screen.getByRole('tab', { name: /all tasks/i })).toBeInTheDocument();
+    });
+
+    test('clicking New Task opens modal', () => {
+      render(<Tasks />);
+      fireEvent.click(screen.getByRole('button', { name: /new task/i }));
+      expect(screen.getByText('Create New Task')).toBeInTheDocument();
+    });
+
+    test('renders Pending filter tab', () => {
+      render(<Tasks />);
+      expect(screen.getByRole('tab', { name: /pending/i })).toBeInTheDocument();
+    });
+
+    test('renders Completed filter tab', () => {
+      render(<Tasks />);
+      expect(screen.getByRole('tab', { name: /completed/i })).toBeInTheDocument();
+    });
+
+    test('renders In Progress filter tab', () => {
+      render(<Tasks />);
+      expect(screen.getByRole('tab', { name: /in progress/i })).toBeInTheDocument();
+    });
+
+    test('clicking Pending filter shows only pending tasks', () => {
+      render(<Tasks />);
+      fireEvent.click(screen.getByRole('tab', { name: /pending/i }));
+      expect(screen.getByText('Medication Administration')).toBeInTheDocument();
+    });
+
+    test('clicking Completed filter shows completed tasks', () => {
+      render(<Tasks />);
+      fireEvent.click(screen.getByRole('tab', { name: /completed/i }));
+      expect(screen.getByText('Documentation Review')).toBeInTheDocument();
+    });
+
+    test('search input filters tasks', () => {
+      render(<Tasks />);
+      fireEvent.change(screen.getByLabelText(/search tasks/i), { target: { value: 'Wound' } });
+      expect(screen.getByText('Wound Care')).toBeInTheDocument();
+    });
+
+    test('modal closes when cancel clicked', () => {
+      render(<Tasks />);
+      fireEvent.click(screen.getByRole('button', { name: /new task/i }));
+      fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
+      expect(screen.queryByText('Create New Task')).not.toBeInTheDocument();
+    });
+  });
 
   describe('Task filtering', () => {
     function filterTasks(tasks, filter, search = '') {
