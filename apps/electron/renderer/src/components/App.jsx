@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import Login from './Login';
 import Dashboard from './Dashboard';
 import Tasks from './Tasks';
@@ -14,6 +14,11 @@ const [layoutMode, setLayoutMode] = useState(initialLayout);
 const [isAuthed, setIsAuthed] = useState(false);
 const [sidebarOpen, setSidebarOpen] = useState(true);
 
+const isAuthedRef = useRef(isAuthed);
+  useEffect(() => {
+    isAuthedRef.current = isAuthed;
+  }, [isAuthed]);
+
 useEffect(() => {
 document.documentElement.dataset.layout = layoutMode;
 }, [layoutMode]);
@@ -22,10 +27,16 @@ useEffect(() => {
 window.careconnect.onNavigate((r) => {
 if (r === 'toggleSidebar') { setSidebarOpen(prev => !prev); return; }
 if (r === 'quickSearch') { document.querySelector('[data-search]')?.focus(); return; }
-if (isAuthed) setRoute(r);
+if (isAuthedRef.current) setRoute(r);
 });
 window.careconnect.onLogout(() => { setIsAuthed(false); setRoute('login'); });
 window.careconnect.onLayoutChanged((mode) => setLayoutMode(mode));
+
+return () => {
+        window.careconnect.removeAllListeners('nav:go');
+        window.careconnect.removeAllListeners('auth:logout');
+        window.careconnect.removeAllListeners('layout:changed');
+    };
 }, []);
 
 const navigate = useCallback((next) => {

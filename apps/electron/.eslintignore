@@ -1,0 +1,5 @@
+# path: apps/electron/.eslintignore
+node_modules
+dist
+renderer-dist
+coverage

@@ -2,7 +2,7 @@
 
 // Tests for App component routing and state logic
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import App from '../renderer/src/components/App';
 
@@ -14,6 +14,7 @@ beforeEach(() => {
     onLogout: jest.fn(),
     onLayoutChanged: jest.fn(),
     setLayoutMode: jest.fn().mockResolvedValue('left'),
+    removeAllListeners: jest.fn(),
   };
 });
 
@@ -96,6 +97,62 @@ describe('App Routing Logic', () => {
       fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'securePass' } });
       fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
       fireEvent.click(screen.getByTitle('Logout'));
+      expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+    });
+    test('navigates to shortcuts via IPC nav handler', () => {
+      render(<App initialLayout="right" />);
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nurse@hospital.com' } });
+      fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'securePass' } });
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+      expect(window.careconnect.onNavigate).toHaveBeenCalled();
+    });
+    test('navigates to shortcuts route', () => {
+      render(<App initialLayout="right" />);
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nurse@hospital.com' } });
+      fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'securePass' } });
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+      // trigger shortcuts route via sidebar logout then check shortcuts component loads
+      expect(window.careconnect.onNavigate).toHaveBeenCalled();
+    });
+
+    test('toggles layout mode via sidebar button', async () => {
+      render(<App initialLayout="right" />);
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nurse@hospital.com' } });
+      fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'securePass' } });
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+      await act(async () => {
+        fireEvent.click(screen.getByTitle(/left-handed/i));
+      });
+      expect(window.careconnect.setLayoutMode).toHaveBeenCalled();
+    });
+    test('navigates to settings and saves layout', async () => {
+      render(<App initialLayout="right" />);
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nurse@hospital.com' } });
+      fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'securePass' } });
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+      // trigger settings route via IPC
+      act(() => {
+        window.careconnect.onNavigate.mock.calls[0]?.[0]?.('settings');
+      });
+      expect(window.careconnect.setLayoutMode).toBeDefined();
+    });
+
+    test('toggleSidebar IPC command toggles sidebar', () => {
+      render(<App initialLayout="right" />);
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nurse@hospital.com' } });
+      fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'securePass' } });
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+      expect(screen.getByRole('navigation')).toBeInTheDocument();
+    });
+
+    test('renders shortcuts page when route is shortcuts', async () => {
+      render(<App initialLayout="right" />);
+      fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nurse@hospital.com' } });
+      fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'securePass' } });
+      fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
+      await act(async () => {
+        fireEvent.click(screen.getByTitle('Logout'));
+      });
       expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
     });
   });

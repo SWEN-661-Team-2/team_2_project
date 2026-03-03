@@ -2,7 +2,7 @@
 
 // Tests for Schedule component logic
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Schedule from '../renderer/src/components/Schedule';
 
@@ -39,6 +39,18 @@ describe('Schedule Component Logic', () => {
     test('renders appointment patient names', () => {
       render(<Schedule />);
       expect(screen.getAllByText('John Davis')[0]).toBeInTheDocument();
+    });
+    test('clicking New Appointment button shows toast', () => {
+      render(<Schedule />);
+      fireEvent.click(screen.getByRole('button', { name: /new appointment/i }));
+      expect(screen.getByRole('status')).toBeInTheDocument();
+    });
+
+    test('clicking available slot + button shows toast', () => {
+      render(<Schedule />);
+      const plusButtons = screen.getAllByRole('button', { name: /\+/i });
+      fireEvent.click(plusButtons[0]);
+      expect(screen.getByRole('status')).toBeInTheDocument();
     });
   });
 

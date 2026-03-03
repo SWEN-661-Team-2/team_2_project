@@ -131,6 +131,28 @@ describe('Settings Component Logic', () => {
       fireEvent.click(checkboxes[1]);
       expect(checkboxes[1]).not.toBeChecked();
     });
+    test('can toggle left-handed mode checkbox', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      const checkboxes = screen.getAllByRole('checkbox');
+      fireEvent.click(checkboxes[0]);
+      expect(checkboxes[0]).toBeChecked();
+    });
+
+    test('can toggle focus indicators', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      fireEvent.click(screen.getByRole('tab', { name: /accessibility/i }));
+      const checkboxes = screen.getAllByRole('checkbox');
+      fireEvent.click(checkboxes[1]);
+      expect(checkboxes[1]).not.toBeChecked();
+    });
+
+    test('can toggle reduce motion', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      fireEvent.click(screen.getByRole('tab', { name: /accessibility/i }));
+      const checkboxes = screen.getAllByRole('checkbox');
+      fireEvent.click(checkboxes[3]);
+      expect(checkboxes[3]).toBeChecked();
+    });
   });
 
   describe('Layout mode management', () => {

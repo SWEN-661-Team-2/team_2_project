@@ -86,6 +86,44 @@ describe('Tasks Component Logic', () => {
       fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
       expect(screen.queryByText('Create New Task')).not.toBeInTheDocument();
     });
+    test('can type in task title field', () => {
+      render(<Tasks />);
+      fireEvent.click(screen.getByRole('button', { name: /new task/i }));
+      const titleInput = screen.getByLabelText(/task title/i);
+      fireEvent.change(titleInput, { target: { value: 'Test Task' } });
+      expect(titleInput.value).toBe('Test Task');
+    });
+
+    test('can change task priority in modal', () => {
+      render(<Tasks />);
+      fireEvent.click(screen.getByRole('button', { name: /new task/i }));
+      const prioritySelect = screen.getByLabelText(/priority/i);
+      fireEvent.change(prioritySelect, { target: { value: 'high' } });
+      expect(prioritySelect.value).toBe('high');
+    });
+    test('can change task category in modal', () => {
+      render(<Tasks />);
+      fireEvent.click(screen.getByRole('button', { name: /new task/i }));
+      const categorySelect = screen.getByLabelText(/category/i);
+      fireEvent.change(categorySelect, { target: { value: 'Treatment' } });
+      expect(categorySelect.value).toBe('Treatment');
+    });
+
+    test('submitting modal with title creates task and shows toast', () => {
+      render(<Tasks />);
+      fireEvent.click(screen.getByRole('button', { name: /new task/i }));
+      fireEvent.change(screen.getByLabelText(/task title/i), { target: { value: 'Brand New Task' } });
+      fireEvent.click(screen.getByRole('button', { name: /create task/i }));
+      expect(screen.getByRole('status')).toBeInTheDocument();
+    });
+
+    test('unchecking a completed task marks it pending', () => {
+      render(<Tasks />);
+      fireEvent.click(screen.getByRole('tab', { name: /completed/i }));
+      const checkboxes = screen.getAllByRole('checkbox');
+      fireEvent.click(checkboxes[0]);
+      expect(checkboxes[0]).not.toBeChecked();
+    });
   });
 
   describe('Task filtering', () => {

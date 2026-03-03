@@ -2,6 +2,9 @@
   "name": "careconnect-desktop-electron",
   "version": "0.1.0",
   "description": "CareConnect Desktop — left-handed healthcare app",
+  "author": "SWEN-661 Team 2",
+  "license": "MIT",
+  "homepage": "https://github.com/SWEN-661-Team-2/team_2_project/tree/main/apps/electron",
   "main": "main.js",
   "scripts": {
     "dev": "concurrently \"npm run vite\" \"wait-on http://localhost:5173 && electron .\"",
@@ -9,7 +12,8 @@
     "build": "vite build renderer",
     "start": "npm run dev",
     "test": "jest --coverage",
-    "dist": "npm run build && electron-builder"
+    "dist": "npm run build && electron-builder",
+    "lint": "eslint ."
   },
   "dependencies": {
     "electron-store": "^8.1.0"
@@ -36,13 +40,12 @@
   "build": {
     "appId": "com.careconnect.desktop",
     "productName": "CareConnect",
-    "mac": {
-      "target": [
-        "dmg"
-      ]
-    },
     "directories": {
       "output": "dist"
-    }
+    },
+    "mac": {
+      "target": ["dmg"]
+    },
+    "defaultArch": "universal"
   }
 }

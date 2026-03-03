@@ -46,6 +46,18 @@ describe('Login Component', () => {
       fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
       expect(screen.getByText(/invalid/i)).toBeInTheDocument();
     });
+    test('clicking forgot password shows error', () => {
+      render(<Login onLogin={mockOnLogin} />);
+      fireEvent.click(screen.getByText(/forgot your password/i));
+      expect(screen.getByText(/password reset not implemented/i)).toBeInTheDocument();
+    });
+
+    test('remember me checkbox can be checked', () => {
+      render(<Login onLogin={mockOnLogin} />);
+      const checkbox = screen.getByLabelText(/remember me/i);
+      fireEvent.click(checkbox);
+      expect(checkbox).toBeChecked();
+    });
   });
 
   describe('Email validation', () => {
