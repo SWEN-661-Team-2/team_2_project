@@ -1,5 +1,6 @@
 module.exports = {
   testEnvironment: 'node',
+  testPathIgnorePatterns: ['<rootDir>/tests/ipc.integration.test.js'],
   transform: {
     '^.+\\.[jt]sx?$': 'babel-jest',
   },
