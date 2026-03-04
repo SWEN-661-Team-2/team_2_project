@@ -1,4 +1,4 @@
-// path: menus/mainMenu.js
+// path: apps/electron/menus/mainMenu.js
 const { Menu, app } = require('electron');
 
 function accel(key) {
@@ -17,46 +17,55 @@ function buildMainMenu({ onNavigate, onLogout, onToggleLayout, onSetLayout }) {
         {
           label: 'New Task',
           accelerator: accel('N'),
-          click: () => onNavigate('tasks')
+          click: () => onNavigate('tasks'),
         },
         {
           label: 'New Appointment',
           accelerator: shiftAccel('N'),
-          click: () => onNavigate('schedule')
+          click: () => onNavigate('schedule'),
         },
         {
           label: 'New Patient',
           accelerator: accel('P'),
-          click: () => onNavigate('patients')
+          click: () => onNavigate('patients'),
         },
         { type: 'separator' },
         {
           label: 'Export Data',
           accelerator: accel('E'),
-          click: () => onNavigate('dashboard')
+          click: () => onNavigate('dashboard'),
         },
         {
           label: 'Import Data',
           accelerator: accel('I'),
-          click: () => onNavigate('dashboard')
+          click: () => onNavigate('dashboard'),
         },
         { type: 'separator' },
         {
           label: 'Settings',
           accelerator: process.platform === 'darwin' ? 'Command+,' : 'Ctrl+,',
-          click: () => onNavigate('settings')
+          click: () => onNavigate('settings'),
         },
         { type: 'separator' },
-        { label: 'Logout', click: () => onLogout() },
+
         {
-          label: process.platform === 'darwin' ? 'Quit' : 'Exit',
-          accelerator: accel('Q'),
-          click: () => app.quit()
-        }
-      ]
+          label: 'Logout',
+          accelerator: shiftAccel('O'), 
+          click: () => onLogout(),
+        },
+
+        process.platform === 'darwin'
+          ? { role: 'quit', label: 'Quit' } 
+          : {
+              label: 'Exit',
+              accelerator: accel('Q'),
+              click: () => app.quit(),
+            },
+      ].filter(Boolean),
     },
+
     {
-    label: 'Edit',
+      label: 'Edit',
       submenu: [
         { role: 'undo' },
         { role: 'redo' },
@@ -64,82 +73,60 @@ function buildMainMenu({ onNavigate, onLogout, onToggleLayout, onSetLayout }) {
         { role: 'cut' },
         { role: 'copy' },
         { role: 'paste' },
-        { role: 'selectAll' }
-      ]
+        { role: 'selectAll' },
+      ],
     },
+
     {
       label: 'View',
       submenu: [
-        {
-          label: 'Dashboard',
-          accelerator: accel('1'),
-          click: () => onNavigate('dashboard')
-        },
-        {
-          label: 'Tasks',
-          accelerator: accel('2'),
-          click: () => onNavigate('tasks')
-        },
-        {
-          label: 'Schedule',
-          accelerator: accel('3'),
-          click: () => onNavigate('schedule')
-        },
-        {
-          label: 'Patients',
-          accelerator: accel('4'),
-          click: () => onNavigate('patients')
-        },
+        { label: 'Dashboard', accelerator: accel('1'), click: () => onNavigate('dashboard') },
+        { label: 'Tasks', accelerator: accel('2'), click: () => onNavigate('tasks') },
+        { label: 'Schedule', accelerator: accel('3'), click: () => onNavigate('schedule') },
+        { label: 'Patients', accelerator: accel('4'), click: () => onNavigate('patients') },
         { type: 'separator' },
-        {
-          label: 'Toggle Sidebar',
-          accelerator: accel('B'),
-          click: () => onNavigate('toggleSidebar')
-        },
-        {
-          label: 'Quick Search',
-          accelerator: accel('K'),
-          click: () => onNavigate('quickSearch')
-        },
+        { label: 'Toggle Sidebar', accelerator: accel('B'), click: () => onNavigate('toggleSidebar') },
+        { label: 'Quick Search', accelerator: accel('K'), click: () => onNavigate('quickSearch') },
         { type: 'separator' },
         {
           label: 'Switch to Left-Handed Layout',
           accelerator: shiftAccel('L'),
-          click: () => onSetLayout('left')
+          click: () => onSetLayout('left'),
         },
         {
           label: 'Switch to Right-Handed Layout',
           accelerator: shiftAccel('R'),
-          click: () => onSetLayout('right')
+          click: () => onSetLayout('right'),
         },
         {
           label: 'Toggle Layout Mode',
           accelerator: process.platform === 'darwin' ? 'Command+Alt+L' : 'Ctrl+Alt+L',
-          click: () => onToggleLayout()
+          click: () => onToggleLayout(),
         },
         { type: 'separator' },
         { role: 'reload' },
-        { role: 'toggleDevTools' }
-      ]
+        { role: 'toggleDevTools' },
+      ],
     },
+
     {
       label: 'Help',
       submenu: [
         {
           label: 'Keyboard Shortcuts',
           accelerator: process.platform === 'darwin' ? 'Command+/' : 'Ctrl+/',
-          click: () => onNavigate('shortcuts')
+          click: () => onNavigate('shortcuts'),
         },
         { type: 'separator' },
         {
           label: 'About CareConnect',
-          click: () => onNavigate('about')
-        }
-      ]
-    }
+          accelerator: shiftAccel('A'), // Cmd+Shift+A / Ctrl+Shift+A
+          click: () => onNavigate('about'),
+        },
+      ],
+    },
   ];
 
-  // On macOS, prepend the app menu
   if (process.platform === 'darwin') {
     template.unshift({
       label: app.getName(),
@@ -149,7 +136,7 @@ function buildMainMenu({ onNavigate, onLogout, onToggleLayout, onSetLayout }) {
         {
           label: 'Preferences',
           accelerator: 'Command+,',
-          click: () => onNavigate('settings')
+          click: () => onNavigate('settings'),
         },
         { type: 'separator' },
         { role: 'services' },
@@ -158,8 +145,8 @@ function buildMainMenu({ onNavigate, onLogout, onToggleLayout, onSetLayout }) {
         { role: 'hideOthers' },
         { role: 'unhide' },
         { type: 'separator' },
-        { role: 'quit' }
-      ]
+        { role: 'quit' }, // ⌘Q
+      ],
     });
   }
 

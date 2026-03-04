@@ -16,3 +16,11 @@ release/
 
 # Misc
 .DS_Store
+
+# Build artifacts
+dist/
+*.dmg
+careconnect-desktop-electron@*
+
+# Local test archives
+electron-tests.zip

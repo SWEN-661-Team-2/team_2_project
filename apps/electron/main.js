@@ -32,7 +32,7 @@ function createWindow() {
 
   if (isDev) {
     win.loadURL('http://localhost:5173');
-    win.webContents.openDevTools({ mode: 'detach' });
+    // win.webContents.openDevTools({ mode: 'detach' });
   } else {
     win.loadFile(path.join(__dirname, 'renderer-dist', 'index.html'));
   }
@@ -40,9 +40,9 @@ function createWindow() {
   win.once('ready-to-show', () => win.show());
   win.on('close', () => saveWindowBounds(win));
 
-  ipcMain.handle('app:getVersion', () => app.getVersion());
-  ipcMain.handle('layout:getMode', () => store.get('layoutMode', 'right'));
-  ipcMain.handle('layout:setMode', (event, mode) => {
+  if (!ipcMain.listenerCount('app:getVersion')) ipcMain.handle('app:getVersion', () => app.getVersion());
+  if (!ipcMain.listenerCount('layout:getMode')) ipcMain.handle('layout:getMode', () => store.get('layoutMode', 'right'));
+  if (!ipcMain.listenerCount('layout:setMode')) ipcMain.handle('layout:setMode', (event, mode) => {
     if (mode !== 'left' && mode !== 'right') return store.get('layoutMode', 'right');
     store.set('layoutMode', mode);
     win.webContents.send('layout:changed', mode);

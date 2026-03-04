@@ -23,9 +23,9 @@ return (
 <div className="login-wrapper" role="main">
 <div className="login-card">
 <div className="login-brand">
-<span className="login-shield" aria-hidden="true">🛡</span>
+<img src="/logo.png" alt="CareConnect" className="login-shield" />
 <h1 className="login-title">CareConnect</h1>
-<p className="login-subtitle">For Left-Handed Care Givers</p>
+<p className="login-subtitle">Supporting Care, Connecting Hearts</p>
 </div>
 <form onSubmit={handleSubmit} aria-label="Login form" noValidate>
 <div className="field">

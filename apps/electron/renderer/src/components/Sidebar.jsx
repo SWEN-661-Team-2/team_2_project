@@ -18,7 +18,7 @@ function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout
       aria-label="Sidebar navigation"
     >
       <div className="sidebar-brand">
-        <span className="sidebar-logo">🛡</span>
+        <img src="/logo.png" alt="CareConnect" className="sidebar-logo" />
         {open && <span className="sidebar-title">CareConnect</span>}
       </div>
 
