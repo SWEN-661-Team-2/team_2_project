@@ -1,37 +1,66 @@
 import React, { useState } from 'react';
+import NewAppointmentModal from './NewAppointmentModal';
 
-const APPOINTMENTS = [
-  { time: '08:00 AM', patient: 'John Davis', duration: '30 min', type: 'Medication Round', status: 'completed' },
-  { time: '09:00 AM', patient: null, duration: null, type: null, status: 'available' },
-  { time: '10:00 AM', patient: null, duration: null, type: null, status: 'available' },
-  { time: '11:00 AM', patient: 'Robert Brown', duration: '30 min', type: 'Round Care', status: 'completed' },
-  { time: '12:00 PM', patient: null, duration: null, type: null, status: 'available' },
-  { time: '02:00 PM', patient: 'John Davis', duration: '15 min', type: 'Medication Administration', status: 'scheduled' },
-  { time: '03:00 PM', patient: 'Robert Brown', duration: '60 min', type: 'Physical Therapy', status: 'scheduled' },
+const INITIAL_APPOINTMENTS = [
+  { id: 1, time: '08:00 AM', patient: 'John Davis', duration: '30 min', type: 'Medication Round', status: 'completed' },
+  { id: 2, time: '09:00 AM', patient: null, duration: null, type: null, status: 'available' },
+  { id: 3, time: '10:00 AM', patient: null, duration: null, type: null, status: 'available' },
+  { id: 4, time: '11:00 AM', patient: 'Robert Brown', duration: '30 min', type: 'Round Care', status: 'completed' },
+  { id: 5, time: '12:00 PM', patient: null, duration: null, type: null, status: 'available' },
+  { id: 6, time: '02:00 PM', patient: 'John Davis', duration: '15 min', type: 'Medication Administration', status: 'scheduled' },
+  { id: 7, time: '03:00 PM', patient: 'Robert Brown', duration: '60 min', type: 'Physical Therapy', status: 'scheduled' },
 ];
 
 const CAL_DAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
 function Schedule() {
+  const [appointments, setAppointments] = useState(INITIAL_APPOINTMENTS);
   const [toast, setToast] = useState('');
+  const [showNewForm, setShowNewForm] = useState(false);
 
-  function showToast(msg) { setToast(msg); setTimeout(() => setToast(''), 2500); }
+  function showToast(msg) {
+    setToast(msg);
+    setTimeout(() => setToast(''), 2500);
+  }
+
+  function addAppointment(newAppt) {
+    const updated = appointments.map(a => {
+      if (a.time === newAppt.time && a.status === 'available') {
+        return {
+          ...a,
+          patient: newAppt.patient,
+          duration: newAppt.duration,
+          type: newAppt.type,
+          status: 'scheduled',
+        };
+      }
+      return a;
+    });
+
+    setAppointments(updated);
+    showToast('Appointment scheduled.');
+  }
 
   const first = new Date(2026, 1, 1).getDay();
   const totalDays = new Date(2026, 2, 0).getDate();
   const blanks = Array(first).fill(null);
   const dayNums = Array.from({ length: totalDays }, (_, i) => i + 1);
 
-  const totalAppts = APPOINTMENTS.filter(a => a.status !== 'available').length;
-  const completed = APPOINTMENTS.filter(a => a.status === 'completed').length;
-  const upcoming = APPOINTMENTS.filter(a => a.status === 'scheduled').length;
+  const totalAppts = appointments.filter(a => a.status !== 'available').length;
+  const completed = appointments.filter(a => a.status === 'completed').length;
+  const upcoming = appointments.filter(a => a.status === 'scheduled').length;
+
+  const availableSlots = appointments.filter(a => a.status === 'available');
 
   return (
     <div className="page-content">
       <div className="toolbar" role="toolbar" aria-label="Schedule actions">
         <h1 className="page-title" style={{ margin: 0 }}>Calendar</h1>
         <span className="toolbar-spacer"></span>
-        <button className="btn primary" onClick={() => showToast('New appointment (demo).')}>
+        <button
+          className="btn primary"
+          onClick={() => setShowNewForm(true)}
+        >
           + New Appointment
         </button>
       </div>
@@ -69,17 +98,16 @@ function Schedule() {
             <div className="daily-nav">
               <button className="btn btn-sm" aria-label="Previous day">&#8249;</button>
               <span>Feb 26, 2026</span>
-              <button className="btn btn-sm" aria-label="Next day">&#8250;</button>
+              <button className="btn btn-sm" aria-label="Next day">&#8249;</button>
             </div>
           </div>
           <ul className="appt-list" role="list">
-            {APPOINTMENTS.map((a, i) => (
-              <li key={i} className={`appt-item appt-item--${a.status}`}>
+            {appointments.map(a => (
+              <li key={a.id} className={`appt-item appt-item--${a.status}`}>
                 <span className="appt-time">{a.time}</span>
                 {a.status === 'available' ? (
                   <span className="appt-available">
-                    Available{' '}
-                    <button className="btn btn-sm" onClick={() => showToast('Slot opened.')}>+</button>
+                    Available
                   </span>
                 ) : (
                   <>
@@ -87,7 +115,9 @@ function Schedule() {
                       <strong>{a.patient}</strong>
                       <span className="appt-meta">{a.duration} · {a.type}</span>
                     </div>
-                    <span className={`appt-badge appt-badge--${a.status}`}>{a.status}</span>
+                    <span className={`appt-badge appt-badge--${a.status}`}>
+                      {a.status}
+                    </span>
                   </>
                 )}
               </li>
@@ -110,6 +140,14 @@ function Schedule() {
           <div className="summary-number">{upcoming}</div>
         </div>
       </div>
+
+      {showNewForm && (
+        <NewAppointmentModal
+          availableSlots={availableSlots}
+          onClose={() => setShowNewForm(false)}
+          onSave={addAppointment}
+        />
+      )}
 
       {toast && <div className="toast" role="status" aria-live="polite">{toast}</div>}
     </div>
