@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, session } = require('electron');
 const path = require('path');
 const Store = require('electron-store');
 
@@ -67,6 +67,45 @@ function createWindow() {
   Menu.setApplicationMenu(menu);
 }
 
-app.whenReady().then(createWindow);
+// Load axe DevTools extension in development mode.
+// this is very specific to my local setup, 
+app.whenReady().then(async () => {
+  if (isDev) {
+    // Replace '4.10.1_0' with the actual folder name inside your lhdoppojpmngadmnindnejefpokejbdd directory
+    const axePath = '/Users/eduardoestrada/Library/Application Support/Google/Chrome/Default/Extensions/lhdoppojpmngadmnindnejefpokejbdd/4.122.1_0';
+    
+    try {
+      await session.defaultSession.loadExtension(axePath, { allowFileAccess: true });
+      console.log('✅ axe DevTools loaded');
+    } catch (e) {
+      console.error('❌ Failed to load axe DevTools:', e);
+    }
+  }
+
+
+// 1. Grant permissions to the extension ID manually in the session
+const extensionId = 'lhdoppojpmngadmnindnejefpokejbdd';
+
+// 2. Bypass CSP and Security for the extension only
+session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+  callback({
+    responseHeaders: {
+      ...details.responseHeaders,
+      'Content-Security-Policy': [
+        "default-src * 'unsafe-inline' 'unsafe-eval'; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src * 'unsafe-inline'; img-src * data: blob:; frame-src *; style-src * 'unsafe-inline';"
+      ]
+    }
+  });
+});
+
+
+
+
+
+  createWindow();
+});
+
+
+
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
 app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
