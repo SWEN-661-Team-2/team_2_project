@@ -27,6 +27,8 @@ To generate the data needed for the assignment:
 2. Wait a few seconds for the engine to analyze the DOM.
 3. The tool will return a list of "Total issues" categorized by severity (**Critical, Serious, Moderate, Minor**).
 
+Note: you must run scans in chrome browser
+
 ### 4. Required Evidence for README/Assignment
 
 When documenting results for the team, ensure the following are captured in your screenshots:
