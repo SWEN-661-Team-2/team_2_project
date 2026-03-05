@@ -3,7 +3,8 @@
 // Tests for Dashboard component logic
 import React from 'react';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
-import '@jest-dom';
+// import '@jest-dom';
+import '@testing-library/jest-dom';
 import Dashboard from '../renderer/src/components/Dashboard';
 
 // 1. Mock the child modal components (From origin/main)
@@ -35,7 +36,7 @@ beforeEach(() => {
 });
 
 describe('Dashboard Component Logic', () => {
-  
+
   describe('Core UI Rendering', () => {
     test('renders all major sections and headings', () => {
       render(<Dashboard onNavigate={mockNavigate} />);
@@ -78,17 +79,19 @@ describe('Dashboard Component Logic', () => {
 
     test('toolbar navigation buttons call onNavigate', () => {
       render(<Dashboard onNavigate={mockNavigate} />);
-      fireEvent.click(screen.getByRole('button', { name: /new appointment/i }));
-      expect(mockNavigate).toHaveBeenCalledWith('schedule');
-      
-      fireEvent.click(screen.getByRole('button', { name: /new patient/i }));
-      expect(mockNavigate).toHaveBeenCalledWith('patients');
+      // Test Appointment Modal
+      fireEvent.click(screen.getByRole('button', { name: /create new appointment/i }));
+      expect(screen.getByTestId('appt-modal')).toBeInTheDocument();
+      // Test Patient Modal
+      fireEvent.click(screen.getByRole('button', { name: /create new patient/i }));
+      expect(screen.getByTestId('patient-modal')).toBeInTheDocument();
     });
 
     test('clicking Save toolbar button shows toast', () => {
       render(<Dashboard onNavigate={mockNavigate} />);
       // Note: Use exact string or regex for the emoji button
-      fireEvent.click(screen.getByText(/save/i));
+      // fireEvent.click(screen.getByText(/save/i));
+      fireEvent.click(screen.getByRole('button', { name: /save information/i }));
       expect(screen.getByRole('status')).toBeInTheDocument();
     });
   });
@@ -102,7 +105,7 @@ describe('Dashboard Component Logic', () => {
       fireEvent.click(screen.getByText(/\+ New Task/i));
       fireEvent.click(screen.getByText(/New Appointment/i));
       fireEvent.click(screen.getByText(/New Patient/i));
-      
+
       // Trigger Modal Save Actions (using mocked buttons)
       fireEvent.click(screen.getByText('Save Task'));
       fireEvent.click(screen.getByText('Save Appt'));
@@ -113,7 +116,7 @@ describe('Dashboard Component Logic', () => {
       act(() => {
         jest.advanceTimersByTime(2500);
       });
-      
+
       await waitFor(() => {
         expect(screen.queryByRole('status')).not.toBeInTheDocument();
       });
