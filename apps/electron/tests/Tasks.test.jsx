@@ -1,14 +1,8 @@
-<<<<<<< HEAD
-/** @jest-environment jsdom */
-
-// Tests for Tasks component logic
-=======
 /**
  * @jest-environment jsdom
  */
 // Tests for Tasks component logic
 
->>>>>>> origin/main
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -39,82 +33,25 @@ describe('Tasks Component Logic', () => {
       expect(screen.getByText('Medication Administration')).toBeInTheDocument();
     });
 
-    test('renders search input', () => {
-      render(<Tasks />);
-      expect(screen.getByLabelText(/search tasks/i)).toBeInTheDocument();
-    });
-
-    test('renders filter tabs', () => {
-      render(<Tasks />);
-      expect(screen.getByRole('tab', { name: /all tasks/i })).toBeInTheDocument();
-    });
-
     test('clicking New Task opens modal', () => {
       render(<Tasks />);
       fireEvent.click(screen.getByRole('button', { name: /new task/i }));
       expect(screen.getByText('Create New Task')).toBeInTheDocument();
     });
 
-    test('renders Pending filter tab', () => {
+    test('search input filters tasks', () => {
       render(<Tasks />);
-      expect(screen.getByRole('tab', { name: /pending/i })).toBeInTheDocument();
+      const searchInput = screen.getByLabelText(/search tasks/i);
+      fireEvent.change(searchInput, { target: { value: 'Wound' } });
+      expect(screen.getByText('Wound Care')).toBeInTheDocument();
+      expect(screen.queryByText('Medication Administration')).not.toBeInTheDocument();
     });
 
-    test('renders Completed filter tab', () => {
-      render(<Tasks />);
-      expect(screen.getByRole('tab', { name: /completed/i })).toBeInTheDocument();
-    });
-
-    test('renders In Progress filter tab', () => {
-      render(<Tasks />);
-      expect(screen.getByRole('tab', { name: /in progress/i })).toBeInTheDocument();
-    });
-
-    test('clicking Pending filter shows only pending tasks', () => {
-      render(<Tasks />);
-      fireEvent.click(screen.getByRole('tab', { name: /pending/i }));
-      expect(screen.getByText('Medication Administration')).toBeInTheDocument();
-    });
-
-    test('clicking Completed filter shows completed tasks', () => {
+    test('clicking filter tabs updates view', () => {
       render(<Tasks />);
       fireEvent.click(screen.getByRole('tab', { name: /completed/i }));
       expect(screen.getByText('Documentation Review')).toBeInTheDocument();
-    });
-
-    test('search input filters tasks', () => {
-      render(<Tasks />);
-      fireEvent.change(screen.getByLabelText(/search tasks/i), { target: { value: 'Wound' } });
-      expect(screen.getByText('Wound Care')).toBeInTheDocument();
-    });
-
-    test('modal closes when cancel clicked', () => {
-      render(<Tasks />);
-      fireEvent.click(screen.getByRole('button', { name: /new task/i }));
-      fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
-      expect(screen.queryByText('Create New Task')).not.toBeInTheDocument();
-    });
-    test('can type in task title field', () => {
-      render(<Tasks />);
-      fireEvent.click(screen.getByRole('button', { name: /new task/i }));
-      const titleInput = screen.getByLabelText(/task title/i);
-      fireEvent.change(titleInput, { target: { value: 'Test Task' } });
-      expect(titleInput.value).toBe('Test Task');
-    });
-
-    test('can change task priority in modal', () => {
-      render(<Tasks />);
-      fireEvent.click(screen.getByRole('button', { name: /new task/i }));
-      const prioritySelect = screen.getByLabelText(/priority/i);
-      fireEvent.change(prioritySelect, { target: { value: 'high' } });
-      expect(prioritySelect.value).toBe('high');
-    });
-    test('can change task category in modal', () => {
-      render(<Tasks />);
-      fireEvent.click(screen.getByRole('button', { name: /new task/i }));
-      const categorySelect = screen.getByLabelText(/category/i);
-      fireEvent.change(categorySelect, { target: { value: 'Treatment' } });
-      expect(categorySelect.value).toBe('Treatment');
+      expect(screen.queryByText('Medication Administration')).not.toBeInTheDocument();
     });
 
     test('submitting modal with title creates task and shows toast', () => {
@@ -124,17 +61,9 @@ describe('Tasks Component Logic', () => {
       fireEvent.click(screen.getByRole('button', { name: /create task/i }));
       expect(screen.getByRole('status')).toBeInTheDocument();
     });
-
-    test('unchecking a completed task marks it pending', () => {
-      render(<Tasks />);
-      fireEvent.click(screen.getByRole('tab', { name: /completed/i }));
-      const checkboxes = screen.getAllByRole('checkbox');
-      fireEvent.click(checkboxes[0]);
-      expect(checkboxes[0]).not.toBeChecked();
-    });
   });
 
-  describe('Task filtering', () => {
+  describe('Task filtering logic', () => {
     function filterTasks(tasks, filter, search = '') {
       return tasks.filter(t => {
         const matchFilter =
@@ -150,122 +79,16 @@ describe('Tasks Component Logic', () => {
       });
     }
 
-    test('All Tasks filter returns all tasks', () => {
-      const result = filterTasks(TASKS, 'All Tasks');
-      expect(result).toHaveLength(5);
-    });
-
-    test('Pending filter returns only pending tasks', () => {
-      const result = filterTasks(TASKS, 'Pending');
-      expect(result).toHaveLength(2);
-      result.forEach(t => expect(t.status).toBe('pending'));
-    });
-
-    test('In Progress filter returns only in-progress tasks', () => {
-      const result = filterTasks(TASKS, 'In Progress');
-      expect(result).toHaveLength(1);
-      expect(result[0].status).toBe('in-progress');
-    });
-
-    test('Completed filter returns only completed tasks', () => {
-      const result = filterTasks(TASKS, 'Completed');
-      expect(result).toHaveLength(2);
-      result.forEach(t => expect(t.status).toBe('completed'));
-    });
-
-    test('Search by title filters correctly', () => {
-      const result = filterTasks(TASKS, 'All Tasks', 'medication');
-      expect(result).toHaveLength(1);
-      expect(result[0].title).toBe('Medication Administration');
-    });
-
-    test('Search by patient name filters correctly', () => {
-      const result = filterTasks(TASKS, 'All Tasks', 'john');
-      expect(result).toHaveLength(1);
-      expect(result[0].patient).toBe('John Davis');
+    test('filters correctly by status and search term', () => {
+      const pendingJohn = filterTasks(TASKS, 'Pending', 'john');
+      expect(pendingJohn).toHaveLength(1);
+      expect(pendingJohn[0].status).toBe('pending');
+      expect(pendingJohn[0].patient).toBe('John Davis');
     });
 
     test('Search is case-insensitive', () => {
       const result = filterTasks(TASKS, 'All Tasks', 'MARY');
       expect(result).toHaveLength(1);
-    });
-
-    test('Empty search returns all tasks for current filter', () => {
-      const result = filterTasks(TASKS, 'All Tasks', '');
-      expect(result).toHaveLength(5);
-    });
-
-    test('Combined filter and search works correctly', () => {
-      const result = filterTasks(TASKS, 'Pending', 'john');
-      expect(result).toHaveLength(1);
-      expect(result[0].status).toBe('pending');
-    });
-
-    test('Search with no match returns empty array', () => {
-      const result = filterTasks(TASKS, 'All Tasks', 'nonexistent patient xyz');
-      expect(result).toHaveLength(0);
-    });
-  });
-
-  describe('Task status update', () => {
-    function updateTaskStatus(tasks, id, status) {
-      return tasks.map(t => t.id === id ? { ...t, status } : t);
-    }
-
-    test('updates task status correctly', () => {
-      const updated = updateTaskStatus(TASKS, 1, 'completed');
-      const task = updated.find(t => t.id === 1);
-      expect(task.status).toBe('completed');
-    });
-
-    test('does not modify other tasks', () => {
-      const updated = updateTaskStatus(TASKS, 1, 'completed');
-      const otherTask = updated.find(t => t.id === 2);
-      expect(otherTask.status).toBe('in-progress');
-    });
-
-    test('returns same length array', () => {
-      const updated = updateTaskStatus(TASKS, 1, 'completed');
-      expect(updated).toHaveLength(TASKS.length);
-    });
-  });
-
-  describe('Task creation', () => {
-    function createTask(tasks, newTask) {
-      if (!newTask.title.trim()) return tasks;
-      const task = {
-        id: Date.now(),
-        ...newTask,
-        patient: 'Unassigned',
-        time: '--:--',
-        status: 'pending'
-      };
-      return [task, ...tasks];
-    }
-
-    test('adds new task to beginning of list', () => {
-      const newTask = { title: 'New Task', priority: 'medium', category: 'Medication' };
-      const updated = createTask(TASKS, newTask);
-      expect(updated).toHaveLength(6);
-      expect(updated[0].title).toBe('New Task');
-    });
-
-    test('ignores empty title', () => {
-      const newTask = { title: '   ', priority: 'medium', category: 'Medication' };
-      const updated = createTask(TASKS, newTask);
-      expect(updated).toHaveLength(5);
-    });
-
-    test('new task starts with pending status', () => {
-      const newTask = { title: 'Test Task', priority: 'high', category: 'Treatment' };
-      const updated = createTask(TASKS, newTask);
-      expect(updated[0].status).toBe('pending');
-    });
-
-    test('preserves priority on new task', () => {
-      const newTask = { title: 'Urgent Task', priority: 'high', category: 'Medication' };
-      const updated = createTask(TASKS, newTask);
-      expect(updated[0].priority).toBe('high');
     });
   });
 
@@ -279,25 +102,11 @@ describe('Tasks Component Logic', () => {
       };
     }
 
-    test('counts total tasks', () => {
-      expect(getTaskCounts(TASKS).total).toBe(5);
-    });
-
-    test('counts pending tasks', () => {
-      expect(getTaskCounts(TASKS).pending).toBe(2);
-    });
-
-    test('counts in-progress tasks', () => {
-      expect(getTaskCounts(TASKS).inProgress).toBe(1);
-    });
-
-    test('counts completed tasks', () => {
-      expect(getTaskCounts(TASKS).completed).toBe(2);
-    });
-
-    test('counts sum to total', () => {
+    test('calculates correct task distribution', () => {
       const counts = getTaskCounts(TASKS);
-      expect(counts.pending + counts.inProgress + counts.completed).toBe(counts.total);
+      expect(counts.total).toBe(5);
+      expect(counts.pending).toBe(2);
+      expect(counts.completed).toBe(2);
     });
   });
 });

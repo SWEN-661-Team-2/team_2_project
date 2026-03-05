@@ -53,6 +53,7 @@ function Settings({ layoutMode, onSave, onBack }) {
                   <input
                     type="checkbox"
                     checked={layout === 'left'}
+                    aria-label="Mark task as completed"
                     onChange={(e) => setLayout(e.target.checked ? 'left' : 'right')}
                   />
                   <span className="toggle-track"></span>
@@ -97,7 +98,7 @@ function Settings({ layoutMode, onSave, onBack }) {
                   <div className="setting-desc">Enable advanced keyboard shortcuts</div>
                 </div>
                 <label className="toggle">
-                  <input type="checkbox" checked={enhancedKb} onChange={(e) => setEnhancedKb(e.target.checked)} />
+                  <input type="checkbox" checked={enhancedKb} onChange={(e) => setEnhancedKb(e.target.checked)} aria-label="Toggle task completion"/>
                   <span className="toggle-track"></span>
                 </label>
               </div>
@@ -107,7 +108,7 @@ function Settings({ layoutMode, onSave, onBack }) {
                   <div className="setting-desc">Visible focus rings for keyboard navigation</div>
                 </div>
                 <label className="toggle">
-                  <input type="checkbox" checked={focusIndicators} onChange={(e) => setFocusIndicators(e.target.checked)} />
+                  <input type="checkbox" checked={focusIndicators} onChange={(e) => setFocusIndicators(e.target.checked)} aria-label="Toggle task completion"/>
                   <span className="toggle-track"></span>
                 </label>
               </div>
@@ -120,7 +121,7 @@ function Settings({ layoutMode, onSave, onBack }) {
                   <div className="setting-desc">Increase contrast for better visibility</div>
                 </div>
                 <label className="toggle">
-                  <input type="checkbox" checked={highContrast} onChange={(e) => setHighContrast(e.target.checked)} />
+                  <input type="checkbox" checked={highContrast} onChange={(e) => setHighContrast(e.target.checked)} aria-label="Toggle task completion"/>
                   <span className="toggle-track"></span>
                 </label>
               </div>
@@ -130,7 +131,7 @@ function Settings({ layoutMode, onSave, onBack }) {
                   <div className="setting-desc">Minimize animations and transitions</div>
                 </div>
                 <label className="toggle">
-                  <input type="checkbox" checked={reduceMotion} onChange={(e) => setReduceMotion(e.target.checked)} />
+                  <input type="checkbox" checked={reduceMotion} onChange={(e) => setReduceMotion(e.target.checked)} aria-label="Toggle task completion"/>
                   <span className="toggle-track"></span>
                 </label>
               </div>
@@ -148,7 +149,7 @@ function Settings({ layoutMode, onSave, onBack }) {
                   <div className="setting-desc">Receive reminders for upcoming tasks</div>
                 </div>
                 <label className="toggle">
-                  <input type="checkbox" checked={taskReminders} onChange={(e) => setTaskReminders(e.target.checked)} />
+                  <input type="checkbox" checked={taskReminders} onChange={(e) => setTaskReminders(e.target.checked)} aria-label="Toggle task completion"/>
                   <span className="toggle-track"></span>
                 </label>
               </div>
@@ -158,7 +159,7 @@ function Settings({ layoutMode, onSave, onBack }) {
                   <div className="setting-desc">Priority notifications for urgent tasks</div>
                 </div>
                 <label className="toggle">
-                  <input type="checkbox" checked={urgentAlerts} onChange={(e) => setUrgentAlerts(e.target.checked)} />
+                  <input type="checkbox" checked={urgentAlerts} onChange={(e) => setUrgentAlerts(e.target.checked)} aria-label="Toggle task completion"/>
                   <span className="toggle-track"></span>
                 </label>
               </div>

@@ -20,36 +20,36 @@ function Tasks() {
   const [showModal, setShowModal] = useState(false);
   const [toast, setToast] = useState('');
 
-useEffect(() => {
+  useEffect(() => {
     // Standard JS works everywhere, even without a <Router>
-    const searchString = window.location.hash.includes('?') 
-                         ? window.location.hash.split('?')[1] 
-                         : window.location.search;
-    
+    const searchString = window.location.hash.includes('?')
+      ? window.location.hash.split('?')[1]
+      : window.location.search;
+
     const params = new URLSearchParams(searchString);
-    
+
     if (params.get('openNew') === 'true') {
       setShowModal(true);
       // Clean up the URL
       const cleanUrl = window.location.href.split('?')[0];
       window.history.replaceState({}, '', cleanUrl);
     }
-}, []);
+  }, []);
 
-  function showToast(msg) { 
-    setToast(msg); 
-    setTimeout(() => setToast(''), 2500); 
+  function showToast(msg) {
+    setToast(msg);
+    setTimeout(() => setToast(''), 2500);
   }
 
   // Handle saving task from the NEW modal component
   const handleSaveTask = (taskData) => {
     setTasks(prev => [
-      { 
-        id: Date.now(), 
-        ...taskData, 
-        patient: 'Unassigned', 
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), 
-        status: 'pending' 
+      {
+        id: Date.now(),
+        ...taskData,
+        patient: 'Unassigned',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        status: 'pending'
       },
       ...prev,
     ]);
@@ -98,8 +98,12 @@ useEffect(() => {
             {TASK_FILTERS.map(f => (
               <button
                 key={f}
+                id={`tab-${f}`}
+                role="tab" // Fixes the "Child role" error
+                aria-selected={filter === f} // Tells screen readers which tab is active
                 className={`filter-tab ${filter === f ? 'active' : ''}`}
                 onClick={() => setFilter(f)}
+                tabIndex={filter === f ? 0 : -1} // Helps with keyboard arrow navigation
               >
                 {f}
               </button>
