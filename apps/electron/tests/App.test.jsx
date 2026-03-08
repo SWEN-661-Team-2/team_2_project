@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /** @jest-environment jsdom */
 
 // Tests for App component routing and state logic
@@ -18,15 +17,6 @@ beforeEach(() => {
     removeAllListeners: jest.fn(),
   };
 });
-=======
-/**
- * @jest-environment jsdom
- */
-import React from 'react';
-import { render, screen, act, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import App from '../renderer/src/components/App.jsx';
->>>>>>> origin/main
 
 // Mock window.careconnect (IPC listeners)
 window.careconnect = {
@@ -63,7 +53,6 @@ describe('Total Coverage Sweep for App.jsx', () => {
       { key: '1', ctrlKey: true }  // Nav to Dashboard
     ];
 
-<<<<<<< HEAD
     test('logout resets authenticated to false', () => {
       let isAuthed = true;
       isAuthed = false;
@@ -194,12 +183,6 @@ describe('Total Coverage Sweep for App.jsx', () => {
     function navigate(currentRoute, isAuthed, next) {
       if (!isAuthed && next !== 'login') return currentRoute;
       return next;
-=======
-    for (const s of shortcuts) {
-      await act(async () => {
-        fireEvent.keyDown(window, s);
-      });
->>>>>>> origin/main
     }
 
     // 3. HIT IPC LISTENERS (Lines 35 - 45)
@@ -225,7 +208,6 @@ describe('Total Coverage Sweep for App.jsx', () => {
       });
     }
   });
-<<<<<<< HEAD
 
   describe('Layout mode', () => {
     test('default layout is right', () => {
@@ -303,6 +285,3 @@ describe('Total Coverage Sweep for App.jsx', () => {
     });
   });
 });
-=======
-});
->>>>>>> origin/main

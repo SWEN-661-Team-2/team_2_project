@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /** @jest-environment jsdom */
 
 // Tests for Settings component logic
@@ -161,21 +160,6 @@ describe('Settings Component Logic', () => {
       const layoutMode = 'left';
       expect(layoutMode === 'left').toBe(true);
     });
-=======
-import React from 'react';
-import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import Settings from '../renderer/src/components/Settings';
-
-describe('Settings Component', () => {
-  const mockOnSave = jest.fn(() => Promise.resolve());
-  const mockOnBack = jest.fn();
-  const defaultProps = {
-    layoutMode: 'right',
-    onSave: mockOnSave,
-    onBack: mockOnBack,
-  };
->>>>>>> origin/main
 
   beforeEach(() => {
     jest.useFakeTimers();

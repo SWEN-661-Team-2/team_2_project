@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /** @jest-environment jsdom */
 
 // Tests for Login component
@@ -6,15 +5,6 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Login from '../renderer/src/components/Login';
-=======
-/**
- * @jest-environment jsdom
- */
-import React from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import Login from '../renderer/src/components/Login.jsx';
->>>>>>> origin/main
 
 describe('Login Component Full Coverage', () => {
   const mockOnLogin = jest.fn();
@@ -51,7 +41,6 @@ describe('Login Component Full Coverage', () => {
 
     expect(mockOnLogin).toHaveBeenCalledTimes(1);
   });
-<<<<<<< HEAD
 
   describe('Rendering', () => {
     test('renders CareConnect title', () => {
@@ -214,6 +203,3 @@ describe('Login Component Full Coverage', () => {
     });
   });
 });
-=======
-});
->>>>>>> origin/main

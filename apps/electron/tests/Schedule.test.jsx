@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 /** @jest-environment jsdom */
 
 // Tests for Schedule component logic
@@ -148,29 +147,6 @@ describe('Schedule Component Logic', () => {
       expect(toast).toBe('Some message');
     });
   });
-=======
-import React from 'react';
-import { render, screen, fireEvent, act, within } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import Schedule from '../renderer/src/components/Schedule';
-
-// Mock the child component to simplify testing the parent's logic
-jest.mock('../renderer/src/components/NewPatientModal', () => {
-  return function MockModal({ onSave, onClose, availableSlots }) {
-    return (
-      <div data-testid="mock-modal">
-        <button onClick={() => onSave({ 
-          time: '09:00 AM', 
-          patient: 'Jane Doe', 
-          duration: '45 min', 
-          type: 'Checkup' 
-        })}>Save</button>
-        <button onClick={onClose}>Close</button>
-        <div data-testid="slots-count">{availableSlots.length}</div>
-      </div>
-    );
-  };
->>>>>>> origin/main
 });
 
 describe('Schedule Component', () => {

@@ -1,14 +1,6 @@
-<<<<<<< HEAD
 /** @jest-environment jsdom */
 
 // Tests for Tasks component logic
-=======
-/**
- * @jest-environment jsdom
- */
-// Tests for Tasks component logic
-
->>>>>>> origin/main
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
