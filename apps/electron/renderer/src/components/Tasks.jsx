@@ -28,7 +28,7 @@ function Tasks() {
     if (params.get('openNew') === 'true') {
       setShowModal(true);
       const cleanUrl = globalThis.location.href.split('?')[0];
-      globalThis.history.replaceState({}, '', cleanUrl);
+      globalThis.history?.replaceState?.({}, '', cleanUrl);
     }
   }, []);
 
@@ -78,7 +78,7 @@ function Tasks() {
           <input
             className="input"
             type="search"
-            placeholder="Search tasks..."
+            aria-label="Search tasks" placeholder="Search tasks..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -100,8 +100,19 @@ function Tasks() {
         <ul className="task-list">
           {filtered.map(task => (
             <li key={task.id} className="task-item task-item--full">
+              <input
+                type="checkbox"
+                id={`task-${task.id}`}
+                aria-label={`Mark ${task.title} as ${task.status === 'completed' ? 'pending' : 'completed'}`}
+                checked={task.status === 'completed'}
+                onChange={() => setTasks(prev => prev.map(t =>
+                  t.id === task.id
+                    ? { ...t, status: t.status === 'completed' ? 'pending' : 'completed' }
+                    : t
+                ))}
+              />
               <div className="task-info">
-                <strong>{task.title}</strong>
+                <label htmlFor={`task-${task.id}`}><strong>{task.title}</strong></label>
                 <span className={`priority-badge priority-${task.priority}`}>{task.priority}</span>
                 <div className="task-meta">Patient: {task.patient} · {task.time}</div>
               </div>

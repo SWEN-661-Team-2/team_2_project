@@ -53,7 +53,7 @@ function Patients() {
           <input
             className="input"
             type="search"
-            placeholder="Search patients by name or room..."
+            aria-label="Search patients" placeholder="Search patients by name or room..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />

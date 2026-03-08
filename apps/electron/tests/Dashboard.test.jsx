@@ -75,16 +75,16 @@ describe('Dashboard Component Logic', () => {
       fireEvent.click(startButtons[0]);
       expect(screen.getByRole('status')).toBeInTheDocument();
     });
-    test('clicking New Appointment toolbar button navigates', () => {
-    render(<Dashboard onNavigate={mockNavigate} />);
+    test('clicking New Appointment toolbar button opens modal', () => {
+      render(<Dashboard onNavigate={mockNavigate} />);
       fireEvent.click(screen.getByRole('button', { name: /new appointment/i }));
-      expect(mockNavigate).toHaveBeenCalledWith('schedule');
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
-    test('clicking New Patient toolbar button navigates', () => {
+    test('clicking New Patient toolbar button opens modal', () => {
       render(<Dashboard onNavigate={mockNavigate} />);
       fireEvent.click(screen.getByRole('button', { name: /new patient/i }));
-      expect(mockNavigate).toHaveBeenCalledWith('patients');
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
     });
 
     test('clicking Save toolbar button shows toast', () => {

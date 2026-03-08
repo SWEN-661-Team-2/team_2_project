@@ -60,10 +60,10 @@ describe('Patients Component Logic', () => {
       expect(screen.getByRole('status')).toBeInTheDocument();
     });
 
-    test('clicking Add Note shows toast', () => {
+    test('clicking update care plan shows toast', () => {
       render(<Patients />);
       fireEvent.click(screen.getByText('John Davis'));
-      fireEvent.click(screen.getByRole('button', { name: /add note/i }));
+      fireEvent.click(screen.getByRole('button', { name: /update care plan/i }));
       expect(screen.getByRole('status')).toBeInTheDocument();
     });
 

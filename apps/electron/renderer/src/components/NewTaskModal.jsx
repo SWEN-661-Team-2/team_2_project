@@ -18,7 +18,7 @@ function NewTaskModal({ onClose, onSave }) {
 
                 <div className="modal-body" style={{ padding: '20px 0' }}>
                     <div className="field">
-                        <label className="label">Task Title *</label>
+                        <label className="label" htmlFor="task-name">Task Title *</label>
                         <input
                             id="task-name"
                             className="input"
@@ -89,7 +89,7 @@ function NewTaskModal({ onClose, onSave }) {
                 </div>
 
                 <div className="modal-footer">
-                    <button className="btn" onClick={onClose} aria-label="Close modal">Cancel</button>
+                    <button className="btn" onClick={onClose} aria-label="Cancel">Cancel</button>
                     <button
                         className="btn primary"
                         onClick={() => {

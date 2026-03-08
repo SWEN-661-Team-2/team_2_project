@@ -55,7 +55,7 @@ function Dashboard({ onNavigate }) {
         <button aria-label="Create New task" className="btn toolbar-btn" onClick={() => setShowTaskModal(true)}>+ New Task</button>
         <button aria-label="Create New appointment" className="btn toolbar-btn" onClick={() => setShowAppointmentModal(true)}>📅 New Appointment</button>
         <button aria-label="Create New patient" className="btn toolbar-btn" onClick={() => setShowPatientModal(true)}>👤 New Patient</button>
-        <button aria-label="save information" className="btn toolbar-btn" onClick={() => showToast('Saved!')}>💾 Save</button>
+        <button aria-label="💾 Save" className="btn toolbar-btn" onClick={() => showToast('Saved!')}>💾 Save</button>
         <span className="toolbar-spacer"></span>
         <input
           className="input toolbar-search"
