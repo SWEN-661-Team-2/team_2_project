@@ -8,8 +8,9 @@ const NAV_ITEMS = [
 ];
 
 function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout }) {
-  // Detect if user is on Mac to show the correct symbol
-  const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+  const isMac = navigator.userAgentData
+    ? navigator.userAgentData.platform.toUpperCase().includes('MAC')
+    : navigator.userAgent.toUpperCase().includes('MAC');
   const modifier = isMac ? '⌘' : 'Ctrl+';
 
   return (
@@ -22,7 +23,7 @@ function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout
         {open && <span className="sidebar-title">CareConnect</span>}
       </div>
 
-      <ul className="sidebar-nav" role="list">
+      <ul className="sidebar-nav">
         {NAV_ITEMS.map((item, index) => (
           <li key={item.id}>
             <button
@@ -35,8 +36,7 @@ function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout
               {open && (
                 <div className="nav-label-container" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
                   <span className="nav-label">{item.label}</span>
-                  {/* Shortcut Badge */}
-                  <span className="nav-shortcut-hint" style={{ fontSize: '10px', opacity: 0.5, marginLeft: '8px' }}>
+                  <span className="nav-shortcut-hint">
                     {modifier}{index + 1}
                   </span>
                 </div>
@@ -45,7 +45,6 @@ function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout
           </li>
         ))}
 
-        {/* --- ADDITION: SETTINGS NAVIGATION ITEM --- */}
         <div className="sidebar-divider" style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.1)', margin: '8px 12px' }} />
         <li>
           <button
@@ -58,16 +57,13 @@ function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout
             {open && (
               <div className="nav-label-container" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
                 <span className="nav-label">Settings</span>
-                <span className="nav-shortcut-hint" style={{ fontSize: '10px', opacity: 0.5, marginLeft: '8px' }}>
+                <span className="nav-shortcut-hint">
                   {modifier},
                 </span>
               </div>
             )}
           </button>
         </li>
-        {/* --- END ADDITION --- */}
-
-
       </ul>
 
       <div className="sidebar-footer">

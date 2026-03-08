@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// import { useLocation } from 'react-router-dom';
-import NewTaskModal from './NewTaskModal'; // Import your new component
+import NewTaskModal from './NewTaskModal';
 
 const INITIAL_TASKS = [
   { id: 1, title: 'Medication Administration', patient: 'John Davis', time: '2:00 PM', priority: 'high', category: 'Medication', status: 'pending' },
@@ -13,43 +12,39 @@ const INITIAL_TASKS = [
 const TASK_FILTERS = ['All Tasks', 'Pending', 'In Progress', 'Completed'];
 
 function Tasks() {
-  // const location = useLocation();
   const [tasks, setTasks] = useState(INITIAL_TASKS);
   const [filter, setFilter] = useState('All Tasks');
   const [search, setSearch] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [toast, setToast] = useState('');
 
-useEffect(() => {
-    // Standard JS works everywhere, even without a <Router>
-    const searchString = window.location.hash.includes('?') 
-                         ? window.location.hash.split('?')[1] 
-                         : window.location.search;
-    
+  useEffect(() => {
+    const searchString = globalThis.location.hash.includes('?')
+      ? globalThis.location.hash.split('?')[1]
+      : globalThis.location.search;
+
     const params = new URLSearchParams(searchString);
-    
+
     if (params.get('openNew') === 'true') {
       setShowModal(true);
-      // Clean up the URL
-      const cleanUrl = window.location.href.split('?')[0];
-      window.history.replaceState({}, '', cleanUrl);
+      const cleanUrl = globalThis.location.href.split('?')[0];
+      globalThis.history.replaceState({}, '', cleanUrl);
     }
-}, []);
+  }, []);
 
-  function showToast(msg) { 
-    setToast(msg); 
-    setTimeout(() => setToast(''), 2500); 
+  function showToast(msg) {
+    setToast(msg);
+    setTimeout(() => setToast(''), 2500);
   }
 
-  // Handle saving task from the NEW modal component
   const handleSaveTask = (taskData) => {
     setTasks(prev => [
-      { 
-        id: Date.now(), 
-        ...taskData, 
-        patient: 'Unassigned', 
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), 
-        status: 'pending' 
+      {
+        id: Date.now(),
+        ...taskData,
+        patient: 'Unassigned',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        status: 'pending'
       },
       ...prev,
     ]);
@@ -69,13 +64,6 @@ useEffect(() => {
       t.patient.toLowerCase().includes(search.toLowerCase());
     return matchFilter && matchSearch;
   });
-
-  const counts = {
-    total: tasks.length,
-    pending: tasks.filter(t => t.status === 'pending').length,
-    inProgress: tasks.filter(t => t.status === 'in-progress').length,
-    completed: tasks.filter(t => t.status === 'completed').length,
-  };
 
   return (
     <div className="page-content">
@@ -100,6 +88,8 @@ useEffect(() => {
                 key={f}
                 className={`filter-tab ${filter === f ? 'active' : ''}`}
                 onClick={() => setFilter(f)}
+                role="tab"
+                aria-selected={filter === f}
               >
                 {f}
               </button>
@@ -120,7 +110,6 @@ useEffect(() => {
         </ul>
       </div>
 
-      {/* NEW MODAL PATTERN */}
       {showModal && (
         <NewTaskModal
           onClose={() => setShowModal(false)}
@@ -128,7 +117,7 @@ useEffect(() => {
         />
       )}
 
-      {toast && <div className="toast" role="status">{toast}</div>}
+      {toast && <output className="toast">{toast}</output>}
     </div>
   );
 }
