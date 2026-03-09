@@ -16,10 +16,10 @@ function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout
   return (
     <nav
       className={`sidebar ${open ? 'sidebar--open' : 'sidebar--closed'}`}
-      aria-label="Sidebar navigation"
+      aria-label="Main navigation" // WCAG: Clearer label for landmarks
     >
       <div className="sidebar-brand">
-        <img src="/logo.png" alt="CareConnect" className="sidebar-logo" />
+        <img src="/logo.png" alt="CareConnect Home" className="sidebar-logo" />
         {open && <span className="sidebar-title">CareConnect</span>}
       </div>
 
@@ -31,10 +31,12 @@ function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout
               onClick={() => onNavigate(item.id)}
               aria-current={route === item.id ? 'page' : undefined}
               title={`${item.label} (${modifier}${index + 1})`}
+              style={{ width: '100%', cursor: 'pointer' }}
             >
               <span className="nav-icon" aria-hidden="true">{item.icon}</span>
               {open && (
                 <div className="nav-label-container" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                  {/* WCAG: Ensure nav-label in CSS is at least #4b5563 (gray) or #ffffff (on active blue) */}
                   <span className="nav-label">{item.label}</span>
                   <span className="nav-shortcut-hint">
                     {modifier}{index + 1}
@@ -52,6 +54,7 @@ function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout
             onClick={() => onNavigate('settings')}
             aria-current={route === 'settings' ? 'page' : undefined}
             title={`Settings (${modifier},)`}
+            style={{ width: '100%', cursor: 'pointer' }}
           >
             <span className="nav-icon" aria-hidden="true">⚙</span>
             {open && (
@@ -70,6 +73,7 @@ function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout
         <button
           className="sidebar-nav-item layout-toggle-btn"
           onClick={onToggleLayout}
+          style={{ width: '100%', cursor: 'pointer' }}
           title={layoutMode === 'left' ? 'Switch to Right-Handed' : 'Switch to Left-Handed'}
         >
           <span className="nav-icon" aria-hidden="true">
@@ -84,6 +88,7 @@ function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout
         <button
           className="sidebar-nav-item logout-btn"
           onClick={onLogout}
+          style={{ width: '100%', cursor: 'pointer' }}
           title="Logout"
         >
           <span className="nav-icon" aria-hidden="true">⏏</span>

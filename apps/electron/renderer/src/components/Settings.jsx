@@ -54,6 +54,7 @@ function Settings({ layoutMode, onSave, onBack }) {
                     id="left-handed-toggle"
                     type="checkbox"
                     checked={layout === 'left'}
+                    aria-label="Mark task as completed"
                     onChange={(e) => setLayout(e.target.checked ? 'left' : 'right')}
                   />
                   <span className="toggle-track"></span>

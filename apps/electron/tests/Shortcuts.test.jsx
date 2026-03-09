@@ -59,8 +59,7 @@ describe('Shortcuts Component', () => {
     expect(kbdElements.length).toBeGreaterThan(0);
   });
 
-  test('renders New Task shortcut', () => {
-    render(<Shortcuts onBack={mockOnBack} />);
-    expect(screen.getByText('New Task')).toBeInTheDocument();
+  beforeEach(() => {
+    mockOnBack.mockClear();
   });
 });

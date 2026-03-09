@@ -6,6 +6,7 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import App from '../renderer/src/components/App';
 
+// Mock window.careconnect (IPC listeners and Electron bridge)
 beforeEach(() => {
   window.careconnect = {
     getLayoutMode: jest.fn().mockResolvedValue('right'),
@@ -27,30 +28,31 @@ window.careconnect = {
 };
 
 describe('Total Coverage Sweep for App.jsx', () => {
+  
   test('Hit keyboard shortcuts, IPC, and Modals', async () => {
     render(<App />);
 
-    // 1. BYPASS LOGIN (Required to reach any code below line 150)
+    // 1. BYPASS LOGIN
     const emailInput = screen.getByLabelText(/Email Address/i);
     const passInput = screen.getByLabelText(/Password/i);
     const signInBtn = screen.getByRole('button', { name: /Sign In/i });
+    
     await act(async () => {
       fireEvent.change(emailInput, { target: { value: 'user@test.com' } });
       fireEvent.change(passInput, { target: { value: 'password123' } });
       fireEvent.click(signInBtn);
     });
 
-    // 2. HIT KEYBOARD SHORTCUTS (Lines 75 - 140)
-    // This hits the 'Cmd/Ctrl + J', 'B', 'K', 'N' logic
+    // 2. HIT KEYBOARD SHORTCUTS
     const shortcuts = [
-      { key: 'j', ctrlKey: true }, // Opens Patient Modal
-      { key: 'b', ctrlKey: true }, // Toggles Sidebar
-      { key: 'k', ctrlKey: true }, // Quick Search focus
-      { key: 'n', ctrlKey: true }, // Navigate to Tasks
-      { key: 'n', ctrlKey: true, shiftKey: true }, // Opens Appt Modal
-      { key: 'e', ctrlKey: true }, // Export
-      { key: 'i', ctrlKey: true }, // Import
-      { key: '1', ctrlKey: true }  // Nav to Dashboard
+      { key: 'j', ctrlKey: true }, 
+      { key: 'b', ctrlKey: true }, 
+      { key: 'k', ctrlKey: true }, 
+      { key: 'n', ctrlKey: true }, 
+      { key: 'n', ctrlKey: true, shiftKey: true },
+      { key: 'e', ctrlKey: true }, 
+      { key: 'i', ctrlKey: true }, 
+      { key: '1', ctrlKey: true }  
     ];
 
   });
@@ -205,44 +207,50 @@ describe('Total Coverage Sweep for App.jsx', () => {
       expect(defaultLayout).toBe('right');
     });
 
-    test('layout can be set to left', () => {
-      let layout = 'right';
-      layout = 'left';
-      expect(layout).toBe('left');
-    });
-
-    test('layout applied to document element', () => {
-      document.documentElement.dataset.layout = 'left';
-      expect(document.documentElement.dataset.layout).toBe('left');
-      document.documentElement.dataset.layout = 'right';
-    });
-
-    test('renders with left layout', () => {
-      render(<App initialLayout="left" />);
+  describe('Authenticated rendering and Navigation', () => {
+    test('renders login screen by default', () => {
+      render(<App />);
       expect(screen.getByText('CareConnect')).toBeInTheDocument();
+    });
+
+    test('navigates to tasks via sidebar', async () => {
+      render(<App />);
+      // Login
+      fireEvent.change(screen.getByLabelText(/Email Address/i), { target: { value: 'nurse@hospital.com' } });
+      fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'securePass' } });
+      fireEvent.click(screen.getByRole('button', { name: /Sign In/i }));
+      
+      // Click Tasks in Sidebar
+      const tasksLink = await screen.findByText('Tasks');
+      fireEvent.click(tasksLink);
+      expect(screen.getByText('Task Management')).toBeInTheDocument();
+    });
+
+    test('toggles layout mode via sidebar button', async () => {
+      render(<App />);
+      fireEvent.change(screen.getByLabelText(/Email Address/i), { target: { value: 'nurse@hospital.com' } });
+      fireEvent.change(screen.getByLabelText(/Password/i), { target: { value: 'securePass' } });
+      fireEvent.click(screen.getByRole('button', { name: /Sign In/i }));
+      
+      const layoutBtn = await screen.findByTitle(/left-handed/i);
+      await act(async () => {
+        fireEvent.click(layoutBtn);
+      });
+      expect(window.careconnect.setLayoutMode).toHaveBeenCalled();
     });
   });
 
-  describe('Sidebar state', () => {
-    test('sidebar starts open', () => {
-      const sidebarOpen = true;
-      expect(sidebarOpen).toBe(true);
+  describe('Layout and Sidebar logic', () => {
+    test('layout can be set to left', () => {
+      document.documentElement.dataset.layout = 'left';
+      expect(document.documentElement.dataset.layout).toBe('left');
+      document.documentElement.dataset.layout = 'right'; // Reset
     });
 
-    test('sidebar can be toggled', () => {
-      let open = true;
-      open = !open;
-      expect(open).toBe(false);
-    });
-
-    test('sidebar toggle IPC command works', () => {
+    test('sidebar toggle state logic', () => {
       let sidebarOpen = true;
-      const handleNavigate = (route) => {
-        if (route === 'toggleSidebar') {
-          sidebarOpen = !sidebarOpen;
-        }
-      };
-      handleNavigate('toggleSidebar');
+      const toggle = () => { sidebarOpen = !sidebarOpen; };
+      toggle();
       expect(sidebarOpen).toBe(false);
     });
   });

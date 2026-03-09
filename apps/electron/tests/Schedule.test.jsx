@@ -1,6 +1,5 @@
 /** @jest-environment jsdom */
 
-// Tests for Schedule component logic
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';

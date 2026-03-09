@@ -86,6 +86,9 @@ function Tasks() {
             {TASK_FILTERS.map(f => (
               <button
                 key={f}
+                id={`tab-${f}`}
+                role="tab" // Fixes the "Child role" error
+                aria-selected={filter === f} // Tells screen readers which tab is active
                 className={`filter-tab ${filter === f ? 'active' : ''}`}
                 onClick={() => setFilter(f)}
                 role="tab"

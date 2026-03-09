@@ -1,6 +1,5 @@
 /** @jest-environment jsdom */
 
-// Tests for Settings component logic
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
