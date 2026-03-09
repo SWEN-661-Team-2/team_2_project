@@ -15,7 +15,7 @@
 --success: #10b981;
 --sidebar-bg: #1e293b;
 --sidebar-text: #cbd5e1;
---sidebar-active: #3b82f6;
+--sidebar-active: #1d4ed8;
 --sidebar-width: 220px;
 --sidebar-collapsed: 56px;
 --radius: 8px;
@@ -134,7 +134,7 @@ font-weight: 600;
 /* Shortcut hints — rgba(255,255,255,0.75) meets WCAG 1.4.3 contrast on dark sidebar */
 .nav-shortcut-hint {
 font-size: 10px;
-color: rgba(255,255,255,0.75);
+color: rgba(255,255,255,1.0);
 margin-left: 8px;
 }
 
@@ -310,7 +310,7 @@ border-radius: 20px;
 text-transform: capitalize;
 }
 .priority-high { background: #fee2e2; color: #b91c1c; }
-.priority-medium { background: #fef3c7; color: #92400e; }
+.priority-medium { background: #fef3c7; color: #78350f; }
 .priority-low { background: #d1fae5; color: #065f46; }
 
 .category-badge {
@@ -432,7 +432,7 @@ padding: 3px 10px;
 border-radius: 20px;
 }
 .appt-badge--completed { background: #d1fae5; color: #065f46; }
-.appt-badge--scheduled { background: #dbeafe; color: #1e40af; }
+.appt-badge--scheduled { background: #dbeafe; color: #1e3a8a; }
 
 /* === Patients Layout === */
 .patients-layout {
@@ -494,7 +494,7 @@ flex-shrink: 0;
 .medication-list li { font-size: 13px; margin-bottom: 4px; }
 
 .status-badge--stable { background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 20px; font-size: 12px; }
-.status-badge--improving { background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 20px; font-size: 12px; }
+.status-badge--improving { background: #dbeafe; color: #1e3a8a; padding: 2px 8px; border-radius: 20px; font-size: 12px; }
 .status-badge--critical { background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 20px; font-size: 12px; }
 
 /* === Empty States === */

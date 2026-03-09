@@ -45,7 +45,7 @@ function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout
           </li>
         ))}
 
-        <div className="sidebar-divider" style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.1)', margin: '8px 12px' }} />
+        <li role="separator" aria-hidden="true" style={{ height: "1px", backgroundColor: "rgba(255,255,255,0.1)", margin: "8px 12px", listStyle: "none" }}></li>
         <li>
           <button
             className={`sidebar-nav-item ${route === 'settings' ? 'active' : ''}`}
