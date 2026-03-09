@@ -1,6 +1,5 @@
-/**
- * @jest-environment node
- */
+/** @jest-environment node */
+
 // Tests for IPC communication and main menu logic
 
 describe('IPC Communication Logic', () => {

@@ -24,25 +24,18 @@ function App({ initialLayout = 'right' }) {
   }, [layoutMode]);
 
   useEffect(() => {
-
-
-// Check if the bridge exists before setting up listeners
-  if (window.careconnect) {
-    window.careconnect.onNavigate((r) => {
+    globalThis.careconnect.onNavigate((r) => {
       if (r === 'toggleSidebar') { setSidebarOpen(prev => !prev); return; }
       if (r === 'quickSearch') { document.querySelector('[data-search]')?.focus(); return; }
       if (isAuthedRef.current) setRoute(r);
     });
-    window.careconnect.onLogout(() => { setIsAuthed(false); setRoute('login'); });
-    window.careconnect.onLayoutChanged((mode) => setLayoutMode(mode));
-  }
-
-
+    globalThis.careconnect.onLogout(() => { setIsAuthed(false); setRoute('login'); });
+    globalThis.careconnect.onLayoutChanged((mode) => setLayoutMode(mode));
 
     return () => {
-      window.careconnect.removeAllListeners('nav:go');
-      window.careconnect.removeAllListeners('auth:logout');
-      window.careconnect.removeAllListeners('layout:changed');
+      globalThis.careconnect.removeAllListeners('nav:go');
+      globalThis.careconnect.removeAllListeners('auth:logout');
+      globalThis.careconnect.removeAllListeners('layout:changed');
     };
   }, []);
 
@@ -62,12 +55,12 @@ function App({ initialLayout = 'right' }) {
 
   const handleToggleLayout = useCallback(async () => {
     const newMode = layoutMode === 'left' ? 'right' : 'left';
-    const saved = await window.careconnect.setLayoutMode(newMode);
+    const saved = await globalThis.careconnect.setLayoutMode(newMode);
     setLayoutMode(saved);
   }, [layoutMode]);
 
   const handleSaveLayout = useCallback(async (mode) => {
-    const saved = await window.careconnect.setLayoutMode(mode);
+    const saved = await globalThis.careconnect.setLayoutMode(mode);
     setLayoutMode(saved);
   }, []);
 
@@ -88,7 +81,7 @@ function App({ initialLayout = 'right' }) {
         onToggleLayout={handleToggleLayout}
         onLogout={handleLogout}
       />
-      <div className="app-content" id="main" tabIndex="-1" aria-label="Main content">
+      <main className="app-content" id="main" tabIndex="-1" aria-label="Main content">
         {route === 'dashboard' && <Dashboard layoutMode={layoutMode} onNavigate={navigate} />}
         {route === 'tasks' && <Tasks />}
         {route === 'patients' && <Patients />}
@@ -109,7 +102,7 @@ function App({ initialLayout = 'right' }) {
             <button className="btn" onClick={() => navigate('dashboard')}>Back</button>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

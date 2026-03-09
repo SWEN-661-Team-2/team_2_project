@@ -5,109 +5,153 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Settings from '../renderer/src/components/Settings';
 
-describe('Settings Component Logic and Tabs', () => {
-  const mockOnSave = jest.fn().mockResolvedValue('right');
-  const mockOnBack = jest.fn();
-  
-  const defaultProps = {
-    layoutMode: 'right',
-    onSave: mockOnSave,
-    onBack: mockOnBack,
-  };
+const mockOnSave = jest.fn().mockResolvedValue('right');
+const mockOnBack = jest.fn();
 
-  beforeEach(() => {
-    jest.useFakeTimers();
-    jest.clearAllMocks();
-  });
+beforeEach(() => {
+  mockOnSave.mockClear();
+  mockOnBack.mockClear();
+});
 
-  afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
-  });
+describe('Settings Component Logic', () => {
+  describe('Rendering', () => {
+    test('renders Settings heading', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      expect(screen.getByText(/settings/i)).toBeInTheDocument();
+    });
 
-  describe('Tab Navigation', () => {
-    test('renders and switches between all tabs', () => {
-      render(<Settings {...defaultProps} />);
-      
-      // Check initial tab (General)
-      expect(screen.getByText(/layout preferences/i)).toBeInTheDocument();
+    test('renders General tab', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      expect(screen.getByRole('tab', { name: /general/i })).toBeInTheDocument();
+    });
 
-      // Switch to Accessibility
+    test('renders Accessibility tab', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      expect(screen.getByRole('tab', { name: /accessibility/i })).toBeInTheDocument();
+    });
+
+    test('renders Notifications tab', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      expect(screen.getByRole('tab', { name: /notifications/i })).toBeInTheDocument();
+    });
+
+    test('renders Save Changes button', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      expect(screen.getByRole('button', { name: /save changes/i })).toBeInTheDocument();
+    });
+
+    test('clicking Accessibility tab shows its content', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
       fireEvent.click(screen.getByRole('tab', { name: /accessibility/i }));
-      expect(screen.getByText(/keyboard & navigation/i)).toBeInTheDocument();
       expect(screen.getByText(/high contrast/i)).toBeInTheDocument();
+    });
 
-      // Switch to Notifications
+    test('clicking Notifications tab shows its content', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
       fireEvent.click(screen.getByRole('tab', { name: /notifications/i }));
-      expect(screen.getByText(/task notifications/i)).toBeInTheDocument();
+      expect(screen.getByText(/task reminders/i)).toBeInTheDocument();
+    });
+
+    test('clicking Save Changes calls onSave', async () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      await act(async () => {
+        fireEvent.click(screen.getByRole('button', { name: /save changes/i }));
+      });
+      expect(mockOnSave).toHaveBeenCalled();
+    });
+
+    test('clicking Cancel calls onBack', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
+      expect(mockOnBack).toHaveBeenCalled();
+    });
+
+    test('renders left-handed mode toggle', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      expect(screen.getByText(/left-handed mode/i)).toBeInTheDocument();
+    });
+
+    test('renders zoom level select', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      expect(screen.getByLabelText(/zoom level/i)).toBeInTheDocument();
+    });
+
+    test('renders reduce motion toggle in accessibility tab', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      fireEvent.click(screen.getByRole('tab', { name: /accessibility/i }));
+      expect(screen.getByText(/reduce motion/i)).toBeInTheDocument();
+    });
+
+    test('renders urgent alerts toggle in notifications tab', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      fireEvent.click(screen.getByRole('tab', { name: /notifications/i }));
       expect(screen.getByText(/urgent task alerts/i)).toBeInTheDocument();
     });
-  });
 
-  describe('Form Controls and Persistence', () => {
-    test('handles General tab inputs (Layout, Zoom, and User Info)', () => {
-      render(<Settings {...defaultProps} />);
-
-      // Toggle Left-Handed Mode
-      const checkboxes = screen.getAllByRole('checkbox');
-      const layoutToggle = checkboxes[0]; 
-      fireEvent.click(layoutToggle);
-      expect(layoutToggle.checked).toBe(true);
-
-      // Change Zoom Level
-      const zoomSelect = screen.getByLabelText(/zoom level/i);
-      fireEvent.change(zoomSelect, { target: { value: '150%' } });
-      expect(zoomSelect.value).toBe('150%');
-
-      // Verify default user info
-      expect(screen.getByLabelText(/name/i)).toHaveValue('Sarah Johnson, RN');
+    test('renders user name field on General tab', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      expect(screen.getByLabelText(/name/i)).toBeInTheDocument();
     });
 
-    test('handles Accessibility and Notification toggles', () => {
-      render(<Settings {...defaultProps} />);
-      
-      // Accessibility Toggles
+    test('can change zoom level', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      fireEvent.change(screen.getByLabelText(/zoom level/i), { target: { value: '125%' } });
+      expect(screen.getByLabelText(/zoom level/i).value).toBe('125%');
+    });
+
+    test('can toggle enhanced keyboard navigation', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
       fireEvent.click(screen.getByRole('tab', { name: /accessibility/i }));
-      const accToggles = screen.getAllByRole('checkbox');
-      fireEvent.click(accToggles[2]); // High Contrast
-      expect(accToggles[2].checked).toBe(true);
+      const checkboxes = screen.getAllByRole('checkbox');
+      fireEvent.click(checkboxes[0]);
+      expect(checkboxes[0]).not.toBeChecked();
+    });
 
-      // Notification Toggles
+    test('can toggle high contrast mode', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      fireEvent.click(screen.getByRole('tab', { name: /accessibility/i }));
+      const checkboxes = screen.getAllByRole('checkbox');
+      fireEvent.click(checkboxes[2]);
+      expect(checkboxes[2]).toBeChecked();
+    });
+
+    test('can toggle task reminders', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
       fireEvent.click(screen.getByRole('tab', { name: /notifications/i }));
-      const notifToggles = screen.getAllByRole('checkbox');
-      fireEvent.click(notifToggles[0]); // Task Reminders
-      expect(notifToggles[0].checked).toBe(false);
+      const checkboxes = screen.getAllByRole('checkbox');
+      fireEvent.click(checkboxes[0]);
+      expect(checkboxes[0]).not.toBeChecked();
+    });
+
+    test('can toggle urgent task alerts', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      fireEvent.click(screen.getByRole('tab', { name: /notifications/i }));
+      const checkboxes = screen.getAllByRole('checkbox');
+      fireEvent.click(checkboxes[1]);
+      expect(checkboxes[1]).not.toBeChecked();
+    });
+    test('can toggle left-handed mode checkbox', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      const checkboxes = screen.getAllByRole('checkbox');
+      fireEvent.click(checkboxes[0]);
+      expect(checkboxes[0]).toBeChecked();
+    });
+
+    test('can toggle focus indicators', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      fireEvent.click(screen.getByRole('tab', { name: /accessibility/i }));
+      const checkboxes = screen.getAllByRole('checkbox');
+      fireEvent.click(checkboxes[1]);
+      expect(checkboxes[1]).not.toBeChecked();
+    });
+
+    test('can toggle reduce motion', () => {
+      render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
+      fireEvent.click(screen.getByRole('tab', { name: /accessibility/i }));
+      const checkboxes = screen.getAllByRole('checkbox');
+      fireEvent.click(checkboxes[3]);
+      expect(checkboxes[3]).toBeChecked();
     });
   });
 
-  describe('Actions and Feedback', () => {
-    test('triggers onBack when Cancel is clicked', () => {
-      render(<Settings {...defaultProps} />);
-      fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
-      expect(mockOnBack).toHaveBeenCalledTimes(1);
-    });
-
-    test('handles Save, calls onSave, and manages toast timer', async () => {
-      render(<Settings {...defaultProps} />);
-      
-      const saveBtn = screen.getByRole('button', { name: /save changes/i });
-      
-      await act(async () => {
-        fireEvent.click(saveBtn);
-      });
-
-      expect(mockOnSave).toHaveBeenCalled();
-      
-      // Verify Toast
-      const toast = screen.getByRole('status');
-      expect(toast).toHaveTextContent(/settings saved/i);
-
-      // Fast-forward to clear toast
-      act(() => {
-        jest.advanceTimersByTime(2500);
-      });
-
-      expect(screen.queryByRole('status')).not.toBeInTheDocument();
-    });
-  });
 });

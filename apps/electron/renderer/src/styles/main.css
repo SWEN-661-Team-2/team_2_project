@@ -8,14 +8,14 @@
 --primary-hover: #1d4ed8;
 --primary-text: #ffffff;
 --text: #1a1a2e;
---text-secondary: #6b7280;
---muted: #9ca3af;
+--text-secondary: #4b5563;
+--muted: #4b5563;
 --danger: #ef4444;
 --warning: #f59e0b;
 --success: #10b981;
 --sidebar-bg: #1e293b;
 --sidebar-text: #cbd5e1;
---sidebar-active: #2563eb;
+--sidebar-active: #1d4ed8;
 --sidebar-width: 220px;
 --sidebar-collapsed: 56px;
 --radius: 8px;
@@ -32,11 +32,11 @@
 --primary: #60a5fa;
 }
 
--- { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 html, body {
 height: 100%;
-font-family: -apple-system, BlinkMacSystemFont, ‘Segoe UI’, Roboto, sans-serif;
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 font-size: 14px;
 background: var(--bg);
 color: var(--text);
@@ -59,7 +59,7 @@ overflow: hidden;
 }
 
 /* Right-handed layout flips sidebar to right */
-[data-layout=“left”] .app-shell {
+[data-layout="left"] .app-shell {
 flex-direction: row-reverse;
 }
 
@@ -130,6 +130,13 @@ font-weight: 600;
 }
 
 .nav-icon { font-size: 16px; flex-shrink: 0; width: 20px; text-align: center; }
+
+/* Shortcut hints — rgba(255,255,255,0.75) meets WCAG 1.4.3 contrast on dark sidebar */
+.nav-shortcut-hint {
+font-size: 10px;
+color: rgba(255,255,255,1.0);
+margin-left: 8px;
+}
 
 .sidebar-footer {
 border-top: 1px solid rgba(255,255,255,0.08);
@@ -253,7 +260,8 @@ padding: 16px;
 .summary-card.urgent { border-left: 4px solid var(--danger); }
 .summary-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
 .summary-number { font-size: 28px; font-weight: 700; color: var(--text); }
-.summary-sub { font-size: 12px; color:#4b5563; margin-top: 4px; }
+/* summary-sub uses text-secondary instead of muted to meet 4.5:1 contrast */
+.summary-sub { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
 
 /* === Dashboard Grid === */
 .dashboard-grid {
@@ -279,7 +287,8 @@ border-bottom: 1px solid var(--border);
 .task-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .task-meta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
 .task-actions { display: flex; align-items: center; gap: 8px; }
-.task-time { font-size: 12px; color: #4b5563; font-weight: 500;}
+/* task-time uses text-secondary instead of muted to meet 4.5:1 contrast */
+.task-time { font-size: 12px; color: var(--text-secondary); }
 .task-check { flex-shrink: 0; }
 
 .task-footer { padding-top: 16px; border-top: 1px solid var(--border); margin-top: 8px; }
@@ -301,7 +310,7 @@ border-radius: 20px;
 text-transform: capitalize;
 }
 .priority-high { background: #fee2e2; color: #b91c1c; }
-.priority-medium { background: #fef3c7; color: #92400e; }
+.priority-medium { background: #fef3c7; color: #78350f; }
 .priority-low { background: #d1fae5; color: #065f46; }
 
 .category-badge {
@@ -368,11 +377,12 @@ gap: 2px;
 margin-bottom: 16px;
 }
 
+/* cal-day-name uses #4b5563 directly to meet 4.5:1 contrast on white background */
 .cal-day-name {
 text-align: center;
 font-size: 11px;
 font-weight: 600;
-color: var(--muted);
+color: #4b5563;
 padding: 4px 0;
 }
 
@@ -390,7 +400,7 @@ color: var(--text);
 .cal-day:hover { background: var(--bg); }
 .cal-today { background: var(--primary); color: #fff; font-weight: 700; }
 .cal-selected { border-top: 1px solid var(--border); padding-top: 12px; }
-.cal-selected .muted { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.cal-selected .muted { font-size: 12px; color: #4b5563; margin-top: 4px; }
 
 .daily-header {
 display: flex;
@@ -412,7 +422,8 @@ border-bottom: 1px solid var(--border);
 .appt-time { min-width: 70px; font-size: 13px; font-weight: 600; color: var(--text-secondary); }
 .appt-info { flex: 1; }
 .appt-meta { font-size: 12px; color: var(--text-secondary); }
-.appt-available { color: var(--muted); font-size: 13px; flex: 1; display: flex; align-items: center; gap: 8px; }
+/* appt-available uses #4b5563 directly to meet 4.5:1 contrast on white background */
+.appt-available { color: #4b5563; font-size: 13px; flex: 1; display: flex; align-items: center; gap: 8px; }
 
 .appt-badge {
 font-size: 11px;
@@ -421,7 +432,7 @@ padding: 3px 10px;
 border-radius: 20px;
 }
 .appt-badge--completed { background: #d1fae5; color: #065f46; }
-.appt-badge--scheduled { background: #dbeafe; color: #1e40af; }
+.appt-badge--scheduled { background: #dbeafe; color: #1e3a8a; }
 
 /* === Patients Layout === */
 .patients-layout {
@@ -486,19 +497,18 @@ flex-shrink: 0;
 .medication-list li { font-size: 13px; margin-bottom: 4px; }
 
 .status-badge--stable { background: #d1fae5; color: #065f46; padding: 2px 8px; border-radius: 20px; font-size: 12px; }
-.status-badge--improving { background: #dbeafe; color: #1e40af; padding: 2px 8px; border-radius: 20px; font-size: 12px; }
+.status-badge--improving { background: #dbeafe; color: #1e3a8a; padding: 2px 8px; border-radius: 20px; font-size: 12px; }
 .status-badge--critical { background: #fee2e2; color: #b91c1c; padding: 2px 8px; border-radius: 20px; font-size: 12px; }
 
 /* === Empty States === */
-.empty-state { padding: 20px; text-align: center; color: var(--muted); }
+.empty-state { padding: 20px; text-align: center; color: var(--text-secondary); }
 .empty-state-center {
 display: flex;
 flex-direction: column;
 align-items: center;
 justify-content: center;
 height: 200px;
-color: #4b5563;
-font-size: 15px;
+color: var(--text-secondary);
 gap: 12px;
 }
 .empty-icon { font-size: 48px; }
@@ -557,7 +567,7 @@ transition: background 0.2s;
 position: relative;
 }
 .toggle-track::after {
-content: ‘’;
+content: '';
 position: absolute;
 top: 3px;
 left: 3px;
@@ -622,7 +632,7 @@ transition: all 0.15s;
 .activity-item:last-child { border-bottom: none; }
 .activity-dot { color: var(--success); flex-shrink: 0; }
 .activity-text { display: flex; flex-direction: column; gap: 2px; font-size: 13px; }
-.activity-time { font-size: 11px; color: var(--muted); }
+.activity-time { font-size: 11px; color: var(--text-secondary); }
 
 /* === Modals === */
 .modal-overlay {
@@ -650,14 +660,14 @@ box-shadow: var(--shadow-md);
 /* Make single-column fields take full width but respect modal padding */
 .modal-body .field {
   width: 100%;
-  box-sizing: border-box; /* ensure padding is counted inside width */
+  box-sizing: border-box;
   margin-bottom: 16px;
 }
 
 .modal-body .field input,
 .modal-body .field select {
-  width: 100%;      /* full width of container */
-  max-width: 100%;  /* prevents accidental overflow */
+  width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
 }
 
@@ -675,7 +685,7 @@ background: none;
 border: none;
 font-size: 18px;
 cursor: pointer;
-color: var(--muted);
+color: var(--text-secondary);
 padding: 4px;
 border-radius: 4px;
 }

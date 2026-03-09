@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-// import { useLocation } from 'react-router-dom';
-import NewTaskModal from './NewTaskModal'; // Import your new component
+import NewTaskModal from './NewTaskModal';
 
 const INITIAL_TASKS = [
   { id: 1, title: 'Medication Administration', patient: 'John Davis', time: '2:00 PM', priority: 'high', category: 'Medication', status: 'pending' },
@@ -13,7 +12,6 @@ const INITIAL_TASKS = [
 const TASK_FILTERS = ['All Tasks', 'Pending', 'In Progress', 'Completed'];
 
 function Tasks() {
-  // const location = useLocation();
   const [tasks, setTasks] = useState(INITIAL_TASKS);
   const [filter, setFilter] = useState('All Tasks');
   const [search, setSearch] = useState('');
@@ -21,18 +19,16 @@ function Tasks() {
   const [toast, setToast] = useState('');
 
   useEffect(() => {
-    // Standard JS works everywhere, even without a <Router>
-    const searchString = window.location.hash.includes('?')
-      ? window.location.hash.split('?')[1]
-      : window.location.search;
+    const searchString = globalThis.location.hash.includes('?')
+      ? globalThis.location.hash.split('?')[1]
+      : globalThis.location.search;
 
     const params = new URLSearchParams(searchString);
 
     if (params.get('openNew') === 'true') {
       setShowModal(true);
-      // Clean up the URL
-      const cleanUrl = window.location.href.split('?')[0];
-      window.history.replaceState({}, '', cleanUrl);
+      const cleanUrl = globalThis.location.href.split('?')[0];
+      globalThis.history?.replaceState?.({}, '', cleanUrl);
     }
   }, []);
 
@@ -41,7 +37,6 @@ function Tasks() {
     setTimeout(() => setToast(''), 2500);
   }
 
-  // Handle saving task from the NEW modal component
   const handleSaveTask = (taskData) => {
     setTasks(prev => [
       {
@@ -70,13 +65,6 @@ function Tasks() {
     return matchFilter && matchSearch;
   });
 
-  const counts = {
-    total: tasks.length,
-    pending: tasks.filter(t => t.status === 'pending').length,
-    inProgress: tasks.filter(t => t.status === 'in-progress').length,
-    completed: tasks.filter(t => t.status === 'completed').length,
-  };
-
   return (
     <div className="page-content">
       <div className="toolbar" role="toolbar" aria-label="Task actions">
@@ -90,7 +78,7 @@ function Tasks() {
           <input
             className="input"
             type="search"
-            placeholder="Search tasks..."
+            aria-label="Search tasks" placeholder="Search tasks..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -103,7 +91,8 @@ function Tasks() {
                 aria-selected={filter === f} // Tells screen readers which tab is active
                 className={`filter-tab ${filter === f ? 'active' : ''}`}
                 onClick={() => setFilter(f)}
-                tabIndex={filter === f ? 0 : -1} // Helps with keyboard arrow navigation
+                role="tab"
+                aria-selected={filter === f}
               >
                 {f}
               </button>
@@ -114,8 +103,19 @@ function Tasks() {
         <ul className="task-list">
           {filtered.map(task => (
             <li key={task.id} className="task-item task-item--full">
+              <input
+                type="checkbox"
+                id={`task-${task.id}`}
+                aria-label={`Mark ${task.title} as ${task.status === 'completed' ? 'pending' : 'completed'}`}
+                checked={task.status === 'completed'}
+                onChange={() => setTasks(prev => prev.map(t =>
+                  t.id === task.id
+                    ? { ...t, status: t.status === 'completed' ? 'pending' : 'completed' }
+                    : t
+                ))}
+              />
               <div className="task-info">
-                <strong>{task.title}</strong>
+                <label htmlFor={`task-${task.id}`}><strong>{task.title}</strong></label>
                 <span className={`priority-badge priority-${task.priority}`}>{task.priority}</span>
                 <div className="task-meta">Patient: {task.patient} · {task.time}</div>
               </div>
@@ -124,7 +124,6 @@ function Tasks() {
         </ul>
       </div>
 
-      {/* NEW MODAL PATTERN */}
       {showModal && (
         <NewTaskModal
           onClose={() => setShowModal(false)}
@@ -132,7 +131,7 @@ function Tasks() {
         />
       )}
 
-      {toast && <div className="toast" role="status">{toast}</div>}
+      {toast && <output className="toast">{toast}</output>}
     </div>
   );
 }
