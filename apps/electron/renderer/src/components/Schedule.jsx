@@ -72,7 +72,7 @@ function Schedule() {
             <strong>February 2026</strong>
             <button className="btn btn-sm" aria-label="Next month">&#8250;</button>
           </div>
-          <div className="cal-grid" role="grid">
+          <div className="cal-grid">
             {CAL_DAYS.map(d => <div key={d} className="cal-day-name">{d}</div>)}
             {blanks.map((_, i) => <div key={'b' + i} className="cal-cell"></div>)}
             {dayNums.map(d => (
