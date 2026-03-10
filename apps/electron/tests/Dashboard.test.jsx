@@ -1,13 +1,12 @@
 /** @jest-environment jsdom */
 
 // Tests for Dashboard component logic
-import React from 'react';
-import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
-// import '@jest-dom';
+import React, { act } from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Dashboard from '../renderer/src/components/Dashboard';
 
-// 1. Mock the child modal components (From origin/main)
+// Mock the child modal components
 jest.mock('../renderer/src/components/NewAppointmentModal', () => ({ onSave, onClose }) => (
   <div data-testid="appt-modal">
     <button onClick={() => onSave({ title: 'Test' })}>Save Appt</button>
@@ -33,10 +32,10 @@ const mockNavigate = jest.fn();
 
 beforeEach(() => {
   mockNavigate.mockClear();
+  jest.useRealTimers();
 });
 
 describe('Dashboard Component Logic', () => {
-
   describe('Core UI Rendering', () => {
     test('renders all major sections and headings', () => {
       render(<Dashboard onNavigate={mockNavigate} />);
@@ -76,24 +75,47 @@ describe('Dashboard Component Logic', () => {
       fireEvent.click(startButtons[0]);
       expect(screen.getByRole('status')).toBeInTheDocument();
     });
+
     test('clicking New Appointment toolbar button opens modal', () => {
       render(<Dashboard onNavigate={mockNavigate} />);
       fireEvent.click(screen.getByRole('button', { name: /new appointment/i }));
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(screen.getByTestId('appt-modal')).toBeInTheDocument();
     });
 
     test('clicking New Patient toolbar button opens modal', () => {
       render(<Dashboard onNavigate={mockNavigate} />);
       fireEvent.click(screen.getByRole('button', { name: /new patient/i }));
-      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(screen.getByTestId('patient-modal')).toBeInTheDocument();
     });
 
     test('clicking Save toolbar button shows toast', () => {
       render(<Dashboard onNavigate={mockNavigate} />);
-      // Note: Use exact string or regex for the emoji button
-      // fireEvent.click(screen.getByText(/save/i));
-      fireEvent.click(screen.getByRole('button', { name: /save information/i }));
+      fireEvent.click(screen.getByRole('button', { name: '💾 Save' }));
       expect(screen.getByRole('status')).toBeInTheDocument();
+    });
+
+    test('modal save actions show toast and toast clears after timeout', async () => {
+      jest.useFakeTimers();
+
+      render(<Dashboard onNavigate={mockNavigate} />);
+
+      fireEvent.click(screen.getByText(/\+ New Task/i));
+      fireEvent.click(screen.getByText(/New Appointment/i));
+      fireEvent.click(screen.getByText(/New Patient/i));
+
+      fireEvent.click(screen.getByText('Save Task'));
+      fireEvent.click(screen.getByText('Save Appt'));
+      fireEvent.click(screen.getByText('Save Patient'));
+
+      expect(screen.getByRole('status')).toBeInTheDocument();
+
+      act(() => {
+        jest.advanceTimersByTime(2500);
+      });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('status')).not.toBeInTheDocument();
+      });
     });
   });
 
@@ -104,8 +126,6 @@ describe('Dashboard Component Logic', () => {
       showToast('Saved!');
       expect(toast).toBe('Saved!');
     });
-
-    jest.useRealTimers();
   });
 
   describe('Summary card data', () => {
@@ -128,30 +148,6 @@ describe('Dashboard Component Logic', () => {
       Object.values(dashboardStats).forEach(val => {
         expect(val).toBeGreaterThan(0);
       });
-    });
-  });
-
-      // Open Modals
-      fireEvent.click(screen.getByText(/\+ New Task/i));
-      fireEvent.click(screen.getByText(/New Appointment/i));
-      fireEvent.click(screen.getByText(/New Patient/i));
-
-      // Trigger Modal Save Actions (using mocked buttons)
-      fireEvent.click(screen.getByText('Save Task'));
-      fireEvent.click(screen.getByText('Save Appt'));
-      fireEvent.click(screen.getByText('Save Patient'));
-
-      // Check toast logic and timer
-      expect(screen.getByRole('status')).toBeInTheDocument();
-      act(() => {
-        jest.advanceTimersByTime(2500);
-      });
-
-      await waitFor(() => {
-        expect(screen.queryByRole('status')).not.toBeInTheDocument();
-      });
-
-      jest.useRealTimers();
     });
   });
 
@@ -178,7 +174,6 @@ describe('Dashboard Component Logic', () => {
     });
 
     test('empty note can still be saved (demo behavior)', () => {
-      const note = '';
       const saved = true;
       expect(saved).toBe(true);
     });

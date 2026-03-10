@@ -1,7 +1,7 @@
 /** @jest-environment jsdom */
 
 import React from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Settings from '../renderer/src/components/Settings';
 
@@ -52,12 +52,14 @@ describe('Settings Component Logic', () => {
       expect(screen.getByText(/task reminders/i)).toBeInTheDocument();
     });
 
-    test('clicking Save Changes calls onSave', () => {
+    test('clicking Save Changes calls onSave', async () => {
       render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
 
       fireEvent.click(screen.getByRole('button', { name: /save changes/i }));
 
-      expect(mockOnSave).toHaveBeenCalled();
+      await waitFor(() => {
+        expect(mockOnSave).toHaveBeenCalled();
+      });
     });
 
     test('clicking Cancel calls onBack', () => {
