@@ -55,13 +55,21 @@ This installs:
 
 # 4. Run the Desktop Application
 
-Start the Electron application:
+To launch the full Electron desktop application:
 
 ```bash
 npm run dev
 ```
 
-The application will launch in a desktop window using the Electron runtime.
+This starts the Vite development server on http://localhost:5173 and opens the CareConnect desktop window in Electron simultaneously.
+
+To start only the Vite development server without opening Electron (required for axe DevTools — see Section 6):
+
+```bash
+npm run vite
+```
+
+This serves the app at http://localhost:5173 in a browser-accessible format without launching the Electron window.
 
 ---
 
@@ -85,19 +93,37 @@ The coverage report will display in the terminal and will also be generated in:
 coverage/
 ```
 
+To open the HTML coverage report:
+
+```bash
+open coverage/lcov-report/index.html
+```
+
 The project maintains **greater than 60% test coverage**, exceeding the assignment requirement.
 
 ---
 
 # 6. Run Accessibility Scans (axe DevTools)
 
-To run axe DevTools, the app must be accessed through Chrome (not the Electron window):
+axe DevTools is a Chrome browser extension and cannot attach to the Electron window directly. To run axe DevTools scans, use the Vite-only dev server:
 
-1. Start the application with `npm run dev`
-2. Open **Google Chrome** and navigate to `http://localhost:5173`
+1. Start the Vite server (without Electron):
+
+```bash
+npm run vite
+```
+
+2. Open **Google Chrome** and navigate to:
+
+```
+http://localhost:5173
+```
+
 3. Open **Developer Tools** (Cmd+Option+I on macOS)
 4. Navigate to the **axe DevTools** tab
 5. Click **Analyze**
+
+> **Note:** For all other testing — keyboard navigation, VoiceOver screen reader testing, and general app usage — use `npm run dev` to launch the full Electron application instead.
 
 Run scans on the following screens:
 
@@ -120,8 +146,9 @@ All screens should report:
 
 To test keyboard-only navigation:
 
-1. Avoid using the mouse.
-2. Navigate the application using the keyboard.
+1. Launch the full application using `npm run dev`
+2. Avoid using the mouse.
+3. Navigate the application using the keyboard.
 
 Keys used for testing:
 
@@ -147,6 +174,8 @@ Verify that:
 
 Screen reader testing was conducted using **VoiceOver on macOS**.
 
+Launch the full application using `npm run dev` before starting screen reader testing.
+
 To enable VoiceOver:
 
 ```
@@ -160,6 +189,7 @@ Recommended VoiceOver commands used during testing:
 | VO + Right Arrow | Move to next element |
 | VO + Left Arrow | Move to previous element |
 | VO + Space | Activate control |
+| VO + U | Open Rotor (landmarks, headings, links) |
 | VO + Shift + M | Open menu |
 
 Verify that:
@@ -213,6 +243,8 @@ AI tools (including ChatGPT and GitHub Copilot) were used to assist with accessi
 
 # Maintainers
 
-Team 2  
-SWEN-661 – User Interface Implementation  
+Team 2
+SWEN-661 – User Interface Implementation
 University of Maryland Global Campus
+
+---
