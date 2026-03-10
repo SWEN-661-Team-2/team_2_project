@@ -1,4 +1,5 @@
 /** @jest-environment jsdom */
+
 import React from 'react';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -11,7 +12,7 @@ describe('NewPatientModal Component', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Mock window.alert since it's used for validation
-    jest.spyOn(window, 'alert').mockImplementation(() => {});
+    jest.spyOn(globalThis, 'alert').mockImplementation(() => {});
   });
 
   afterEach(cleanup);
@@ -47,7 +48,7 @@ describe('NewPatientModal Component', () => {
     const addButton = screen.getByText('Add Patient');
     fireEvent.click(addButton);
 
-    expect(window.alert).toHaveBeenCalledWith("Please fill in required fields (*)");
+    expect(globalThis.alert).toHaveBeenCalledWith("Please fill in required fields (*)");
     expect(mockOnSave).not.toHaveBeenCalled();
   });
 

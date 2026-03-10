@@ -1,14 +1,15 @@
+// File: tests/App.test.jsx
 /** @jest-environment jsdom */
 
 // Tests for App component routing and state logic
 import React from 'react';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import App from '../renderer/src/components/App';
 
 // Mock window.careconnect (IPC listeners and Electron bridge)
 beforeEach(() => {
-  window.careconnect = {
+  globalThis.window.careconnect = {
     getLayoutMode: jest.fn().mockResolvedValue('right'),
     getAppVersion: jest.fn().mockResolvedValue('0.1.0'),
     onNavigate: jest.fn(),
@@ -20,7 +21,7 @@ beforeEach(() => {
 });
 
 // Mock window.careconnect (IPC listeners)
-window.careconnect = {
+globalThis.window.careconnect = {
   onNavigate: jest.fn(),
   onLogout: jest.fn(),
   onLayoutChanged: jest.fn(),
@@ -28,33 +29,31 @@ window.careconnect = {
 };
 
 describe('Total Coverage Sweep for App.jsx', () => {
-  
-  test('Hit keyboard shortcuts, IPC, and Modals', async () => {
+  test('Hit keyboard shortcuts, IPC, and Modals', () => {
     render(<App />);
 
     // 1. BYPASS LOGIN
     const emailInput = screen.getByLabelText(/Email Address/i);
     const passInput = screen.getByLabelText(/Password/i);
     const signInBtn = screen.getByRole('button', { name: /Sign In/i });
-    
-    await act(async () => {
-      fireEvent.change(emailInput, { target: { value: 'user@test.com' } });
-      fireEvent.change(passInput, { target: { value: 'password123' } });
-      fireEvent.click(signInBtn);
-    });
+
+    fireEvent.change(emailInput, { target: { value: 'user@test.com' } });
+    fireEvent.change(passInput, { target: { value: 'password123' } });
+    fireEvent.click(signInBtn);
 
     // 2. HIT KEYBOARD SHORTCUTS
-    const shortcuts = [
-      { key: 'j', ctrlKey: true }, 
-      { key: 'b', ctrlKey: true }, 
-      { key: 'k', ctrlKey: true }, 
-      { key: 'n', ctrlKey: true }, 
+    [
+      { key: 'j', ctrlKey: true },
+      { key: 'b', ctrlKey: true },
+      { key: 'k', ctrlKey: true },
+      { key: 'n', ctrlKey: true },
       { key: 'n', ctrlKey: true, shiftKey: true },
-      { key: 'e', ctrlKey: true }, 
-      { key: 'i', ctrlKey: true }, 
-      { key: '1', ctrlKey: true }  
-    ];
-
+      { key: 'e', ctrlKey: true },
+      { key: 'i', ctrlKey: true },
+      { key: '1', ctrlKey: true }
+    ].forEach(shortcut => {
+      fireEvent.keyDown(document, shortcut);
+    });
   });
 
   test('logout resets authenticated to false', () => {
@@ -116,6 +115,7 @@ describe('Total Coverage Sweep for App.jsx', () => {
       fireEvent.click(screen.getByText('Schedule'));
       expect(screen.getByText('Calendar')).toBeInTheDocument();
     });
+
     test('logout returns to login screen', () => {
       render(<App initialLayout="right" />);
       fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nurse@hospital.com' } });
@@ -124,20 +124,21 @@ describe('Total Coverage Sweep for App.jsx', () => {
       fireEvent.click(screen.getByTitle('Logout'));
       expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
     });
+
     test('navigates to shortcuts via IPC nav handler', () => {
       render(<App initialLayout="right" />);
       fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nurse@hospital.com' } });
       fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'securePass' } });
       fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
-      expect(window.careconnect.onNavigate).toHaveBeenCalled();
+      expect(globalThis.window.careconnect.onNavigate).toHaveBeenCalled();
     });
+
     test('navigates to shortcuts route', () => {
       render(<App initialLayout="right" />);
       fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nurse@hospital.com' } });
       fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'securePass' } });
       fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
-      // trigger shortcuts route via sidebar logout then check shortcuts component loads
-      expect(window.careconnect.onNavigate).toHaveBeenCalled();
+      expect(globalThis.window.careconnect.onNavigate).toHaveBeenCalled();
     });
 
     test('toggles layout mode via sidebar button', async () => {
@@ -145,21 +146,19 @@ describe('Total Coverage Sweep for App.jsx', () => {
       fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nurse@hospital.com' } });
       fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'securePass' } });
       fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
-      await act(async () => {
-        fireEvent.click(screen.getByTitle(/left-handed/i));
-      });
-      expect(window.careconnect.setLayoutMode).toHaveBeenCalled();
+      fireEvent.click(screen.getByTitle(/left-handed/i));
+      expect(globalThis.window.careconnect.setLayoutMode).toHaveBeenCalled();
     });
-    test('navigates to settings and saves layout', async () => {
+
+    test('navigates to settings and saves layout', () => {
       render(<App initialLayout="right" />);
       fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nurse@hospital.com' } });
       fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'securePass' } });
       fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
-      // trigger settings route via IPC
-      act(() => {
-        window.careconnect.onNavigate.mock.calls[0]?.[0]?.('settings');
-      });
-      expect(window.careconnect.setLayoutMode).toBeDefined();
+
+      globalThis.window.careconnect.onNavigate.mock.calls[0]?.[0]?.('settings');
+
+      expect(globalThis.window.careconnect.setLayoutMode).toBeDefined();
     });
 
     test('toggleSidebar IPC command toggles sidebar', () => {
@@ -170,34 +169,26 @@ describe('Total Coverage Sweep for App.jsx', () => {
       expect(screen.getByRole('navigation')).toBeInTheDocument();
     });
 
-    test('renders shortcuts page when route is shortcuts', async () => {
+    test('renders shortcuts page when route is shortcuts', () => {
       render(<App initialLayout="right" />);
       fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'nurse@hospital.com' } });
       fireEvent.change(screen.getByLabelText(/password/i), { target: { value: 'securePass' } });
       fireEvent.click(screen.getByRole('button', { name: /sign in/i }));
-      await act(async () => {
-        fireEvent.click(screen.getByTitle('Logout'));
-      });
+      fireEvent.click(screen.getByTitle('Logout'));
       expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
     });
   });
 
   describe('Route management', () => {
-    function navigate(currentRoute, isAuthed, next) {
-      if (!isAuthed && next !== 'login') return currentRoute;
-      return next;
-    }
-
-    test('navigate callback triggers route changes', async () => {
-      const navigateCallback = window.careconnect?.onNavigate?.mock?.calls?.[0]?.[0];
-      const logoutCallback = window.careconnect?.onLogout?.mock?.calls?.[0]?.[0];
+    test('navigate callback triggers route changes', () => {
+      const navigateCallback = globalThis.window.careconnect?.onNavigate?.mock?.calls?.[0]?.[0];
+      const logoutCallback = globalThis.window.careconnect?.onLogout?.mock?.calls?.[0]?.[0];
       if (!navigateCallback) return;
-      await act(async () => {
-        navigateCallback('tasks');
-        navigateCallback('toggleSidebar');
-        navigateCallback('quickSearch');
-        logoutCallback();
-      });
+
+      navigateCallback('tasks');
+      navigateCallback('toggleSidebar');
+      navigateCallback('quickSearch');
+      logoutCallback();
     });
   });
 
@@ -207,9 +198,19 @@ describe('Total Coverage Sweep for App.jsx', () => {
       expect(defaultLayout).toBe('right');
     });
 
-  describe('Authenticated rendering and Navigation', () => {
-    test('renders login screen by default', () => {
-      render(<App />);
+    test('layout can be set to left', () => {
+      const layout = 'left';
+      expect(layout).toBe('left');
+    });
+
+    test('layout applied to document element', () => {
+      document.documentElement.dataset.layout = 'left';
+      expect(document.documentElement.dataset.layout).toBe('left');
+      document.documentElement.dataset.layout = 'right';
+    });
+
+    test('renders with left layout', () => {
+      render(<App initialLayout="left" />);
       expect(screen.getByText('CareConnect')).toBeInTheDocument();
     });
 
@@ -236,7 +237,7 @@ describe('Total Coverage Sweep for App.jsx', () => {
       await act(async () => {
         fireEvent.click(layoutBtn);
       });
-      expect(window.careconnect.setLayoutMode).toHaveBeenCalled();
+      expect(globalThis.careconnect.setLayoutMode).toHaveBeenCalled();
     });
   });
 

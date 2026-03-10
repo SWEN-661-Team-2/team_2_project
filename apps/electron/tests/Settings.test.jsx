@@ -52,11 +52,11 @@ describe('Settings Component Logic', () => {
       expect(screen.getByText(/task reminders/i)).toBeInTheDocument();
     });
 
-    test('clicking Save Changes calls onSave', async () => {
+    test('clicking Save Changes calls onSave', () => {
       render(<Settings layoutMode="right" onSave={mockOnSave} onBack={mockOnBack} />);
-      await act(async () => {
-        fireEvent.click(screen.getByRole('button', { name: /save changes/i }));
-      });
+
+      fireEvent.click(screen.getByRole('button', { name: /save changes/i }));
+
       expect(mockOnSave).toHaveBeenCalled();
     });
 

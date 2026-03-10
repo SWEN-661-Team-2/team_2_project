@@ -5,14 +5,30 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Schedule from '../renderer/src/components/Schedule';
 
+const APPOINTMENTS = [
+  { time: '08:00 AM', patient: 'John Davis', duration: '30 min', type: 'Medication Round', status: 'completed' },
+  { time: '09:00 AM', patient: null, duration: null, type: null, status: 'available' },
+  { time: '11:00 AM', patient: 'Robert Brown', duration: '30 min', type: 'Round Care', status: 'completed' },
+  { time: '02:00 PM', patient: 'John Davis', duration: '15 min', type: 'Medication Administration', status: 'scheduled' },
+  { time: '03:00 PM', patient: 'Robert Brown', duration: '60 min', type: 'Physical Therapy', status: 'scheduled' }
+];
+
+function getAppointmentCounts(appointments) {
+  return {
+    total: appointments.filter(a => a.status !== 'available').length,
+    completed: appointments.filter(a => a.status === 'completed').length,
+    scheduled: appointments.filter(a => a.status === 'scheduled').length,
+    available: appointments.filter(a => a.status === 'available').length
+  };
+}
+
+function buildCalendar(year, month) {
+  const first = new Date(year, month, 1).getDay();
+  const days = new Date(year, month + 1, 0).getDate();
+  return { first, days };
+}
+
 describe('Schedule Component Logic', () => {
-  const APPOINTMENTS = [
-    { time: '08:00 AM', patient: 'John Davis', duration: '30 min', type: 'Medication Round', status: 'completed' },
-    { time: '09:00 AM', patient: null, duration: null, type: null, status: 'available' },
-    { time: '11:00 AM', patient: 'Robert Brown', duration: '30 min', type: 'Round Care', status: 'completed' },
-    { time: '02:00 PM', patient: 'John Davis', duration: '15 min', type: 'Medication Administration', status: 'scheduled' },
-    { time: '03:00 PM', patient: 'Robert Brown', duration: '60 min', type: 'Physical Therapy', status: 'scheduled' }
-  ];
 
   describe('Rendering', () => {
     test('renders Calendar heading', () => {
@@ -39,6 +55,7 @@ describe('Schedule Component Logic', () => {
       render(<Schedule />);
       expect(screen.getAllByText('John Davis')[0]).toBeInTheDocument();
     });
+
     test('clicking New Appointment button opens form', () => {
       render(<Schedule />);
       fireEvent.click(screen.getByRole('button', { name: /new appointment/i }));
@@ -53,15 +70,6 @@ describe('Schedule Component Logic', () => {
   });
 
   describe('Appointment counting', () => {
-    function getAppointmentCounts(appointments) {
-      return {
-        total: appointments.filter(a => a.status !== 'available').length,
-        completed: appointments.filter(a => a.status === 'completed').length,
-        scheduled: appointments.filter(a => a.status === 'scheduled').length,
-        available: appointments.filter(a => a.status === 'available').length
-      };
-    }
-
     test('counts total non-available appointments', () => {
       const counts = getAppointmentCounts(APPOINTMENTS);
       expect(counts.total).toBe(4);
@@ -84,12 +92,6 @@ describe('Schedule Component Logic', () => {
   });
 
   describe('Calendar building', () => {
-    function buildCalendar(year, month) {
-      const first = new Date(year, month, 1).getDay();
-      const days = new Date(year, month + 1, 0).getDate();
-      return { first, days };
-    }
-
     test('February 2026 starts on Sunday (day 0)', () => {
       const { first } = buildCalendar(2026, 1);
       expect(first).toBe(0);
@@ -146,4 +148,3 @@ describe('Schedule Component Logic', () => {
     });
   });
 });
-

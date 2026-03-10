@@ -29,6 +29,6 @@ describe('Toolbar Component', () => {
     expect(found.textContent).toBe('Toolbar placeholder');
 
     // Cleanup for other tests
-    document.body.removeChild(toolbarElement);
-  });
+    toolbarElement.remove();
+});
 });

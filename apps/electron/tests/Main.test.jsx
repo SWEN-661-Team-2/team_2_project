@@ -25,11 +25,11 @@ describe('Main.jsx Initialization', () => {
     
     // Clear mocks and reset window object
     jest.clearAllMocks();
-    delete window.careconnect;
+    delete globalThis.careconnect;
   });
 
   afterEach(() => {
-    document.body.removeChild(rootElement);
+    rootElement.remove();
   });
 
   test('initializes with fallback values when window.careconnect is missing', async () => {
@@ -55,7 +55,7 @@ describe('Main.jsx Initialization', () => {
     const { createRoot } = require('react-dom/client');
     
     // Mock the Electron bridge
-    window.careconnect = {
+    globalThis.careconnect = {
       getLayoutMode: jest.fn().mockResolvedValue('left'),
       getAppVersion: jest.fn().mockResolvedValue('1.2.3'),
     };
@@ -68,7 +68,7 @@ describe('Main.jsx Initialization', () => {
     // Wait for async IIFE
     await new Promise(resolve => setTimeout(resolve, 0));
 
-    expect(window.careconnect.getLayoutMode).toHaveBeenCalled();
+    expect(globalThis.careconnect.getLayoutMode).toHaveBeenCalled();
     expect(document.title).toBe('CareConnect v1.2.3');
     
     const renderMock = createRoot().render;

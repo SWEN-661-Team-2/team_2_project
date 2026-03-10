@@ -58,7 +58,7 @@ This installs:
 Start the Electron application:
 
 ```bash
-npm run electron
+npm run dev
 ```
 
 The application will launch in a desktop window using the Electron runtime.
@@ -91,10 +91,13 @@ The project maintains **greater than 60% test coverage**, exceeding the assignme
 
 # 6. Run Accessibility Scans (axe DevTools)
 
-1. Launch the application using `npm run electron`
-2. Open **Developer Tools**
-3. Navigate to the **axe DevTools** tab
-4. Click **Analyze**
+To run axe DevTools, the app must be accessed through Chrome (not the Electron window):
+
+1. Start the application with `npm run dev`
+2. Open **Google Chrome** and navigate to `http://localhost:5173`
+3. Open **Developer Tools** (Cmd+Option+I on macOS)
+4. Navigate to the **axe DevTools** tab
+5. Click **Analyze**
 
 Run scans on the following screens:
 
