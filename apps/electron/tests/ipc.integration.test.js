@@ -1,4 +1,3 @@
-// path: apps/electron/tests/ipc.integration.test.js
 /** @jest-environment node */
 
 jest.mock("electron", () => {

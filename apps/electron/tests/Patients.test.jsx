@@ -6,15 +6,35 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Patients from '../renderer/src/components/Patients';
 
-describe('Patients Component Logic', () => {
-  const PATIENTS = [
-    { id: 1, name: 'John Davis', initials: 'JD', room: '301A', age: 58, status: 'stable', lastVisit: '2 hours ago' },
-    { id: 2, name: 'Mary Wilson', initials: 'MW', room: '305B', age: 54, status: 'improving', lastVisit: '1 hour ago' },
-    { id: 3, name: 'Robert Brown', initials: 'RB', room: '310A', age: 72, status: 'critical', lastVisit: '30 min ago' },
-    { id: 4, name: 'Lisa Anderson', initials: 'LA', room: '308C', age: 45, status: 'stable', lastVisit: '3 hours ago' },
-    { id: 5, name: 'James Miller', initials: 'JM', room: '312B', age: 63, status: 'improving', lastVisit: '13 hours ago' }
-  ];
+const PATIENTS = [
+  { id: 1, name: 'John Davis', initials: 'JD', room: '301A', age: 58, status: 'stable', lastVisit: '2 hours ago' },
+  { id: 2, name: 'Mary Wilson', initials: 'MW', room: '305B', age: 54, status: 'improving', lastVisit: '1 hour ago' },
+  { id: 3, name: 'Robert Brown', initials: 'RB', room: '310A', age: 72, status: 'critical', lastVisit: '30 min ago' },
+  { id: 4, name: 'Lisa Anderson', initials: 'LA', room: '308C', age: 45, status: 'stable', lastVisit: '3 hours ago' },
+  { id: 5, name: 'James Miller', initials: 'JM', room: '312B', age: 63, status: 'improving', lastVisit: '13 hours ago' }
+];
 
+function searchPatients(patients, search) {
+  if (!search) return patients;
+  return patients.filter(p =>
+    p.name.toLowerCase().includes(search.toLowerCase()) ||
+    p.room.toLowerCase().includes(search.toLowerCase())
+  );
+}
+
+function generateInitials(firstName, lastName) {
+  return (firstName[0] + lastName[0]).toUpperCase();
+}
+
+function validateNewPatient(firstName, lastName, phone) {
+  const errors = [];
+  if (!firstName.trim()) errors.push('First name is required');
+  if (!lastName.trim()) errors.push('Last name is required');
+  if (!phone.trim()) errors.push('Phone number is required');
+  return errors;
+}
+
+describe('Patients Component Logic', () => {
   describe('Rendering', () => {
     test('renders Patient Care heading', () => {
       render(<Patients />);
@@ -83,14 +103,6 @@ describe('Patients Component Logic', () => {
   });
 
   describe('Patient search', () => {
-    function searchPatients(patients, search) {
-      if (!search) return patients;
-      return patients.filter(p =>
-        p.name.toLowerCase().includes(search.toLowerCase()) ||
-        p.room.toLowerCase().includes(search.toLowerCase())
-      );
-    }
-
     test('returns all patients when search is empty', () => {
       expect(searchPatients(PATIENTS, '')).toHaveLength(5);
     });
@@ -125,10 +137,6 @@ describe('Patients Component Logic', () => {
   });
 
   describe('Patient initials', () => {
-    function generateInitials(firstName, lastName) {
-      return (firstName[0] + lastName[0]).toUpperCase();
-    }
-
     test('generates correct initials', () => {
       expect(generateInitials('John', 'Davis')).toBe('JD');
       expect(generateInitials('Mary', 'Wilson')).toBe('MW');
@@ -180,8 +188,7 @@ describe('Patients Component Logic', () => {
     });
 
     test('selecting different patient updates selection', () => {
-      let selected = PATIENTS[0];
-      selected = PATIENTS[2];
+      const selected = PATIENTS[2];
       expect(selected.id).toBe(3);
     });
   });
@@ -212,14 +219,6 @@ describe('Patients Component Logic', () => {
   });
 
   describe('Add patient modal validation', () => {
-    function validateNewPatient(firstName, lastName, phone) {
-      const errors = [];
-      if (!firstName.trim()) errors.push('First name is required');
-      if (!lastName.trim()) errors.push('Last name is required');
-      if (!phone.trim()) errors.push('Phone number is required');
-      return errors;
-    }
-
     test('validates required fields', () => {
       const errors = validateNewPatient('', '', '');
       expect(errors).toHaveLength(3);
