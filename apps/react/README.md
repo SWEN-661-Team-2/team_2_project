@@ -1,73 +1,191 @@
-# React + TypeScript + Vite
+# CareConnect Web Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> Supporting Care, Connecting Hearts
 
-Currently, two official plugins are available:
+A responsive Progressive Web App (PWA) for healthcare professionals built with React, TypeScript, and Tailwind CSS.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **Framework:** React 19 + TypeScript
+- **Build Tool:** Vite 8
+- **Styling:** Tailwind CSS v3
+- **Forms:** react-hook-form
+- **Icons:** lucide-react
+- **PWA:** Custom service worker + Web App Manifest
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Prerequisites
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js 18+
+- npm 9+
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Getting Started
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/SWEN-661-Team-2/team_2_project.git
+cd team_2_project
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 2. Navigate to the React app
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd apps/react
 ```
+
+### 3. Install dependencies
+
+```bash
+npm install
+```
+
+### 4. Start the development server
+
+```bash
+npm run dev
+```
+
+The app will be available at `http://localhost:5173`
+
+---
+
+## Available Scripts
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm run preview` | Preview production build locally |
+| `npm run lint` | Run ESLint |
+
+---
+
+## Building for Production
+
+```bash
+npm run build
+```
+
+Output will be in the `dist/` directory.
+
+To preview the production build locally:
+
+```bash
+npm run preview
+```
+
+---
+
+## Deployment
+
+### Vercel (Recommended)
+
+1. Install Vercel CLI: `npm install -g vercel`
+2. Run: `vercel` from the `apps/react` directory
+3. Follow the prompts
+4. For subsequent deploys: `vercel --prod`
+
+### Netlify
+
+1. Build the project: `npm run build`
+2. Drag and drop the `dist/` folder into [Netlify Drop](https://app.netlify.com/drop)
+3. Or connect your GitHub repo in the Netlify dashboard
+
+### GitHub Pages
+
+1. Install gh-pages: `npm install -D gh-pages`
+2. Add to `package.json` scripts: `"deploy": "gh-pages -d dist"`
+3. Run: `npm run build && npm run deploy`
+
+---
+
+## Project Structure
+
+```
+apps/react/
+├── public/
+│   ├── manifest.json          # PWA manifest
+│   └── sw.js                  # Service worker
+├── src/
+│   ├── app/
+│   │   └── components/
+│   │       ├── Login.tsx
+│   │       ├── CareConnectNavigation.tsx
+│   │       ├── CareConnectDashboard.tsx
+│   │       ├── TaskManagement.tsx
+│   │       ├── SchedulePage.tsx
+│   │       ├── PatientCare.tsx
+│   │       ├── SettingsPage.tsx
+│   │       ├── NewAppointmentModal.tsx
+│   │       ├── AddPatientModal.tsx
+│   │       └── CreateTaskModal.tsx
+│   ├── App.tsx                # Root component
+│   ├── main.tsx               # Entry point + SW registration
+│   └── index.css              # Tailwind directives
+├── index.html
+├── vite.config.ts
+├── tailwind.config.js
+└── tsconfig.json
+```
+
+---
+
+## Features
+
+- **Responsive design** — mobile (320px), tablet (768px), desktop (1024px+)
+- **Left-handed mode** — sidebar moves from left to right
+- **PWA** — installable, offline-capable
+- **Authentication** — login with form validation
+- **Dashboard** — task summary, schedule, care log, activity feed
+- **Task Management** — filter, search, create tasks
+- **Schedule** — calendar view with appointment timeline
+- **Patient Care** — patient list with detailed records
+- **Settings** — accessibility and notification preferences
+
+---
+
+## Responsive Breakpoints
+
+| Breakpoint | Width | Navigation |
+|---|---|---|
+| Mobile | < 768px | Bottom tab bar |
+| Tablet | 768px – 1023px | Icon-only sidebar (80px) |
+| Desktop | 1024px+ | Full labeled sidebar (256px) |
+
+---
+
+## PWA
+
+The app is PWA-enabled. To install:
+
+1. Open the deployed app in Chrome
+2. Click the install icon in the address bar
+3. Or use the browser menu → "Add to Home Screen"
+
+Offline support: static assets and previously visited pages are cached via the service worker.
+
+---
+
+## Accessibility
+
+- WCAG 2.1 Level AA compliant
+- Keyboard navigable — all interactive elements accessible via Tab
+- ARIA labels on all controls
+- Focus indicators visible at all times
+- Minimum 48px touch targets on mobile
+- Screen reader compatible
+
+---
+
+## Contributing
+
+This app is part of the SWEN-661 Team 2 CareConnect project. See the root repository README for contribution guidelines.
+
+
+---
