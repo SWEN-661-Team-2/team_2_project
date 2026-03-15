@@ -22,13 +22,21 @@ interface CareConnectNavigationProps {
   readonly activeItem: string;
   readonly onNavigate: (id: string) => void;
   readonly onLogout?: () => void;
+  readonly sidebarPosition?: 'left' | 'right';
+  readonly onSidebarPositionChange?: (position: 'left' | 'right') => void;
 }
 
-export function CareConnectNavigation({ activeItem, onNavigate, onLogout }: CareConnectNavigationProps) {
-  const [sidebarPosition, setSidebarPosition] = useState<'left' | 'right'>('left');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+export function CareConnectNavigation({ activeItem, onNavigate, onLogout, sidebarPosition: externalPosition, onSidebarPositionChange }: CareConnectNavigationProps) {
+  const [internalPosition, setInternalPosition] = useState<'left' | 'right'>('left');
+  const sidebarPosition = externalPosition ?? internalPosition;
 
-  const toggleSidebarPosition = () => setSidebarPosition((prev) => (prev === 'left' ? 'right' : 'left'));
+  const toggleSidebarPosition = () => {
+    const next = sidebarPosition === 'left' ? 'right' : 'left';
+    setInternalPosition(next);
+    onSidebarPositionChange?.(next);
+  };
+
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleNavigation = (id: string) => {
     onNavigate(id);
@@ -157,7 +165,13 @@ export function CareConnectNavigation({ activeItem, onNavigate, onLogout }: Care
       {/* Mobile Slide-over Menu */}
       {isMobileMenuOpen && (
         <div className="md:hidden fixed inset-0 z-50">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm w-full cursor-default"
+            onClick={() => setIsMobileMenuOpen(false)}
+            onKeyDown={(e) => e.key === 'Escape' && setIsMobileMenuOpen(false)}
+            aria-label="Close menu"
+          />
           <div className="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-white shadow-2xl">
             <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-cyan-50">
               <div className="flex items-center gap-3">

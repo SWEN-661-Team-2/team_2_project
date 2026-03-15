@@ -8,11 +8,8 @@ import { NewAppointmentModal } from './NewAppointmentModal';
 import { AddPatientModal } from './AddPatientModal';
 import { CreateTaskModal } from './CreateTaskModal';
 
-interface CareConnectDashboardProps {
-  readonly sidebarPosition?: 'left' | 'right';
-}
+export function CareConnectDashboard() {
 
-export function CareConnectDashboard({ sidebarPosition = 'left' }: CareConnectDashboardProps) {
   const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
   const [patientModalOpen, setPatientModalOpen] = useState(false);
   const [taskModalOpen, setTaskModalOpen] = useState(false);
@@ -49,9 +46,6 @@ export function CareConnectDashboard({ sidebarPosition = 'left' }: CareConnectDa
     { id: 3, action: 'Appointment scheduled', user: 'Dr. Emily Brown', time: '23 min ago', icon: Calendar },
     { id: 4, action: 'Care note updated', user: 'Nurse Lisa Chen', time: '45 min ago', icon: FileText },
   ];
-
-  // suppress unused warning until layout toggle is wired
-  void sidebarPosition;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 pb-20 lg:pb-0">
@@ -97,10 +91,10 @@ export function CareConnectDashboard({ sidebarPosition = 'left' }: CareConnectDa
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
-          {summaryCards.map((card, index) => {
+          {summaryCards.map((card) => {
             const Icon = card.icon;
             return (
-              <div key={index} className="bg-white rounded-xl border border-slate-200 p-4 md:p-6 hover:shadow-lg transition-shadow">
+                <div key={card.title} className="bg-white rounded-xl border border-slate-200 p-4 md:p-6 hover:shadow-lg transition-shadow">
                 <div className="flex items-start justify-between mb-3">
                   <div className={`w-10 h-10 md:w-12 md:h-12 ${card.bgColor} rounded-xl flex items-center justify-center`}>
                     <Icon className={`w-5 h-5 md:w-6 md:h-6 ${card.textColor}`} strokeWidth={2} />
