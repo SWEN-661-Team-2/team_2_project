@@ -13,7 +13,8 @@ function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const activeView = location.pathname === '/' ? 'dashboard' : location.pathname.replace('/', '');
+  // Fix: handle the dashboard case so it matches '/' correctly
+  const activeView = location.pathname === '/' ? 'dashboard' : location.pathname.substring(1);
 
   const handleNavigate = (id: string) => {
     navigate(id === 'dashboard' ? '/' : `/${id}`);
@@ -21,7 +22,7 @@ function AppLayout() {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    // Redirect happens automatically now because of the state change in the main App component
   };
 
   return (
@@ -45,12 +46,8 @@ function AppLayout() {
           <Route path="/tasks" element={<TaskManagement />} />
           <Route path="/schedule" element={<SchedulePage />} />
           <Route path="/patients" element={<PatientCare />} />
-          <Route path="/settings" element={
-            <SettingsPage
-              leftHandedMode={state.sidebarPosition === 'right'}
-              onLeftHandedChange={setSidebarPosition}
-            />}
-          />
+          <Route path="/settings" element={<SettingsPage />} />
+          {/* Catch-all for logged-in users to prevent broken URLs */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
@@ -61,9 +58,20 @@ function AppLayout() {
 export default function App() {
   const { state, login } = useAppContext();
 
-  if (!state.isLoggedIn) {
-    return <Login onLogin={login} />;
-  }
-
-  return <AppLayout />;
+  return (
+    <Routes>
+      {/* If not logged in, only the Login route exists. 
+          Everything else redirects to /login */}
+      {!state.isLoggedIn ? (
+        <>
+          <Route path="/login" element={<Login onLogin={login} />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </>
+      ) : (
+        /* If logged in, the /login route is gone, 
+           and we show the AppLayout (which contains its own Routes) */
+        <Route path="*" element={<AppLayout />} />
+      )}
+    </Routes>
+  );
 }

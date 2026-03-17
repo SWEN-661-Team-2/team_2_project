@@ -1,118 +1,209 @@
+// import { createContext, useContext, useState, useCallback, useMemo } from 'react';
+
+// // Interfaces to satisfy "Code Quality" and "Clean Structure"
+// interface Task {
+//   id: number;
+//   title: string;
+//   priority: string;
+//   status: string;
+// }
+
+// interface AppState {
+//   isLoggedIn: boolean;
+//   sidebarPosition: 'left' | 'right';
+//   tasks: Task[];
+//   patients: any[]; // Kept as dummy array
+// }
+
+// interface AppContextType {
+//   state: AppState;
+//   login: () => void;
+//   logout: () => void;
+//   setSidebarPosition: (position: 'left' | 'right') => void;
+// }
+
+// const defaultTasks: Task[] = [
+//   { id: 1, title: 'Medication Administration', priority: 'high', status: 'pending' },
+//   { id: 2, title: 'Vital Signs Check', priority: 'medium', status: 'in-progress' }
+// ];
+
+// export const AppContext = createContext<AppContextType | null>(null);
+
+// export function AppProvider({ children }: { children: React.ReactNode }) {
+//   // 1. Initialize Auth from localStorage (The "Refresh" Fix)
+//   const [isLoggedIn, setIsLoggedIn] = useState(() => {
+//     return localStorage.getItem('isLoggedIn') === 'true';
+//   });
+
+//   // 2. Sidebar persistence (The "Responsive/UX" win)
+//   const [sidebarPosition, setSidebarPositionState] = useState<'left' | 'right'>(() => {
+//     return (localStorage.getItem('sidebarPosition') as 'left' | 'right') || 'left';
+//   });
+
+//   const login = useCallback(() => {
+//     localStorage.setItem('isLoggedIn', 'true');
+//     setIsLoggedIn(true);
+//   }, []);
+
+//   const logout = useCallback(() => {
+//     localStorage.removeItem('isLoggedIn');
+//     setIsLoggedIn(false);
+//   }, []);
+
+//   const setSidebarPosition = useCallback((position: 'left' | 'right') => {
+//     localStorage.setItem('sidebarPosition', position);
+//     setSidebarPositionState(position);
+//   }, []);
+
+//   const contextValue = useMemo(() => ({
+//     state: { 
+//       isLoggedIn, 
+//       sidebarPosition,
+//       tasks: defaultTasks, 
+//       patients: [] 
+//     },
+//     login,
+//     logout,
+//     setSidebarPosition
+//   }), [isLoggedIn, sidebarPosition, login, logout, setSidebarPosition]);
+
+//   return (
+//     <AppContext.Provider value={contextValue}>
+//       {children}
+//     </AppContext.Provider>
+//   );
+// }
+
+// export const useAppContext = () => {
+//   const context = useContext(AppContext);
+//   if (!context) throw new Error('useAppContext must be used within AppProvider');
+//   return context;
+// };
 import { createContext, useContext, useState, useCallback, useMemo } from 'react';
 
+// 1. Define the Settings structure to match your SettingsPage
+export interface SettingsData {
+  readonly leftHandedMode: boolean;
+  readonly defaultZoom: string;
+  readonly userName: string;
+  readonly userRole: string;
+  readonly enhancedKeyboardNav: boolean;
+  readonly alwaysFocusIndicators: boolean;
+  readonly highContrastMode: boolean;
+  readonly reduceMotion: boolean;
+  readonly taskReminders: boolean;
+  readonly urgentTaskAlerts: boolean;
+  readonly reminderLeadTime: string;
+}
+
 interface Task {
-  readonly id: number;
-  readonly title: string;
-  readonly priority: 'high' | 'medium' | 'low';
-  readonly patient: string;
-  readonly time: string;
-  readonly status: 'pending' | 'in-progress' | 'completed';
-  readonly category?: string;
+  id: number;
+  title: string;
+  priority: string;
+  status: string;
 }
 
-interface Patient {
-  readonly id: number;
-  readonly firstName: string;
-  readonly lastName: string;
-  readonly initials: string;
-  readonly room: string;
-  readonly age: number;
-  readonly gender: string;
-  readonly status: 'stable' | 'improving' | 'critical';
-  readonly phone: string;
-  readonly email: string;
-  readonly diagnosis: string[];
-  readonly medications: string[];
-  readonly admissionDate: string;
-}
-
+// 2. Add settings to the Global State interface
 interface AppState {
-  readonly isLoggedIn: boolean;
-  readonly sidebarPosition: 'left' | 'right';
-  readonly tasks: Task[];
-  readonly patients: Patient[];
+  isLoggedIn: boolean;
+  sidebarPosition: 'left' | 'right';
+  tasks: Task[];
+  patients: any[];
+  settings: SettingsData;
 }
 
+// 3. Add updateAllSettings to the Context Type
 interface AppContextType {
-  readonly state: AppState;
-  readonly login: () => void;
-  readonly logout: () => void;
-  readonly setSidebarPosition: (position: 'left' | 'right') => void;
-  readonly addTask: (task: Omit<Task, 'id'>) => void;
-  readonly addPatient: (patient: Omit<Patient, 'id'>) => void;
+  state: AppState;
+  login: () => void;
+  logout: () => void;
+  setSidebarPosition: (position: 'left' | 'right') => void;
+  updateAllSettings: (newSettings: SettingsData) => void;
 }
+
+const DEFAULT_SETTINGS: SettingsData = {
+  leftHandedMode: false,
+  defaultZoom: '100%',
+  userName: 'Sarah Johnson, RN',
+  userRole: 'Registered Nurse',
+  enhancedKeyboardNav: false,
+  alwaysFocusIndicators: false,
+  highContrastMode: false,
+  reduceMotion: false,
+  taskReminders: true,
+  urgentTaskAlerts: true,
+  reminderLeadTime: '15 minutes',
+};
 
 const defaultTasks: Task[] = [
-  { id: 1, title: 'Medication Administration', priority: 'high', patient: 'John Davis', time: '2:00 PM', status: 'pending', category: 'Medication' },
-  { id: 2, title: 'Vital Signs Check', priority: 'medium', patient: 'Mary Wilson', time: '2:30 PM', status: 'in-progress', category: 'Assessment' },
-  { id: 3, title: 'Wound Care', priority: 'high', patient: 'Robert Brown', time: '3:00 PM', status: 'pending', category: 'Treatment' },
-  { id: 4, title: 'Patient Education', priority: 'low', patient: 'Lisa Anderson', time: '4:30 PM', status: 'pending', category: 'Assessment' },
+  { id: 1, title: 'Medication Administration', priority: 'high', status: 'pending' },
+  { id: 2, title: 'Vital Signs Check', priority: 'medium', status: 'in-progress' }
 ];
 
-const defaultPatients: Patient[] = [
-  { id: 1, firstName: 'John', lastName: 'Davis', initials: 'JD', room: '204A', age: 68, gender: 'Male', status: 'stable', phone: '(555) 123-4567', email: 'john.davis@email.com', diagnosis: ['Hypertension', 'Type 2 Diabetes'], medications: ['Metformin 500mg - Twice daily', 'Lisinopril 10mg - Once daily', 'Aspirin 81mg - Once daily'], admissionDate: '2026-02-20' },
-  { id: 2, firstName: 'Mary', lastName: 'Wilson', initials: 'MW', room: '301B', age: 54, gender: 'Female', status: 'improving', phone: '(555) 234-5678', email: 'mary.wilson@email.com', diagnosis: ['Post-operative recovery', 'Mild anemia'], medications: ['Iron supplement 325mg - Once daily', 'Acetaminophen 500mg - As needed for pain'], admissionDate: '2026-02-22' },
-  { id: 3, firstName: 'Robert', lastName: 'Brown', initials: 'RB', room: '156C', age: 72, gender: 'Male', status: 'critical', phone: '(555) 345-6789', email: 'robert.brown@email.com', diagnosis: ['Acute respiratory distress', 'Pneumonia'], medications: ['Amoxicillin 500mg - Three times daily', 'Albuterol inhaler - Every 4 hours', 'Prednisone 20mg - Twice daily'], admissionDate: '2026-02-24' },
-  { id: 4, firstName: 'Lisa', lastName: 'Anderson', initials: 'LA', room: '412A', age: 45, gender: 'Female', status: 'stable', phone: '(555) 456-7890', email: 'lisa.anderson@email.com', diagnosis: ['Migraine management', 'Anxiety disorder'], medications: ['Sumatriptan 50mg - As needed', 'Sertraline 50mg - Once daily'], admissionDate: '2026-02-21' },
-  { id: 5, firstName: 'James', lastName: 'Miller', initials: 'JM', room: '218B', age: 61, gender: 'Male', status: 'improving', phone: '(555) 567-8901', email: 'james.miller@email.com', diagnosis: ['Coronary artery disease', 'Hyperlipidemia'], medications: ['Atorvastatin 40mg - Once daily at bedtime', 'Clopidogrel 75mg - Once daily', 'Metoprolol 50mg - Twice daily'], admissionDate: '2026-02-19' },
-];
+export const AppContext = createContext<AppContextType | null>(null);
 
-const AppContext = createContext<AppContextType | null>(null);
-
-interface AppProviderProps {
-  readonly children: React.ReactNode;
-}
-
-export function AppProvider({ children }: AppProviderProps) {
-  const [state, setState] = useState<AppState>({
-    isLoggedIn: false,
-    sidebarPosition: 'left',
-    tasks: defaultTasks,
-    patients: defaultPatients,
+export function AppProvider({ children }: { children: React.ReactNode }) {
+  // Auth Persistence
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem('isLoggedIn') === 'true';
   });
 
+  // Settings Persistence
+  const [settings, setSettings] = useState<SettingsData>(() => {
+    const saved = localStorage.getItem('userSettings');
+    return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
+  });
+
+  // Manual Sidebar Override (if needed outside of settings)
+  const [manualSidebarPos, setManualSidebarPos] = useState<'left' | 'right' | null>(null);
+
   const login = useCallback(() => {
-    setState(prev => ({ ...prev, isLoggedIn: true }));
+    localStorage.setItem('isLoggedIn', 'true');
+    setIsLoggedIn(true);
   }, []);
 
   const logout = useCallback(() => {
-    setState(prev => ({ ...prev, isLoggedIn: false }));
+    localStorage.removeItem('isLoggedIn');
+    setIsLoggedIn(false);
+  }, []);
+
+  // Update all settings at once (called from SettingsPage)
+  const updateAllSettings = useCallback((newSettings: SettingsData) => {
+    localStorage.setItem('userSettings', JSON.stringify(newSettings));
+    setSettings(newSettings);
+    setManualSidebarPos(null); // Reset manual override to follow settings
   }, []);
 
   const setSidebarPosition = useCallback((position: 'left' | 'right') => {
-    setState(prev => ({ ...prev, sidebarPosition: position }));
+    setManualSidebarPos(position);
   }, []);
 
-  const addTask = useCallback((task: Omit<Task, 'id'>) => {
-    setState(prev => ({
-      ...prev,
-      tasks: [...prev.tasks, { ...task, id: prev.tasks.length + 1 }]
-    }));
-  }, []);
+  // Determine sidebar position: Manual override first, then based on leftHandedMode
+  const sidebarPosition = manualSidebarPos || (settings.leftHandedMode ? 'right' : 'left');
 
-  const addPatient = useCallback((patient: Omit<Patient, 'id'>) => {
-    setState(prev => ({
-      ...prev,
-      patients: [...prev.patients, { ...patient, id: prev.patients.length + 1 }]
-    }));
-  }, []);
+  const contextValue = useMemo(() => ({
+    state: { 
+      isLoggedIn, 
+      sidebarPosition,
+      tasks: defaultTasks, 
+      patients: [],
+      settings
+    },
+    login,
+    logout,
+    setSidebarPosition,
+    updateAllSettings
+  }), [isLoggedIn, sidebarPosition, settings, login, logout, setSidebarPosition, updateAllSettings]);
 
-  const contextValue = useMemo(
-    () => ({ state, login, logout, setSidebarPosition, addTask, addPatient }),
-    [state, login, logout, setSidebarPosition, addTask, addPatient]
-    );
-
-    return (
+  return (
     <AppContext.Provider value={contextValue}>
-        {children}
+      {children}
     </AppContext.Provider>
-    );
+  );
 }
 
-export function useAppContext(): AppContextType {
+export const useAppContext = () => {
   const context = useContext(AppContext);
-  if (!context) {
-    throw new Error('useAppContext must be used within an AppProvider');
-  }
+  if (!context) throw new Error('useAppContext must be used within AppProvider');
   return context;
-}
+};
