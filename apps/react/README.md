@@ -2,7 +2,13 @@
 
 > Supporting Care, Connecting Hearts
 
-A responsive Progressive Web App (PWA) for healthcare professionals built with React, TypeScript, and Tailwind CSS.
+A responsive Progressive Web App (PWA) for healthcare professionals built with React 19, TypeScript, Vite, and Tailwind CSS.
+
+---
+
+## Live Deployment
+
+**Production URL:** https://careconnect-web-pi.vercel.app
 
 ---
 
@@ -11,9 +17,12 @@ A responsive Progressive Web App (PWA) for healthcare professionals built with R
 - **Framework:** React 19 + TypeScript
 - **Build Tool:** Vite 8
 - **Styling:** Tailwind CSS v3
+- **Routing:** React Router v6
+- **State Management:** Context API
 - **Forms:** react-hook-form
 - **Icons:** lucide-react
 - **PWA:** Custom service worker + Web App Manifest
+- **Deployment:** Vercel
 
 ---
 
@@ -63,6 +72,7 @@ The app will be available at `http://localhost:5173`
 | `npm run build` | Build for production |
 | `npm run preview` | Preview production build locally |
 | `npm run lint` | Run ESLint |
+| `npm test -- --coverage` | Run tests with coverage report |
 
 ---
 
@@ -82,20 +92,53 @@ npm run preview
 
 ---
 
+## Testing
+
+### Unit & Integration Tests (Jest + React Testing Library)
+
+```bash
+npm test
+```
+
+### With Coverage Report
+
+```bash
+npm test -- --coverage
+```
+
+Coverage report will be generated at `coverage/lcov-report/index.html`
+
+### E2E Tests (Playwright)
+
+```bash
+npx playwright test
+```
+
+---
+
 ## Deployment
 
 ### Vercel (Recommended)
 
-1. Install Vercel CLI: `npm install -g vercel`
-2. Run: `vercel` from the `apps/react` directory
-3. Follow the prompts
-4. For subsequent deploys: `vercel --prod`
+#### Option 1 — Vercel CLI
+
+```bash
+npm install -g vercel
+vercel --prod
+```
+
+#### Option 2 — GitHub Integration
+
+1. Go to https://vercel.com
+2. Click "Add New Project"
+3. Import `SWEN-661-Team-2/team_2_project`
+4. Set root directory to `apps/react`
+5. Click Deploy
 
 ### Netlify
 
 1. Build the project: `npm run build`
 2. Drag and drop the `dist/` folder into [Netlify Drop](https://app.netlify.com/drop)
-3. Or connect your GitHub repo in the Netlify dashboard
 
 ### GitHub Pages
 
@@ -114,6 +157,8 @@ apps/react/
 │   └── sw.js                  # Service worker
 ├── src/
 │   ├── app/
+│   │   ├── context/
+│   │   │   └── AppContext.tsx  # Global state (Context API)
 │   │   └── components/
 │   │       ├── Login.tsx
 │   │       ├── CareConnectNavigation.tsx
@@ -125,7 +170,7 @@ apps/react/
 │   │       ├── NewAppointmentModal.tsx
 │   │       ├── AddPatientModal.tsx
 │   │       └── CreateTaskModal.tsx
-│   ├── App.tsx                # Root component
+│   ├── App.tsx                # Root component + routing
 │   ├── main.tsx               # Entry point + SW registration
 │   └── index.css              # Tailwind directives
 ├── index.html
@@ -140,7 +185,9 @@ apps/react/
 
 - **Responsive design** — mobile (320px), tablet (768px), desktop (1024px+)
 - **Left-handed mode** — sidebar moves from left to right
-- **PWA** — installable, offline-capable
+- **PWA** — installable, offline-capable, 100 Lighthouse PWA score
+- **React Router v6** — URL-based navigation with deep linking
+- **Context API** — global state management for auth, tasks, patients
 - **Authentication** — login with form validation
 - **Dashboard** — task summary, schedule, care log, activity feed
 - **Task Management** — filter, search, create tasks
@@ -162,13 +209,26 @@ apps/react/
 
 ## PWA
 
-The app is PWA-enabled. To install:
+The app is PWA-enabled and installable from the deployed URL:
 
-1. Open the deployed app in Chrome
+1. Open https://careconnect-web-pi.vercel.app in Chrome
 2. Click the install icon in the address bar
-3. Or use the browser menu → "Add to Home Screen"
+3. Or use browser menu → "Add to Home Screen"
 
 Offline support: static assets and previously visited pages are cached via the service worker.
+
+---
+
+## Lighthouse Scores (Production)
+
+| Category | Score |
+|---|---|
+| Performance | 100 |
+| Accessibility | 100 |
+| Best Practices | 100 |
+| SEO | 100 |
+
+Audited on deployed production URL: https://careconnect-web-pi.vercel.app
 
 ---
 
@@ -187,5 +247,10 @@ Offline support: static assets and previously visited pages are cached via the s
 
 This app is part of the SWEN-661 Team 2 CareConnect project. See the root repository README for contribution guidelines.
 
+---
+
+## Course
+
+SWEN-661 - User Interface Implementation — Team 2
 
 ---
