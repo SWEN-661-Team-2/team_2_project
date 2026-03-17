@@ -83,6 +83,7 @@ import { createContext, useContext, useState, useCallback, useMemo } from 'react
 
 // 1. Define the Settings structure to match your SettingsPage
 export interface SettingsData {
+  readonly theme: 'light' | 'dark';
   readonly leftHandedMode: boolean;
   readonly defaultZoom: string;
   readonly userName: string;
@@ -122,6 +123,7 @@ interface AppContextType {
 }
 
 const DEFAULT_SETTINGS: SettingsData = {
+  theme: 'light',
   leftHandedMode: false,
   defaultZoom: '100%',
   userName: 'Sarah Johnson, RN',
