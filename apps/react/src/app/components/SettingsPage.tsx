@@ -1,5 +1,5 @@
 import { Check } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 type TabType = 'general' | 'accessibility' | 'notifications';
 
@@ -82,9 +82,9 @@ export function SettingsPage({ leftHandedMode = false, onLeftHandedChange }: Set
     setHasUnsavedChanges(true);
   };
 
-  useEffect(() => {
-    document.body.style.zoom = settings.defaultZoom;
-  }, [settings.defaultZoom]);
+
+
+
 
 
   const handleSave = () => {

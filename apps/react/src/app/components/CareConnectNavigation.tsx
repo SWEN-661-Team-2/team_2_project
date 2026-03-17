@@ -43,6 +43,7 @@ export function CareConnectNavigation({ activeItem, onNavigate, onLogout, sideba
     setIsMobileMenuOpen(false);
   };
 
+
   return (
     <>
       {/* Desktop Sidebar */}
