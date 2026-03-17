@@ -3,7 +3,6 @@ import {
   LayoutDashboard, CheckSquare, Users, Calendar,
   Settings, Menu, X, LogOut, Heart, MoveHorizontal,
 } from 'lucide-react';
-import { useAppContext } from '../context/AppContext';
 
 interface NavItem {
   readonly id: string;
@@ -23,21 +22,23 @@ interface CareConnectNavigationProps {
   readonly activeItem: string;
   readonly onNavigate: (id: string) => void;
   readonly onLogout?: () => void;
+  readonly sidebarPosition: 'left' | 'right';
+  readonly onSidebarPositionChange: (position: 'left' | 'right') => void;
 }
 
-export function CareConnectNavigation({ activeItem, onNavigate, onLogout }: CareConnectNavigationProps) {
-  const { state, updateAllSettings } = useAppContext();
+export function CareConnectNavigation({ 
+  activeItem, 
+  onNavigate, 
+  onLogout, 
+  sidebarPosition, 
+  onSidebarPositionChange 
+}: CareConnectNavigationProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Derive sidebar position from global accessibility settings
-  const sidebarPosition = state.settings.leftHandedMode ? 'right' : 'left';
-
-  const toggleSidebarPosition = () => {
-    // Correctly updating via updateAllSettings by spreading existing settings
-    updateAllSettings({
-      ...state.settings,
-      leftHandedMode: !state.settings.leftHandedMode
-    });
+  // Logic to switch the sidebar position and notify the parent App component
+  const handleTogglePosition = () => {
+    const nextPosition = sidebarPosition === 'left' ? 'right' : 'left';
+    onSidebarPositionChange(nextPosition);
   };
 
   const handleNavigation = (id: string) => {
@@ -91,7 +92,7 @@ export function CareConnectNavigation({ activeItem, onNavigate, onLogout }: Care
               <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Layout</span>
             </div>
             <button
-              onClick={toggleSidebarPosition}
+              onClick={handleTogglePosition}
               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
                 sidebarPosition === 'right' ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'
               }`}
