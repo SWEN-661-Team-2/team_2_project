@@ -21,18 +21,38 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
 
   if (!isOpen) return null;
 
+  // const handleFormSubmit = async (data: PatientFormData) => {
+  //   // Artificial delay for UI feedback
+  //   await new Promise((resolve) => setTimeout(resolve, 600));
+  //   onSubmit(data);
+  //   onClose();
+  // };
   const handleFormSubmit = async (data: PatientFormData) => {
-    // Artificial delay for UI feedback
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    onSubmit(data);
+    // 1. Calculate age from dateOfBirth (Dexie needs a number)
+    const birthDate = new Date(data.dateOfBirth);
+    const age = new Date().getFullYear() - birthDate.getFullYear();
+
+    // 2. Prepare the full object for the parent's onSubmit
+    // We spread the form data and add the "missing" fields required by the Patient interface
+    const fullPatientData = {
+      ...data,
+      age,
+      initials: `${data.firstName[0]}${data.lastName[0]}`.toUpperCase(),
+      status: 'stable' as const, // Default new patients to stable
+      diagnosis: [],             // Start with empty arrays
+      medications: [],
+      admissionDate: new Date().toISOString().split('T')[0], // Today's date
+    };
+
+    // onSubmit here refers to the function passed from PatientCare
+    onSubmit(fullPatientData as any);
     onClose();
   };
-
   const getInputClass = (hasError: boolean, hasIcon: boolean = false) => `
     w-full h-12 md:h-14 rounded-xl border-2 transition-all outline-none font-medium
     ${hasIcon ? 'pl-11 pr-4' : 'px-4'}
-    ${hasError 
-      ? 'border-red-500 bg-red-50 dark:bg-red-900/10 text-red-900 dark:text-red-200' 
+    ${hasError
+      ? 'border-red-500 bg-red-50 dark:bg-red-900/10 text-red-900 dark:text-red-200'
       : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:border-blue-500 dark:focus:border-blue-400'
     }
     placeholder:text-slate-400 dark:placeholder:text-slate-500
@@ -51,7 +71,7 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" data-testid="patient-modal">
       {/* Backdrop */}
-      <div 
+      <div
         className="absolute inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-300"
         onClick={onClose}
       />
@@ -69,8 +89,8 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
               </div>
               <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Register a new profile in the system</p>
             </div>
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               className="flex-shrink-0 p-2 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-colors text-slate-500 dark:text-slate-400"
             >
               <X className="w-6 h-6" />
@@ -86,12 +106,12 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="firstName" className={labelClass}>First Name</label>
-                <input 
+                <input
                   id="firstName"
-                  type="text" 
-                  placeholder="e.g. Jane" 
+                  type="text"
+                  placeholder="e.g. Jane"
                   className={getInputClass(!!errors.firstName)}
-                  {...register('firstName', { required: 'First name is required' })} 
+                  {...register('firstName', { required: 'First name is required' })}
                 />
                 {errors.firstName && (
                   <p className="mt-2 text-xs text-red-500 font-bold uppercase flex items-center gap-1 ml-1">
@@ -101,12 +121,12 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
               </div>
               <div>
                 <label htmlFor="lastName" className={labelClass}>Last Name</label>
-                <input 
+                <input
                   id="lastName"
-                  type="text" 
-                  placeholder="e.g. Smith" 
+                  type="text"
+                  placeholder="e.g. Smith"
                   className={getInputClass(!!errors.lastName)}
-                  {...register('lastName', { required: 'Last name is required' })} 
+                  {...register('lastName', { required: 'Last name is required' })}
                 />
                 {errors.lastName && (
                   <p className="mt-2 text-xs text-red-500 font-bold uppercase flex items-center gap-1 ml-1">
@@ -122,11 +142,11 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
                 <label htmlFor="dateOfBirth" className={labelClass}>Date of Birth</label>
                 <div className="relative">
                   <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" />
-                  <input 
+                  <input
                     id="dateOfBirth"
-                    type="date" 
+                    type="date"
                     className={getInputClass(!!errors.dateOfBirth, true)}
-                    {...register('dateOfBirth', { required: 'Date of birth is required' })} 
+                    {...register('dateOfBirth', { required: 'Date of birth is required' })}
                   />
                 </div>
                 {errors.dateOfBirth && (
@@ -138,13 +158,13 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
               <div>
                 <label htmlFor="gender" className={labelClass}>Gender</label>
                 <div className="relative">
-                  <select 
+                  <select
                     id="gender"
                     className={`${getInputClass(!!errors.gender)} appearance-none cursor-pointer`}
                     {...register('gender', { required: 'Gender is required' })}
                   >
                     <option value="">Select gender...</option>
-                    {['Male','Female','Other','Prefer not to say'].map((o) => <option key={o} value={o}>{o}</option>)}
+                    {['Male', 'Female', 'Other', 'Prefer not to say'].map((o) => <option key={o} value={o}>{o}</option>)}
                   </select>
                   {chevron}
                 </div>
@@ -162,15 +182,15 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
                 <label htmlFor="phone" className={labelClass}>Phone Number</label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" />
-                  <input 
+                  <input
                     id="phone"
-                    type="tel" 
-                    placeholder="(555) 000-0000" 
+                    type="tel"
+                    placeholder="(555) 000-0000"
                     className={getInputClass(!!errors.phone, true)}
                     {...register('phone', {
                       required: 'Phone number is required',
                       pattern: { value: /^[\d\s\-()+]+$/, message: 'Invalid phone format' },
-                    })} 
+                    })}
                   />
                 </div>
                 {errors.phone && (
@@ -183,15 +203,15 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
                 <label htmlFor="email" className={labelClass}>Email Address</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" />
-                  <input 
+                  <input
                     id="email"
-                    type="email" 
-                    placeholder="name@example.com" 
+                    type="email"
+                    placeholder="name@example.com"
                     className={getInputClass(!!errors.email, true)}
                     {...register('email', {
                       required: 'Email is required',
                       pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'Invalid email' },
-                    })} 
+                    })}
                   />
                 </div>
                 {errors.email && (
@@ -205,16 +225,16 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
 
           {/* Footer Actions */}
           <div className="flex-shrink-0 px-6 md:px-8 py-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
-            <button 
-              type="button" 
-              onClick={onClose} 
+            <button
+              type="button"
+              onClick={onClose}
               className="h-12 md:h-14 px-8 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border-2 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl transition-all"
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
-              disabled={isSubmitting} 
+            <button
+              type="submit"
+              disabled={isSubmitting}
               className="h-12 md:h-14 px-8 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold rounded-xl shadow-lg shadow-emerald-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isSubmitting ? (
