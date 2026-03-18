@@ -43,14 +43,20 @@ function Schedule() {
 
   const first = new Date(2026, 1, 1).getDay();
   const totalDays = new Date(2026, 2, 0).getDate();
-  const blanks = Array(first).fill(null);
-  const dayNums = Array.from({ length: totalDays }, (_, i) => i + 1);
+  const blanks = new Array(first).fill(null).map((_, i) => ({ key: `blank-${i}`, blank: true }));
+  const dayNums = Array.from({ length: totalDays }, (_, i) => ({ key: `day-${i + 1}`, day: i + 1 }));
 
   const totalAppts = appointments.filter(a => a.status !== 'available').length;
   const completed = appointments.filter(a => a.status === 'completed').length;
   const upcoming = appointments.filter(a => a.status === 'scheduled').length;
 
   const availableSlots = appointments.filter(a => a.status === 'available');
+
+  const allCells = [...blanks, ...dayNums];
+  const rows = [];
+  for (let i = 0; i < allCells.length; i += 7) {
+    rows.push({ key: `row-${i}`, cells: allCells.slice(i, i + 7) });
+  }
 
   return (
     <div className="page-content">
@@ -101,14 +107,12 @@ function Schedule() {
               <button className="btn btn-sm" aria-label="Next day">&#8249;</button>
             </div>
           </div>
-          <ul className="appt-list" role="list">
+          <ul className="appt-list">
             {appointments.map(a => (
               <li key={a.id} className={`appt-item appt-item--${a.status}`}>
                 <span className="appt-time">{a.time}</span>
                 {a.status === 'available' ? (
-                  <span className="appt-available">
-                    Available
-                  </span>
+                  <span className="appt-available">Available</span>
                 ) : (
                   <>
                     <div className="appt-info">
@@ -149,7 +153,7 @@ function Schedule() {
         />
       )}
 
-      {toast && <div className="toast" role="status" aria-live="polite">{toast}</div>}
+      {toast && <output className="toast">{toast}</output>}
     </div>
   );
 }

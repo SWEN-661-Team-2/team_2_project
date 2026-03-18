@@ -8,8 +8,9 @@ const NAV_ITEMS = [
 ];
 
 function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout }) {
-  // Detect if user is on Mac to show the correct symbol
-  const isMac = typeof window !== 'undefined' && navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+  const isMac = navigator.userAgentData
+    ? navigator.userAgentData.platform.toUpperCase().includes('MAC')
+    : navigator.userAgent.toUpperCase().includes('MAC');
   const modifier = isMac ? '⌘' : 'Ctrl+';
 
   return (
@@ -22,7 +23,7 @@ function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout
         {open && <span className="sidebar-title">CareConnect</span>}
       </div>
 
-      <ul className="sidebar-nav" role="list" style={{ listStyle: 'none', padding: 0 }}>
+      <ul className="sidebar-nav">
         {NAV_ITEMS.map((item, index) => (
           <li key={item.id}>
             <button
@@ -37,9 +38,7 @@ function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout
                 <div className="nav-label-container" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
                   {/* WCAG: Ensure nav-label in CSS is at least #4b5563 (gray) or #ffffff (on active blue) */}
                   <span className="nav-label">{item.label}</span>
-                  
-                  {/* FIX: Removed opacity: 0.5. Used solid white for 4.63:1 contrast ratio on blue background */}
-                  <span className="nav-shortcut-hint" style={{ fontSize: '10px', color: '#FFFFFF', fontWeight: '600', marginLeft: '8px' }}>
+                  <span className="nav-shortcut-hint">
                     {modifier}{index + 1}
                   </span>
                 </div>
@@ -48,13 +47,7 @@ function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout
           </li>
         ))}
 
-        {/* --- FIX: DIVIDER CONTRAST --- */}
-        <div 
-          className="sidebar-divider" 
-          role="presentation"
-          style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.3)', margin: '8px 12px' }} 
-        />
-
+        <li role="separator" aria-hidden="true" style={{ height: "1px", backgroundColor: "rgba(255,255,255,0.1)", margin: "8px 12px", listStyle: "none" }}></li>
         <li>
           <button
             className={`sidebar-nav-item ${route === 'settings' ? 'active' : ''}`}
@@ -67,8 +60,7 @@ function Sidebar({ route, open, layoutMode, onNavigate, onToggleLayout, onLogout
             {open && (
               <div className="nav-label-container" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
                 <span className="nav-label">Settings</span>
-                {/* FIX: Removed opacity: 0.5 to meet WCAG 1.4.3 */}
-                <span className="nav-shortcut-hint" style={{ fontSize: '10px', color: '#FFFFFF', fontWeight: '600', marginLeft: '8px' }}>
+                <span className="nav-shortcut-hint">
                   {modifier},
                 </span>
               </div>

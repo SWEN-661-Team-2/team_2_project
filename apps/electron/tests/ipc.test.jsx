@@ -1,17 +1,32 @@
-/**
- * @jest-environment node
- */
+/** @jest-environment node */
+
 // Tests for IPC communication and main menu logic
+
+function layoutSetModeHandler(currentMode, requestedMode) {
+  if (requestedMode !== 'left' && requestedMode !== 'right') {
+    return currentMode;
+  }
+  return requestedMode;
+}
+
+function getWindowBounds(savedBounds) {
+  return savedBounds || { width: 1280, height: 800, x: undefined, y: undefined };
+}
+
+function accel(platform, key) {
+  return platform === 'darwin' ? `Command+${key}` : `Ctrl+${key}`;
+}
+
+function shiftAccel(platform, key) {
+  return platform === 'darwin' ? `Command+Shift+${key}` : `Ctrl+Shift+${key}`;
+}
+
+function toggleLayout(current) {
+  return current === 'right' ? 'left' : 'right';
+}
 
 describe('IPC Communication Logic', () => {
   describe('Layout mode IPC handler', () => {
-    function layoutSetModeHandler(currentMode, requestedMode) {
-      if (requestedMode !== 'left' && requestedMode !== 'right') {
-        return currentMode;
-      }
-      return requestedMode;
-    }
-
     test('accepts left mode', () => {
       expect(layoutSetModeHandler('right', 'left')).toBe('left');
     });
@@ -34,10 +49,6 @@ describe('IPC Communication Logic', () => {
   });
 
   describe('Window state persistence', () => {
-    function getWindowBounds(savedBounds) {
-      return savedBounds || { width: 1280, height: 800, x: undefined, y: undefined };
-    }
-
     test('returns default bounds when no saved state', () => {
       const bounds = getWindowBounds(null);
       expect(bounds.width).toBe(1280);
@@ -58,14 +69,6 @@ describe('IPC Communication Logic', () => {
   });
 
   describe('Menu accelerator generation', () => {
-    function accel(platform, key) {
-      return platform === 'darwin' ? `Command+${key}` : `Ctrl+${key}`;
-    }
-
-    function shiftAccel(platform, key) {
-      return platform === 'darwin' ? `Command+Shift+${key}` : `Ctrl+Shift+${key}`;
-    }
-
     test('generates macOS accelerator', () => {
       expect(accel('darwin', 'N')).toBe('Command+N');
     });
@@ -107,10 +110,6 @@ describe('IPC Communication Logic', () => {
   });
 
   describe('Layout toggle logic', () => {
-    function toggleLayout(current) {
-      return current === 'right' ? 'left' : 'right';
-    }
-
     test('toggles from right to left', () => {
       expect(toggleLayout('right')).toBe('left');
     });

@@ -57,6 +57,6 @@ describe('Sidebar Component', () => {
 
   test('active route has active class', () => {
     render(<Sidebar route="tasks" open={true} layoutMode="right" onNavigate={mockNavigate} onToggleLayout={mockToggleLayout} onLogout={mockLogout} />);
-    expect(screen.getByTitle('Tasks').closest('button')).toHaveClass('active');
+    expect(screen.getByTitle(/Tasks/).closest('button')).toHaveClass('active');
   });
 });

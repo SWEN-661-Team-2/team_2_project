@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import NewPatientModal from './NewPatientModal'; // Import the new component
+import NewPatientModal from './NewPatientModal';
 
 const PATIENTS = [
   { id: 1, name: 'John Davis', initials: 'JD', room: '301A', age: 58, status: 'stable', lastVisit: '2 hours ago' },
@@ -25,12 +25,10 @@ function Patients() {
 
   function showToast(msg) { setToast(msg); setTimeout(() => setToast(''), 2500); }
 
-  // Logic to handle saving a patient from the new component
   const handleSavePatient = (data) => {
     console.log('Patient Data Received:', data);
     setShowModal(false);
     showToast(`Patient ${data.lastName} added successfully!`);
-    // Note: In a real app, you'd add 'data' to your PATIENTS state here
   };
 
   const filtered = PATIENTS.filter(p =>
@@ -51,17 +49,16 @@ function Patients() {
       <p className="page-subtitle">Manage patient information and care plans</p>
 
       <div className="patients-layout">
-        {/* Left Panel: List */}
         <div className="card patients-list-panel">
           <input
             className="input"
             type="search"
-            placeholder="Search patients by name or room..."
+            aria-label="Search patients" placeholder="Search patients by name or room..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
-          <h3 className="panel-section-title">Patients ({filtered.length})</h3>
-          <ul className="patient-list" role="list">
+          <h2 className="panel-section-title">Patients ({filtered.length})</h2>
+          <ul className="patient-list">
             {filtered.map(p => (
               <li key={p.id}>
                 <button
@@ -82,26 +79,32 @@ function Patients() {
           </ul>
         </div>
 
-        {/* Right Panel: Details */}
         <div className="card patients-detail-panel">
           {!selected ? (
             <div className="empty-state-center">
-              <span className="empty-icon">👤</span>
+              <span className="empty-icon" aria-hidden="true">👤</span>
               <p>Select a patient from the list to view details</p>
             </div>
           ) : (
             <div className="patient-detail">
               <div className="detail-header">
-                <div className="patient-avatar patient-avatar--lg">{selected.initials}</div>
+                <div className="patient-avatar patient-avatar--lg" aria-hidden="true">{selected.initials}</div>
                 <div>
                   <h2>{selected.name}</h2>
                   <p>Room {selected.room} · Age {selected.age}</p>
                 </div>
               </div>
-              <div className="detail-section"><h3>Diagnosis</h3><p>{details.diagnosis}</p></div>
+              <div className="detail-section">
+                <h3>Diagnosis</h3>
+                <p>{details.diagnosis}</p>
+              </div>
               <div className="detail-section">
                 <h3>Medications</h3>
-                <ul>{details.medications.map((m, i) => <li key={i}>{m}</li>)}</ul>
+                <ul>
+                  {details.medications.map(m => (
+                    <li key={m}>{m}</li>
+                  ))}
+                </ul>
               </div>
               <div className="btn-group">
                 <button className="btn primary" onClick={() => showToast('Care plan updated.')}>Update Care Plan</button>
@@ -111,15 +114,14 @@ function Patients() {
         </div>
       </div>
 
-      {/* NEW MODAL PATTERN */}
       {showModal && (
-        <NewPatientModal 
-          onClose={() => setShowModal(false)} 
-          onSave={handleSavePatient} 
+        <NewPatientModal
+          onClose={() => setShowModal(false)}
+          onSave={handleSavePatient}
         />
       )}
 
-      {toast && <div className="toast" role="status">{toast}</div>}
+      {toast && <output className="toast">{toast}</output>}
     </div>
   );
 }

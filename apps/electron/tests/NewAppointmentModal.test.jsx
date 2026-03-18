@@ -1,4 +1,5 @@
 /** @jest-environment jsdom */
+
 import React from 'react';
 import { render, screen, fireEvent, cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
@@ -88,8 +89,7 @@ describe('NewAppointmentModal Component', () => {
 
   test('focus trap: tabs from last element to first element', () => {
     render(<NewAppointmentModal onClose={mockOnClose} onSave={mockOnSave} />);
-    
-    const focusable = screen.getAllByRole('combobox').concat(screen.getAllByRole('button')).concat(screen.getByRole('textbox'));
+
     // The "Save" button is the last focusable element in the form
     const lastElement = screen.getByText(/Save Appointment/i);
     const firstElement = screen.getByLabelText(/Close modal/i);

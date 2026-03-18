@@ -45,19 +45,20 @@ function Settings({ layoutMode, onSave, onBack }) {
             <div className="settings-section">
               <h2 className="settings-heading">Layout Preferences</h2>
               <div className="setting-row">
-                <div>
+                <label htmlFor="left-handed-toggle">
                   <div className="setting-label">Left-Handed Mode</div>
                   <div className="setting-desc">Optimize layout for left-handed users</div>
-                </div>
-                <label className="toggle">
+                </label>
+                <span className="toggle">
                   <input
+                    id="left-handed-toggle"
                     type="checkbox"
                     checked={layout === 'left'}
                     aria-label="Mark task as completed"
                     onChange={(e) => setLayout(e.target.checked ? 'left' : 'right')}
                   />
                   <span className="toggle-track"></span>
-                </label>
+                </span>
               </div>
             </div>
             <div className="settings-section">
@@ -93,47 +94,67 @@ function Settings({ layoutMode, onSave, onBack }) {
             <div className="settings-section">
               <h2 className="settings-heading">Keyboard &amp; Navigation</h2>
               <div className="setting-row">
-                <div>
+                <label htmlFor="enhanced-kb-toggle">
                   <div className="setting-label">Enhanced Keyboard Navigation</div>
                   <div className="setting-desc">Enable advanced keyboard shortcuts</div>
-                </div>
-                <label className="toggle">
-                  <input type="checkbox" checked={enhancedKb} onChange={(e) => setEnhancedKb(e.target.checked)} aria-label="Toggle task completion"/>
-                  <span className="toggle-track"></span>
                 </label>
+                <span className="toggle">
+                  <input
+                    id="enhanced-kb-toggle"
+                    type="checkbox"
+                    checked={enhancedKb}
+                    onChange={(e) => setEnhancedKb(e.target.checked)}
+                  />
+                  <span className="toggle-track"></span>
+                </span>
               </div>
               <div className="setting-row">
-                <div>
+                <label htmlFor="focus-indicators-toggle">
                   <div className="setting-label">Always Show Focus Indicators</div>
                   <div className="setting-desc">Visible focus rings for keyboard navigation</div>
-                </div>
-                <label className="toggle">
-                  <input type="checkbox" checked={focusIndicators} onChange={(e) => setFocusIndicators(e.target.checked)} aria-label="Toggle task completion"/>
-                  <span className="toggle-track"></span>
                 </label>
+                <span className="toggle">
+                  <input
+                    id="focus-indicators-toggle"
+                    type="checkbox"
+                    checked={focusIndicators}
+                    onChange={(e) => setFocusIndicators(e.target.checked)}
+                  />
+                  <span className="toggle-track"></span>
+                </span>
               </div>
             </div>
             <div className="settings-section">
               <h2 className="settings-heading">Visual Accessibility</h2>
               <div className="setting-row">
-                <div>
+                <label htmlFor="high-contrast-toggle">
                   <div className="setting-label">High Contrast Mode</div>
                   <div className="setting-desc">Increase contrast for better visibility</div>
-                </div>
-                <label className="toggle">
-                  <input type="checkbox" checked={highContrast} onChange={(e) => setHighContrast(e.target.checked)} aria-label="Toggle task completion"/>
-                  <span className="toggle-track"></span>
                 </label>
+                <span className="toggle">
+                  <input
+                    id="high-contrast-toggle"
+                    type="checkbox"
+                    checked={highContrast}
+                    onChange={(e) => setHighContrast(e.target.checked)}
+                  />
+                  <span className="toggle-track"></span>
+                </span>
               </div>
               <div className="setting-row">
-                <div>
+                <label htmlFor="reduce-motion-toggle">
                   <div className="setting-label">Reduce Motion</div>
                   <div className="setting-desc">Minimize animations and transitions</div>
-                </div>
-                <label className="toggle">
-                  <input type="checkbox" checked={reduceMotion} onChange={(e) => setReduceMotion(e.target.checked)} aria-label="Toggle task completion"/>
-                  <span className="toggle-track"></span>
                 </label>
+                <span className="toggle">
+                  <input
+                    id="reduce-motion-toggle"
+                    type="checkbox"
+                    checked={reduceMotion}
+                    onChange={(e) => setReduceMotion(e.target.checked)}
+                  />
+                  <span className="toggle-track"></span>
+                </span>
               </div>
             </div>
           </div>
@@ -144,24 +165,34 @@ function Settings({ layoutMode, onSave, onBack }) {
             <div className="settings-section">
               <h2 className="settings-heading">Task Notifications</h2>
               <div className="setting-row">
-                <div>
+                <label htmlFor="task-reminders-toggle">
                   <div className="setting-label">Task Reminders</div>
                   <div className="setting-desc">Receive reminders for upcoming tasks</div>
-                </div>
-                <label className="toggle">
-                  <input type="checkbox" checked={taskReminders} onChange={(e) => setTaskReminders(e.target.checked)} aria-label="Toggle task completion"/>
-                  <span className="toggle-track"></span>
                 </label>
+                <span className="toggle">
+                  <input
+                    id="task-reminders-toggle"
+                    type="checkbox"
+                    checked={taskReminders}
+                    onChange={(e) => setTaskReminders(e.target.checked)}
+                  />
+                  <span className="toggle-track"></span>
+                </span>
               </div>
               <div className="setting-row">
-                <div>
+                <label htmlFor="urgent-alerts-toggle">
                   <div className="setting-label">Urgent Task Alerts</div>
                   <div className="setting-desc">Priority notifications for urgent tasks</div>
-                </div>
-                <label className="toggle">
-                  <input type="checkbox" checked={urgentAlerts} onChange={(e) => setUrgentAlerts(e.target.checked)} aria-label="Toggle task completion"/>
-                  <span className="toggle-track"></span>
                 </label>
+                <span className="toggle">
+                  <input
+                    id="urgent-alerts-toggle"
+                    type="checkbox"
+                    checked={urgentAlerts}
+                    onChange={(e) => setUrgentAlerts(e.target.checked)}
+                  />
+                  <span className="toggle-track"></span>
+                </span>
               </div>
               <div className="field">
                 <label className="label" htmlFor="reminder-lead">Reminder Lead Time</label>
@@ -181,7 +212,7 @@ function Settings({ layoutMode, onSave, onBack }) {
           <button className="btn primary" onClick={handleSave}>Save Changes</button>
         </div>
 
-        {saved && <div className="toast" role="status" aria-live="polite">{saved}</div>}
+        {saved && <output className="toast" aria-live="polite">{saved}</output>}
       </div>
     </div>
   );
