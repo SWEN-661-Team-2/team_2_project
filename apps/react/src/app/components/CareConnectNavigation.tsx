@@ -22,39 +22,45 @@ interface CareConnectNavigationProps {
   readonly activeItem: string;
   readonly onNavigate: (id: string) => void;
   readonly onLogout?: () => void;
-  readonly sidebarPosition?: 'left' | 'right';
-  readonly onSidebarPositionChange?: (position: 'left' | 'right') => void;
+  readonly sidebarPosition: 'left' | 'right';
+  readonly onSidebarPositionChange: (position: 'left' | 'right') => void;
 }
 
-export function CareConnectNavigation({ activeItem, onNavigate, onLogout, sidebarPosition: externalPosition, onSidebarPositionChange }: CareConnectNavigationProps) {
-  const [internalPosition, setInternalPosition] = useState<'left' | 'right'>('left');
-  const sidebarPosition = externalPosition ?? internalPosition;
-
-  const toggleSidebarPosition = () => {
-    const next = sidebarPosition === 'left' ? 'right' : 'left';
-    setInternalPosition(next);
-    onSidebarPositionChange?.(next);
-  };
-
+export function CareConnectNavigation({ 
+  activeItem, 
+  onNavigate, 
+  onLogout, 
+  sidebarPosition, 
+  onSidebarPositionChange 
+}: CareConnectNavigationProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Logic to switch the sidebar position and notify the parent App component
+  const handleTogglePosition = () => {
+    const nextPosition = sidebarPosition === 'left' ? 'right' : 'left';
+    onSidebarPositionChange(nextPosition);
+  };
 
   const handleNavigation = (id: string) => {
     onNavigate(id);
     setIsMobileMenuOpen(false);
   };
 
-
   return (
     <>
-      {/* Desktop Sidebar */}
-      <aside className={`hidden lg:flex flex-col fixed top-0 bottom-0 w-64 bg-white border-slate-200 shadow-xl z-40 ${sidebarPosition === 'left' ? 'left-0 border-r' : 'right-0 border-l'}`}>
-        <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-cyan-50">
+      {/* Desktop Sidebar (lg) */}
+      <aside 
+        className={`hidden lg:flex flex-col fixed top-0 bottom-0 w-64 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xl z-40 transition-all duration-300 ${
+          sidebarPosition === 'left' ? 'left-0 border-r' : 'right-0 border-l'
+        }`}
+      >
+        <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-slate-800 dark:to-slate-900">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
             <Heart className="w-6 h-6 text-white" fill="white" strokeWidth={1.5} />
           </div>
           <div>
-            <h1 className="font-bold text-lg text-slate-900">CareConnect</h1>
-            <p className="text-xs text-slate-600">Supporting Care</p>
+            <h1 className="font-bold text-lg text-slate-900 dark:text-white">CareConnect</h1>
+            <p className="text-xs text-slate-600 dark:text-slate-400 font-medium text-left">Supporting Care</p>
           </div>
         </div>
 
@@ -66,45 +72,56 @@ export function CareConnectNavigation({ activeItem, onNavigate, onLogout, sideba
               <button
                 key={item.id}
                 onClick={() => handleNavigation(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' : 'text-slate-700 hover:bg-slate-100'}`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                  isActive 
+                    ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg shadow-blue-500/30' 
+                    : 'text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100'
+                }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-slate-600'}`} strokeWidth={2} />
-                <span className="font-medium text-sm">{item.label}</span>
+                <Icon className="w-5 h-5" strokeWidth={isActive ? 2.5 : 2} />
+                <span className="font-bold text-sm">{item.label}</span>
               </button>
             );
           })}
         </nav>
 
-        <div className="px-4 py-4 border-t border-slate-200 space-y-2 bg-slate-50">
-          <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white border border-slate-200">
+        <div className="px-4 py-4 border-t border-slate-200 dark:border-slate-800 space-y-2 bg-slate-50 dark:bg-slate-900/50">
+          <div className="flex items-center justify-between px-4 py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
             <div className="flex items-center gap-3">
-              <MoveHorizontal className="w-5 h-5 text-slate-600" strokeWidth={2} />
-              <span className="text-sm font-medium text-slate-700">Switch Layout</span>
+              <MoveHorizontal className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Layout</span>
             </div>
             <button
-              onClick={toggleSidebarPosition}
-              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${sidebarPosition === 'right' ? 'bg-blue-500' : 'bg-slate-300'}`}
-              aria-label="Toggle sidebar position"
+              onClick={handleTogglePosition}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                sidebarPosition === 'right' ? 'bg-blue-500' : 'bg-slate-300 dark:bg-slate-600'
+              }`}
             >
-              <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform ${sidebarPosition === 'right' ? 'translate-x-6' : 'translate-x-1'}`} />
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${sidebarPosition === 'right' ? 'translate-x-6' : 'translate-x-1'}`} />
             </button>
           </div>
-          <button onClick={onLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 transition-all">
-            <LogOut className="w-5 h-5" strokeWidth={2} />
-            <span className="font-medium text-sm">Logout</span>
+          <button 
+            onClick={onLogout} 
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all font-bold text-sm"
+          >
+            <LogOut className="w-5 h-5" strokeWidth={2.5} />
+            <span>Logout</span>
           </button>
         </div>
       </aside>
 
-      {/* Tablet Sidebar */}
-      <aside className={`hidden md:flex lg:hidden flex-col fixed top-0 bottom-0 w-20 bg-white border-slate-200 shadow-xl z-40 ${sidebarPosition === 'left' ? 'left-0 border-r' : 'right-0 border-l'}`}>
-        <div className="flex items-center justify-center px-4 py-5 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-cyan-50">
+      {/* Tablet Sidebar (md to lg) */}
+      <aside 
+        className={`hidden md:flex lg:hidden flex-col fixed top-0 bottom-0 w-20 bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-xl z-40 ${
+          sidebarPosition === 'left' ? 'left-0 border-r' : 'right-0 border-l'
+        }`}
+      >
+        <div className="flex items-center justify-center py-6 border-b border-slate-200 dark:border-slate-800">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-            <Heart className="w-6 h-6 text-white" fill="white" strokeWidth={1.5} />
+            <Heart className="w-6 h-6 text-white" fill="white" />
           </div>
         </div>
-
-        <nav className="flex-1 px-2 py-6 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-2 py-6 space-y-4">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeItem === item.id;
@@ -112,32 +129,25 @@ export function CareConnectNavigation({ activeItem, onNavigate, onLogout, sideba
               <button
                 key={item.id}
                 onClick={() => handleNavigation(item.id)}
-                className={`w-full flex items-center justify-center p-3 rounded-xl transition-all group relative ${isActive ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-lg' : 'text-slate-700 hover:bg-slate-100'}`}
+                className={`w-full flex items-center justify-center p-3 rounded-xl transition-all ${
+                  isActive ? 'bg-blue-500 text-white shadow-lg' : 'text-slate-600 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'
+                }`}
                 title={item.label}
               >
-                <Icon className={`w-6 h-6 ${isActive ? 'text-white' : 'text-slate-600'}`} strokeWidth={2} />
-                {!isActive && (
-                  <div className="absolute left-full ml-2 px-3 py-2 bg-slate-900 text-white text-sm rounded-lg opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap">
-                    {item.label}
-                  </div>
-                )}
+                <Icon className="w-6 h-6" strokeWidth={2} />
               </button>
             );
           })}
         </nav>
-
-        <div className="px-2 py-4 border-t border-slate-200 space-y-2 bg-slate-50">
-          <button onClick={toggleSidebarPosition} className="w-full p-3 rounded-xl hover:bg-slate-200 transition-colors" title="Switch Layout">
-            <MoveHorizontal className="w-6 h-6 text-slate-600 mx-auto" strokeWidth={2} />
-          </button>
-          <button onClick={onLogout} className="w-full p-3 rounded-xl text-red-600 hover:bg-red-50 transition-all" title="Logout">
-            <LogOut className="w-6 h-6 mx-auto" strokeWidth={2} />
-          </button>
+        <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+           <button onClick={onLogout} className="w-full flex justify-center text-red-500">
+              <LogOut className="w-6 h-6" />
+           </button>
         </div>
       </aside>
 
-      {/* Mobile Bottom Tab Bar */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-2xl z-50">
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] z-50">
         <div className="grid grid-cols-5 h-16">
           {navItems.slice(0, 4).map((item) => {
             const Icon = item.icon;
@@ -146,86 +156,53 @@ export function CareConnectNavigation({ activeItem, onNavigate, onLogout, sideba
               <button
                 key={item.id}
                 onClick={() => handleNavigation(item.id)}
-                className={`flex flex-col items-center justify-center gap-1 transition-colors min-h-[48px] ${isActive ? 'text-blue-600' : 'text-slate-600 active:bg-slate-100'}`}
+                className={`flex flex-col items-center justify-center gap-1 transition-colors ${
+                  isActive ? 'text-blue-500 dark:text-blue-400' : 'text-slate-500 dark:text-slate-500'
+                }`}
               >
-                <Icon className={`w-6 h-6 ${isActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
-                <span className="text-xs font-medium">{item.label}</span>
+                <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
+                <span className="text-[10px] font-bold uppercase tracking-tight">{item.label}</span>
               </button>
             );
           })}
           <button
             onClick={() => setIsMobileMenuOpen(true)}
-            className="flex flex-col items-center justify-center gap-1 text-slate-600 active:bg-slate-100 transition-colors min-h-[48px]"
+            className="flex flex-col items-center justify-center gap-1 text-slate-500 dark:text-slate-500"
           >
-            <Menu className="w-6 h-6 stroke-2" />
-            <span className="text-xs font-medium">More</span>
+            <Menu className="w-5 h-5 stroke-2" />
+            <span className="text-[10px] font-bold uppercase tracking-tight">More</span>
           </button>
         </div>
       </nav>
 
-      {/* Mobile Slide-over Menu */}
+      {/* Mobile Menu Slide-over */}
       {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-50">
-          <button
-            type="button"
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm w-full cursor-default"
-            onClick={() => setIsMobileMenuOpen(false)}
-            onKeyDown={(e) => e.key === 'Escape' && setIsMobileMenuOpen(false)}
-            aria-label="Close menu"
-          />
-          <div className="absolute right-0 top-0 bottom-0 w-80 max-w-[85vw] bg-white shadow-2xl">
-            <div className="flex items-center justify-between p-6 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-cyan-50">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                  <Heart className="w-6 h-6 text-white" fill="white" strokeWidth={1.5} />
-                </div>
-                <div>
-                  <h2 className="font-bold text-lg text-slate-900">CareConnect</h2>
-                  <p className="text-xs text-slate-600">More Options</p>
-                </div>
-              </div>
-              <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 hover:bg-white rounded-lg transition-colors">
-                <X className="w-6 h-6 text-slate-600" />
+        <div className="md:hidden fixed inset-0 z-[60]">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
+          <div className="absolute right-0 top-0 bottom-0 w-72 bg-white dark:bg-slate-900 shadow-2xl animate-in slide-in-from-right duration-300">
+            <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+              <h2 className="font-bold text-slate-900 dark:text-white">Menu</h2>
+              <button onClick={() => setIsMobileMenuOpen(false)} className="p-2 text-slate-500">
+                <X className="w-6 h-6" />
               </button>
             </div>
-
             <div className="p-4 space-y-2">
               <button
                 onClick={() => handleNavigation('settings')}
-                className={`w-full flex items-center gap-3 px-4 py-4 rounded-xl transition-all ${activeItem === 'settings' ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md' : 'text-slate-700 hover:bg-slate-100'}`}
+                className={`w-full flex items-center gap-3 px-4 py-4 rounded-xl font-bold ${
+                  activeItem === 'settings' ? 'bg-blue-500 text-white' : 'text-slate-700 dark:text-slate-300'
+                }`}
               >
-                <Settings className="w-5 h-5" strokeWidth={2} />
-                <span className="font-medium">Settings</span>
+                <Settings className="w-5 h-5" />
+                Settings
               </button>
-
-              <div className="px-4 py-4 bg-slate-50 rounded-xl">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <MoveHorizontal className="w-5 h-5 text-slate-600" strokeWidth={2} />
-                    <span className="font-medium text-slate-700">Switch Layout</span>
-                  </div>
-                  <button
-                    onClick={toggleSidebarPosition}
-                    className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${sidebarPosition === 'right' ? 'bg-blue-500' : 'bg-slate-300'}`}
-                    aria-label="Toggle sidebar position"
-                  >
-                    <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform ${sidebarPosition === 'right' ? 'translate-x-6' : 'translate-x-1'}`} />
-                  </button>
-                </div>
-                <p className="text-xs text-slate-500 mt-2 ml-8">Sidebar: {sidebarPosition === 'left' ? 'Left' : 'Right'}</p>
-              </div>
-
-              <button onClick={onLogout} className="w-full flex items-center gap-3 px-4 py-4 rounded-xl text-red-600 hover:bg-red-50 transition-all font-medium">
-                <LogOut className="w-5 h-5" strokeWidth={2} />
-                <span>Logout</span>
+              <button 
+                onClick={onLogout}
+                className="w-full flex items-center gap-3 px-4 py-4 rounded-xl text-red-500 font-bold"
+              >
+                <LogOut className="w-5 h-5" />
+                Logout
               </button>
-            </div>
-
-            <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-slate-200 bg-slate-50">
-              <div className="text-center">
-                <p className="text-sm font-semibold text-slate-700">CareConnect v2.0</p>
-                <p className="text-xs text-slate-500 mt-1">Supporting Care, Connecting Hearts</p>
-              </div>
             </div>
           </div>
         </div>
