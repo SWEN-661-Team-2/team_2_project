@@ -58,7 +58,7 @@ export function CreateTaskModal({ isOpen, onClose, onSubmit }: CreateTaskModalPr
   const { ref: registerRef, ...restRegister } = register('taskTitle', { required: 'Task title is required' });
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-6">
+    <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-0 md:p-6" data-testid="task-modal">
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-300"

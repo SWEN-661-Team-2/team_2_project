@@ -49,7 +49,7 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
   );
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" data-testid="patient-modal">
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-300"
@@ -85,8 +85,9 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
             {/* Names */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className={labelClass}>First Name</label>
+                <label htmlFor="firstName" className={labelClass}>First Name</label>
                 <input 
+                  id="firstName"
                   type="text" 
                   placeholder="e.g. Jane" 
                   className={getInputClass(!!errors.firstName)}
@@ -99,8 +100,9 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
                 )}
               </div>
               <div>
-                <label className={labelClass}>Last Name</label>
+                <label htmlFor="lastName" className={labelClass}>Last Name</label>
                 <input 
+                  id="lastName"
                   type="text" 
                   placeholder="e.g. Smith" 
                   className={getInputClass(!!errors.lastName)}
@@ -117,10 +119,11 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
             {/* DOB & Gender */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className={labelClass}>Date of Birth</label>
+                <label htmlFor="dateOfBirth" className={labelClass}>Date of Birth</label>
                 <div className="relative">
                   <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" />
                   <input 
+                    id="dateOfBirth"
                     type="date" 
                     className={getInputClass(!!errors.dateOfBirth, true)}
                     {...register('dateOfBirth', { required: 'Date of birth is required' })} 
@@ -133,9 +136,10 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
                 )}
               </div>
               <div>
-                <label className={labelClass}>Gender</label>
+                <label htmlFor="gender" className={labelClass}>Gender</label>
                 <div className="relative">
                   <select 
+                    id="gender"
                     className={`${getInputClass(!!errors.gender)} appearance-none cursor-pointer`}
                     {...register('gender', { required: 'Gender is required' })}
                   >
@@ -155,10 +159,11 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
             {/* Contact Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className={labelClass}>Phone Number</label>
+                <label htmlFor="phone" className={labelClass}>Phone Number</label>
                 <div className="relative">
                   <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" />
                   <input 
+                    id="phone"
                     type="tel" 
                     placeholder="(555) 000-0000" 
                     className={getInputClass(!!errors.phone, true)}
@@ -175,10 +180,11 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
                 )}
               </div>
               <div>
-                <label className={labelClass}>Email Address</label>
+                <label htmlFor="email" className={labelClass}>Email Address</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" />
                   <input 
+                    id="email"
                     type="email" 
                     placeholder="name@example.com" 
                     className={getInputClass(!!errors.email, true)}
