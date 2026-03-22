@@ -91,10 +91,10 @@ export function SchedulePage() {
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-bold text-slate-900 dark:text-white">February 2026</h2>
                   <div className="flex items-center gap-2">
-                    <button className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-600 dark:text-slate-400">
+                    <button aria-label="Previous month" className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-600 dark:text-slate-400">
                       <ChevronLeft className="w-5 h-5" />
                     </button>
-                    <button className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-600 dark:text-slate-400">
+                    <button aria-label="Next month" className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-600 dark:text-slate-400">
                       <ChevronRight className="w-5 h-5" />
                     </button>
                   </div>
@@ -112,6 +112,13 @@ export function SchedulePage() {
                     <button
                       key={day}
                       onClick={() => setSelectedDate(day)}
+
+                      // Provides context like "February 25, 2026"
+                      aria-label={`February ${day}, 2026`}
+                      // Tells the user which date is currently active
+                      aria-pressed={day === selectedDate}
+
+
                       className={`aspect-square flex items-center justify-center rounded-lg text-sm font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${getDayStyles(day === today, day === selectedDate)}`}
                     >
                       {day}
