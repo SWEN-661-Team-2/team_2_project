@@ -78,29 +78,17 @@ function Schedule() {
             <strong>February 2026</strong>
             <button className="btn btn-sm" aria-label="Next month">&#8250;</button>
           </div>
-          <div className="cal-grid" role="grid" aria-label="February 2026">
-            <div role="row">
-              {CAL_DAYS.map(d => (
-                <div key={d} role="columnheader" className="cal-day-name">{d}</div>
-              ))}
-            </div>
-            {rows.map(row => (
-              <div key={row.key} role="row">
-                {row.cells.map(cell => (
-                  <div key={cell.key} role="gridcell">
-                    {cell.blank ? (
-                      <div className="cal-cell" aria-hidden="true" />
-                    ) : (
-                      <button
-                        className={`cal-cell cal-day ${cell.day === 25 ? 'cal-today' : ''}`}
-                        aria-label={`February ${cell.day}, 2026`}
-                      >
-                        {cell.day}
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
+          <div className="cal-grid">
+            {CAL_DAYS.map(d => <div key={d} className="cal-day-name">{d}</div>)}
+            {blanks.map((_, i) => <div key={'b' + i} className="cal-cell"></div>)}
+            {dayNums.map(d => (
+              <button
+                key={d}
+                className={`cal-cell cal-day ${d === 25 ? 'cal-today' : ''}`}
+                aria-label={`February ${d}, 2026`}
+              >
+                {d}
+              </button>
             ))}
           </div>
           <div className="cal-selected">

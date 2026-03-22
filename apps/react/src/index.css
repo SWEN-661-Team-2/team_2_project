@@ -1,3 +1,81 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :root {
+    /* Standard Light Mode Variables */
+    --accent: #3b82f6;
+    --accent-bg: #eff6ff;
+    --accent-border: #bfdbfe;
+    --border: #e2e8f0;
+    --text-h: #0f172a;
+    --social-bg: #f8fafc;
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    
+    --bg-main: #f8fafc; 
+    --bg-gradient-to: #f1f5f9; 
+  }
+
+  .dark {
+    --accent: #60a5fa;
+    --accent-bg: #1e293b;
+    --accent-border: #334155;
+    --border: #334155;
+    --text-h: #f8fafc; /* This is the light text color for dark mode */
+    --social-bg: #0f172a;
+    --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+    
+    --bg-main: #020617; 
+    --bg-gradient-to: #0f172a; 
+  }
+
+  /* Apply base colors to the page */
+  html, body {
+    background-color: var(--bg-main) !important;
+    color: var(--text-h) !important; /* Force text color to use the variable */
+    min-height: 100vh;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  /* Force the background gradient to respect our theme variables */
+  .bg-gradient-to-br {
+    background-image: linear-gradient(to bottom right, var(--bg-main), var(--bg-gradient-to)) !important;
+  }
+
+  /* --- DARK MODE OVERRIDES --- */
+
+  /* FIX: Ensure all cards and white backgrounds turn dark */
+  .dark .bg-white {
+    background-color: #0f172a !important;
+    border-color: #1e293b !important;
+  }
+
+  /* FIX: Force specific dark text classes to become light */
+  /* This targets things like <h1 className="text-slate-900"> */
+  .dark .text-slate-900, 
+  .dark .text-slate-800, 
+  .dark .text-slate-700,
+  .dark .text-gray-900,
+  .dark .text-black {
+    color: #f1f5f9 !important; /* light off-white */
+  }
+
+  /* FIX: Force secondary text to a readable light gray */
+  .dark .text-slate-600, 
+  .dark .text-slate-500,
+  .dark .text-gray-600 {
+    color: #94a3b8 !important; /* light slate gray */
+  }
+
+  /* FIX: Sidebar/Navigation links if they are unreadable */
+  .dark .text-blue-900 {
+    color: #93c5fd !important;
+  }
+}
+
+/* Global transition for a smoother feel when clicking the toggle */
+* {
+  transition-property: background-color, border-color, color;
+  transition-duration: 200ms;
+}

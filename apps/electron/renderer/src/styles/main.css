@@ -8,8 +8,8 @@
 --primary-hover: #1d4ed8;
 --primary-text: #ffffff;
 --text: #1a1a2e;
---text-secondary: #4b5563;
---muted: #4b5563;
+--text-secondary: #6b7280;
+--muted: #52525b;
 --danger: #ef4444;
 --warning: #f59e0b;
 --success: #10b981;
@@ -380,9 +380,9 @@ margin-bottom: 16px;
 /* cal-day-name uses #4b5563 directly to meet 4.5:1 contrast on white background */
 .cal-day-name {
 text-align: center;
-font-size: 11px;
+font-size: 12px;
 font-weight: 600;
-color: #4b5563;
+color: #636b7a;
 padding: 4px 0;
 }
 
