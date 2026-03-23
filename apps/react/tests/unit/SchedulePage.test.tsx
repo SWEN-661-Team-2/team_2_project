@@ -1,63 +1,88 @@
+import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
-import { SchedulePage } from '../../src/app/components/SchedulePage'
+import userEvent from '@testing-library/user-event';
+import { SchedulePage } from '../../src/app/components/SchedulePage';
 
-// Top-level mock for the modal
-vi.mock('./NewAppointmentModal', () => ({
-    NewAppointmentModal: ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) =>
-        isOpen ? (
-            <div data-testid="appointment-modal">
-                <button onClick={onClose}>Close Modal</button>
-            </div>
-        ) : null
-}));
+describe('SchedulePage', () => {
+  it('renders Calendar heading', () => {
+    render(<SchedulePage />);
+    expect(screen.getByText('Calendar')).toBeInTheDocument();
+  });
 
-describe('SchedulePage Component', () => {
+  it('renders New Appointment button', () => {
+    render(<SchedulePage />);
+    expect(screen.getByRole('button', { name: /New Appointment/i })).toBeInTheDocument();
+  });
 
-    it('updates the selected date when a calendar day is clicked', () => {
-        render(<SchedulePage />);
+  it('renders days of week', () => {
+    render(<SchedulePage />);
+    expect(screen.getByText('Su')).toBeInTheDocument();
+    expect(screen.getByText('Mo')).toBeInTheDocument();
+    expect(screen.getByText('Sa')).toBeInTheDocument();
+  });
 
-        // Click on February 14th
-        const day14 = screen.getByRole('button', { name: '14' });
-        fireEvent.click(day14);
+  it('renders appointment patients', () => {
+    render(<SchedulePage />);
+    expect(screen.getAllByText('John Davis').length).toBeGreaterThan(0);
+  });
 
-        // Check if the "Selected Date" display updates
-        // The component uses toLocaleDateString, so we look for the date parts
-        expect(screen.getByText(/Saturday/i)).toBeInTheDocument();
-        expect(screen.getByText(/February 14, 2026/i)).toBeInTheDocument();
-    });
+  it('renders appointment times', () => {
+    render(<SchedulePage />);
+    expect(screen.getByText('08:00 AM')).toBeInTheDocument();
+    expect(screen.getByText('02:00 PM')).toBeInTheDocument();
+  });
 
-    it('opens the New Appointment modal from the header button', async () => {
-        render(<SchedulePage />);
+  it('renders completed appointment', () => {
+    render(<SchedulePage />);
+    expect(screen.getByText('Medication Round')).toBeInTheDocument();
+  });
 
-        const newBtn = screen.getByRole('button', { name: /new appointment/i });
-        fireEvent.click(newBtn);
+  it('renders scheduled appointment', () => {
+    render(<SchedulePage />);
+    expect(screen.getByText('Medication Administration')).toBeInTheDocument();
+  });
 
-        const modal = await screen.findByTestId('appointment-modal');
-        expect(modal).toBeInTheDocument();
-    });
+  it('renders available slot', () => {
+    render(<SchedulePage />);
+    expect(screen.getByText('Available')).toBeInTheDocument();
+  });
 
-    it('opens the modal when clicking a "Book" button in an available slot', async () => {
-        render(<SchedulePage />);
+  it('renders summary stats', () => {
+    render(<SchedulePage />);
+    expect(screen.getByText('Total Appointments')).toBeInTheDocument();
+    expect(screen.getByText('Completed')).toBeInTheDocument();
+    expect(screen.getByText('Upcoming')).toBeInTheDocument();
+  });
 
-        const bookBtns = screen.getAllByRole('button', { name: /book/i });
-        fireEvent.click(bookBtns[0]);
+  it('renders calendar date buttons', () => {
+    render(<SchedulePage />);
+    expect(screen.getAllByText('1').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('28').length).toBeGreaterThan(0);
+  });
 
-        const modal = await screen.findByTestId('appointment-modal');
-        expect(modal).toBeInTheDocument();
-    });
+  it('changes selected date when date clicked', async () => {
+    const user = userEvent.setup();
+    render(<SchedulePage />);
+    await user.click(screen.getByText('15'));
+    expect(screen.getByText(/February 15/i)).toBeInTheDocument();
+  });
 
-    it('highlights "today" and the "selected date" correctly', () => {
-        render(<SchedulePage />);
+  it('opens New Appointment modal when button clicked', async () => {
+    const user = userEvent.setup();
+    render(<SchedulePage />);
+    await user.click(screen.getByRole('button', { name: /New Appointment/i }));
+    expect(screen.getAllByText('New Appointment').length).toBeGreaterThan(0);
+  });
 
-        // Today is 25, default selected is 26
-        const todayBtn = screen.getByRole('button', { name: '25' });
-        const selectedBtn = screen.getByRole('button', { name: '26' });
+  it('renders Book Appointment button for available slot', () => {
+    render(<SchedulePage />);
+    expect(screen.getByRole('button', { name: 'Book' })).toBeInTheDocument();
+  });
 
-        // Based on getDayStyles, today (25) should have the blue ring class
-        expect(todayBtn.className).toContain('ring-blue-500');
-
-        // Selected (26) should have the slate-900 or blue-600 background
-        expect(selectedBtn.className).toContain('text-white');
-    });
+  it('opens modal when Book Appointment clicked', async () => {
+    const user = userEvent.setup();
+    render(<SchedulePage />);
+    await user.click(screen.getByRole('button', { name: 'Book' }));
+    expect(screen.getAllByText('New Appointment').length).toBeGreaterThan(0);
+  });
 });

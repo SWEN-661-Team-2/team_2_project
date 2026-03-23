@@ -89,7 +89,7 @@ describe('TaskManagement Component', () => {
     const user = userEvent.setup();
     render(<TaskManagement />);
     await user.click(screen.getByRole('button', { name: /New Task/i }));
-    expect(screen.getByText('Create New Task')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Create New Task' })).toBeInTheDocument();
   });
 
   it('shows Start Task button for pending tasks', () => {
