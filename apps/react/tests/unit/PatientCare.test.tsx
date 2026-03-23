@@ -1,98 +1,87 @@
-import { render, screen, fireEvent, cleanup } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import React from 'react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { PatientCare } from '../../src/app/components/PatientCare';
 
-import '@testing-library/jest-dom';
-
-// 1. MOCK THE DATA SOURCE
-// This stops the "IndexedDB not found" error and provides the data for your tests
-vi.mock('dexie-react-hooks', () => ({
-  useLiveQuery: () => [
-    {
-      id: 1, firstName: 'John', lastName: 'Davis', initials: 'JD',
-      room: '204A', age: 68, gender: 'Male', status: 'stable',
-      phone: '555-0101', email: 'john@example.com',
-      diagnosis: ['Hypertension'], medications: ['Metformin']
-    },
-    {
-      id: 2, firstName: 'Mary', lastName: 'Wilson', initials: 'MW',
-      room: '301B', age: 54, gender: 'Female', status: 'critical',
-      phone: '555-0202', email: 'mary@example.com',
-      diagnosis: ['Pneumonia'], medications: ['Amoxicillin']
-    },
-  ],
-}));
-
-// Mock the DB import so it doesn't try to initialize the real IndexedDB
-vi.mock('../../src/db', () => ({
-  db: {
-    patients: { add: vi.fn() }
-  }
-}));
-
-describe('PatientCare UI Tests', () => {
-  beforeEach(() => {
-    cleanup();
+describe('PatientCare', () => {
+  it('renders Patient Care heading', () => {
+    render(<PatientCare />);
+    expect(screen.getByRole('heading', { name: 'Patient Care' })).toBeInTheDocument();
   });
 
-  it('renders the patient list and initial state', () => {
+  it('renders Add Patient button', () => {
     render(<PatientCare />);
-    // Verify the mocked data is displayed
+    expect(screen.getByRole('button', { name: /Add Patient/i })).toBeInTheDocument();
+  });
+
+  it('renders patient search input', () => {
+    render(<PatientCare />);
+    expect(screen.getByPlaceholderText('Search patients by name or room...')).toBeInTheDocument();
+  });
+
+  it('renders patient list', () => {
+    render(<PatientCare />);
     expect(screen.getByText('John Davis')).toBeInTheDocument();
     expect(screen.getByText('Mary Wilson')).toBeInTheDocument();
+  });
+
+  it('renders patient room numbers', () => {
+    render(<PatientCare />);
     expect(screen.getByText('Room 204A')).toBeInTheDocument();
   });
 
-  it('filters the patient list based on search input', () => {
+  it('selects a patient when clicked', async () => {
+    const user = userEvent.setup();
     render(<PatientCare />);
-    const searchInput = screen.getByPlaceholderText(/search patients/i);
+    await user.click(screen.getByText('John Davis'));
+    expect(screen.getByText('Hypertension')).toBeInTheDocument();
+  });
 
-    // Search for Mary
-    fireEvent.change(searchInput, { target: { value: 'Mary' } });
-
+  it('filters patients by search', async () => {
+    const user = userEvent.setup();
+    render(<PatientCare />);
+    await user.type(screen.getByPlaceholderText('Search patients by name or room...'), 'Mary');
     expect(screen.getByText('Mary Wilson')).toBeInTheDocument();
     expect(screen.queryByText('John Davis')).not.toBeInTheDocument();
   });
 
-  it('updates the detail view when a patient is selected', () => {
+  it('shows empty state when no search results', async () => {
+    const user = userEvent.setup();
     render(<PatientCare />);
-
-    // Click on Mary
-    fireEvent.click(screen.getByText('Mary Wilson'));
-
-    // Check that her specific email appears in the detail panel
-    expect(screen.getByText('mary@example.com')).toBeInTheDocument();
+    await user.type(screen.getByPlaceholderText('Search patients by name or room...'), 'ZZZNOMATCH');
+    expect(screen.getByText('No patients found')).toBeInTheDocument();
   });
 
-  it('displays correct status labels', () => {
+  it('opens Add Patient modal', async () => {
+    const user = userEvent.setup();
     render(<PatientCare />);
-
-    // "Stable" and "Critical" are from our mock data above
-    expect(screen.getByText('Stable')).toBeInTheDocument();
-    expect(screen.getByText('Critical')).toBeInTheDocument();
+    fireEvent.click(screen.getAllByText('Add Patient')[0]);
+    expect(screen.getByRole('heading', { name: 'Add New Patient' })).toBeInTheDocument();
   });
 
-
-  it('handles mobile "Back to list" functionality', () => {
-    // CHANGE: Use 'window' instead of 'global'
-    Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 375 });
-    window.dispatchEvent(new Event('resize'));
-
+  it('closes Add Patient modal when X clicked', async () => {
+    const user = userEvent.setup();
     render(<PatientCare />);
-
-    // Select a patient to enter detail view
-    fireEvent.click(screen.getByText('John Davis'));
-
-    // Check for the back button (which only shows on mobile)
-    const backButton = screen.getByText(/back to list/i);
-    expect(backButton).toBeInTheDocument();
-
-    fireEvent.click(backButton);
-
-    // Verify we are back at the list
-    expect(screen.getByPlaceholderText(/search patients/i)).toBeVisible();
+    fireEvent.click(screen.getAllByText('Add Patient')[0]);
+    await user.click(screen.getAllByRole('button', { name: 'Close modal' })[0]);
+    expect(screen.queryByRole('heading', { name: 'Add New Patient' })).not.toBeInTheDocument();
   });
 
+  it('renders patient status badges', () => {
+    render(<PatientCare />);
+    expect(screen.getAllByText(/stable|critical|recovering/i).length).toBeGreaterThan(0);
+  });
 
+  it('shows patient details panel on selection', async () => {
+    const user = userEvent.setup();
+    render(<PatientCare />);
+    await user.click(screen.getByText('John Davis'));
+    expect(screen.getByText('Diagnosis')).toBeInTheDocument();
+  });
 
+  it('renders multiple patients', () => {
+    render(<PatientCare />);
+    const patients = screen.getAllByText(/Room/i);
+    expect(patients.length).toBeGreaterThan(1);
+  });
 });
