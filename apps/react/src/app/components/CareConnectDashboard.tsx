@@ -124,7 +124,7 @@ export function CareConnectDashboard() {
                 <div key={task.id} className="px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-sm">{task.title}</h3>
-                    <span className={`px-2 py-1 text-xs font-bold rounded-full ${task.priority === 'urgent' ? 'bg-red-500 text-white' : 'bg-orange-500 text-white'}`}>
+                    <span className={`px-2 py-1 text-xs font-bold rounded-full ${task.priority === 'urgent' ? 'bg-red-700 text-white' : 'bg-orange-700 text-white'}`}>
                       {task.priority.toUpperCase()}
                     </span>
                   </div>

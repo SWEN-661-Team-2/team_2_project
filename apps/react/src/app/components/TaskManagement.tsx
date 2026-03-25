@@ -58,10 +58,10 @@ export function TaskManagement() {
   // 4. Helper Functions
   const getPriorityStyles = (priority: Task['priority']) => {
     switch (priority) {
-      case 'high': return { bg: 'bg-red-500', text: 'text-red-600 dark:text-red-400', bgLight: 'bg-red-50 dark:bg-red-900/20', border: 'border-red-200 dark:border-red-800' };
-      case 'medium': return { bg: 'bg-yellow-500', text: 'text-yellow-700 dark:text-yellow-400', bgLight: 'bg-yellow-50 dark:bg-yellow-900/20', border: 'border-yellow-200 dark:border-yellow-800' };
-      case 'low': return { bg: 'bg-green-500', text: 'text-green-600 dark:text-green-400', bgLight: 'bg-green-50 dark:bg-green-900/20', border: 'border-green-200 dark:border-green-800' };
-      default: return { bg: 'bg-slate-500', text: 'text-slate-600', bgLight: 'bg-slate-50', border: 'border-slate-200' };
+      case 'high': return { bg: 'bg-red-700', text: 'text-red-600 dark:text-red-400', bgLight: 'bg-red-50 dark:bg-red-900/20', border: 'border-red-200 dark:border-red-800' };
+      case 'medium': return { bg: 'bg-yellow-700', text: 'text-yellow-700 dark:text-yellow-400', bgLight: 'bg-yellow-50 dark:bg-yellow-900/20', border: 'border-yellow-200 dark:border-yellow-800' };
+      case 'low': return { bg: 'bg-green-700', text: 'text-green-700 dark:text-green-400', bgLight: 'bg-green-50 dark:bg-green-900/20', border: 'border-green-200 dark:border-green-800' };
+      default: return { bg: 'bg-slate-700', text: 'text-slate-600', bgLight: 'bg-slate-50', border: 'border-slate-200' };
     }
   };
 
@@ -76,7 +76,7 @@ export function TaskManagement() {
 
   const getStatusIcon = (status: Task['status']) => {
     switch (status) {
-      case 'completed': return <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400" strokeWidth={2} />;
+      case 'completed': return <CheckCircle2 className="w-5 h-5 text-green-700 dark:text-green-500" strokeWidth={2} />;
       case 'in-progress': return <AlertCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" strokeWidth={2} />;
       case 'pending': return <Circle className="w-5 h-5 text-slate-400 dark:text-slate-500" strokeWidth={2} />;
     }
@@ -228,7 +228,7 @@ export function TaskManagement() {
                           {task.status === 'in-progress' && (
                             <button
                               onClick={() => task.id && updateTaskStatus(task.id, 'completed')}
-                              className="px-4 py-2 text-sm font-medium text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+                              className="px-4 py-2 text-sm font-medium text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
                             >
                               Complete
                             </button>
