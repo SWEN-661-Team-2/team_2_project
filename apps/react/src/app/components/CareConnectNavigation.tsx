@@ -141,7 +141,7 @@ export function CareConnectNavigation({
           })}
         </nav>
         <div className="p-4 border-t border-slate-200 dark:border-slate-800">
-          <button onClick={onLogout} className="w-full flex justify-center text-red-500">
+          <button onClick={onLogout} className="w-full flex justify-center text-red-500" aria-label="Logout">
             <LogOut className="w-6 h-6" />
           </button>
         </div>

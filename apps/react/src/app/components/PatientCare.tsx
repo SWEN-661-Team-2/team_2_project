@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { 
-  Plus, Search, User, Phone, Mail, 
-  MapPin, Activity, Pill, ChevronLeft 
+import {
+  Plus, Search, User, Phone, Mail,
+  MapPin, Activity, Pill, ChevronLeft
 } from 'lucide-react';
 
 // Import your database instance and the Patient type we defined in db.ts
-import { db, type Patient } from '../../db'; 
+import { db, type Patient } from '../../db';
 import { AddPatientModal } from './AddPatientModal';
 
 export function PatientCare() {
@@ -24,15 +24,15 @@ export function PatientCare() {
     const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
     const query = searchQuery.toLowerCase();
     return (
-      fullName.includes(query) || 
-      patient.room.toLowerCase().includes(query) || 
+      fullName.includes(query) ||
+      patient.room.toLowerCase().includes(query) ||
       patient.initials.toLowerCase().includes(query)
     );
   });
 
   // 3. Find selected patient from the DB results
-  const selectedPatient = selectedPatientId 
-    ? patientsFromDb.find((p) => p.id === selectedPatientId) 
+  const selectedPatient = selectedPatientId
+    ? patientsFromDb.find((p) => p.id === selectedPatientId)
     : null;
 
   // 4. Handle adding a new patient to Dexie
@@ -40,7 +40,7 @@ export function PatientCare() {
     try {
       // Create initials if the form doesn't provide them
       const initials = `${data.firstName[0]}${data.lastName[0]}`.toUpperCase();
-      
+
       await db.patients.add({
         ...data,
         initials,
@@ -49,7 +49,7 @@ export function PatientCare() {
         medications: data.medications || [],
         admissionDate: data.admissionDate || new Date().toISOString().split('T')[0],
       });
-      
+
       setPatientModalOpen(false);
     } catch (error) {
       console.error("Failed to save patient to Dexie:", error);
@@ -75,7 +75,7 @@ export function PatientCare() {
   return (
     <div className="min-h-screen bg-transparent pb-20 lg:pb-0">
       <div className="p-4 md:p-6 lg:p-8">
-        
+
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
           <div>
@@ -97,8 +97,15 @@ export function PatientCare() {
             <div className="bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
               <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-slate-800 dark:to-slate-900">
                 <div className="relative">
+
+                  <label htmlFor="patient-search" className="sr-only">
+                    Search patients by name, room, or initials
+                  </label>
+
+
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 pointer-events-none" />
                   <input
+                    id="patient-search"
                     type="text"
                     placeholder="Search patients..."
                     value={searchQuery}
@@ -188,18 +195,18 @@ export function PatientCare() {
                   <div className="p-6 md:p-8 space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                         <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400 mb-2">
-                           <Phone className="w-4 h-4" />
-                           <span className="text-xs font-bold uppercase tracking-wider">Phone</span>
-                         </div>
-                         <p className="text-slate-900 dark:text-white font-semibold">{selectedPatient.phone}</p>
+                        <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400 mb-2">
+                          <Phone className="w-4 h-4" />
+                          <span className="text-xs font-bold uppercase tracking-wider">Phone</span>
+                        </div>
+                        <p className="text-slate-900 dark:text-white font-semibold">{selectedPatient.phone}</p>
                       </div>
                       <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700">
-                         <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400 mb-2">
-                           <Mail className="w-4 h-4" />
-                           <span className="text-xs font-bold uppercase tracking-wider">Email</span>
-                         </div>
-                         <p className="text-slate-900 dark:text-white font-semibold truncate">{selectedPatient.email}</p>
+                        <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400 mb-2">
+                          <Mail className="w-4 h-4" />
+                          <span className="text-xs font-bold uppercase tracking-wider">Email</span>
+                        </div>
+                        <p className="text-slate-900 dark:text-white font-semibold truncate">{selectedPatient.email}</p>
                       </div>
                     </div>
 

@@ -75,9 +75,11 @@ export function CareConnectDashboard() {
 
           {/* Search Bar */}
           <div className="relative">
+
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
             <input
               type="text"
+              aria-label="Search all patients, tasks, and appointments"
               placeholder="Search patients, tasks, appointments..."
               className="w-full h-12 md:h-14 pl-12 pr-24 rounded-lg border-2 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:border-blue-500 focus:outline-none transition-all text-slate-900 dark:text-white placeholder:text-slate-400"
             />
