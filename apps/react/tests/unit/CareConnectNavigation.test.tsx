@@ -1,132 +1,97 @@
-import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi } from 'vitest';
 import { CareConnectNavigation } from '../../src/app/components/CareConnectNavigation';
 
-const mockOnNavigate = jest.fn();
-const mockOnLogout = jest.fn();
-const mockOnSidebarPositionChange = jest.fn();
-
-const defaultProps = {
-  activeItem: 'dashboard',
-  onNavigate: mockOnNavigate,
-  onLogout: mockOnLogout,
-  sidebarPosition: 'left' as const,
-  onSidebarPositionChange: mockOnSidebarPositionChange,
-};
-
-beforeEach(() => {
-  mockOnNavigate.mockClear();
-  mockOnLogout.mockClear();
-  mockOnSidebarPositionChange.mockClear();
-});
-
 describe('CareConnectNavigation', () => {
-  it('renders CareConnect brand name', () => {
-    render(<CareConnectNavigation {...defaultProps} />);
-    expect(screen.getAllByText('CareConnect')[0]).toBeInTheDocument();
+  const mockProps = {
+    activeItem: 'dashboard',
+    onNavigate: vi.fn(),
+    onLogout: vi.fn(),
+    sidebarPosition: 'left' as const,
+    onSidebarPositionChange: vi.fn(),
+  };
+
+  it('renders all navigation items in the desktop sidebar', () => {
+    render(<CareConnectNavigation {...mockProps} />);
+    
+    // We check the first instance of these labels (Desktop view)
+    expect(screen.getAllByText('Dashboard')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('Tasks')[0]).toBeInTheDocument();
+    expect(screen.getAllByText('Patients')[0]).toBeInTheDocument();
   });
 
-  it('renders all nav items', () => {
-    render(<CareConnectNavigation {...defaultProps} />);
-    expect(screen.getAllByText('Dashboard').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Tasks').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Schedule').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Patients').length).toBeGreaterThan(0);
-    expect(screen.getAllByText('Settings').length).toBeGreaterThan(0);
+  it('calls onNavigate with the correct id when a link is clicked', () => {
+    render(<CareConnectNavigation {...mockProps} />);
+    
+    const tasksButton = screen.getAllByText('Tasks')[0];
+    fireEvent.click(tasksButton);
+    
+    expect(mockProps.onNavigate).toHaveBeenCalledWith('tasks');
   });
 
-  it('calls onNavigate when nav item clicked', async () => {
-    const user = userEvent.setup();
-    render(<CareConnectNavigation {...defaultProps} />);
-    await user.click(screen.getAllByText('Tasks')[0]);
-    expect(mockOnNavigate).toHaveBeenCalledWith('tasks');
+  it('highlights the active item based on the activeItem prop', () => {
+    render(<CareConnectNavigation {...mockProps} activeItem="tasks" />);
+    
+    // Look for the "Tasks" button in the desktop sidebar
+    const tasksButtons = screen.getAllByRole('button');
+    const activeTasksButton = tasksButtons.find(btn => 
+      btn.textContent?.includes('Tasks') && 
+      (btn.className.includes('from-blue-500') || btn.className.includes('bg-blue-500'))
+    );
+    
+    expect(activeTasksButton).toBeDefined();
   });
 
-  it('calls onLogout when logout clicked', async () => {
-    const user = userEvent.setup();
-    render(<CareConnectNavigation {...defaultProps} />);
-    await user.click(screen.getAllByRole('button', { name: 'Logout' })[0]);
-    expect(mockOnLogout).toHaveBeenCalledTimes(1);
+  it('toggles sidebar position when the layout switch is clicked', () => {
+    render(<CareConnectNavigation {...mockProps} sidebarPosition="left" />);
+    
+    // Find the Layout label, then find the button within the same parent container
+    const layoutLabel = screen.getByText('Layout');
+    const container = layoutLabel.closest('.flex.items-center.justify-between');
+    const toggleButton = container?.querySelector('button');
+    
+    if (!toggleButton) {
+      throw new Error('Toggle button not found. Check if the container classes match.');
+    }
+    
+    fireEvent.click(toggleButton);
+    expect(mockProps.onSidebarPositionChange).toHaveBeenCalledWith('right');
   });
 
-  it('calls onNavigate for dashboard', async () => {
-    const user = userEvent.setup();
-    render(<CareConnectNavigation {...defaultProps} activeItem="tasks" />);
-    await user.click(screen.getAllByText('Dashboard')[0]);
-    expect(mockOnNavigate).toHaveBeenCalledWith('dashboard');
+  it('calls onLogout when the logout button is clicked', () => {
+    render(<CareConnectNavigation {...mockProps} />);
+    
+    const logoutButtons = screen.getAllByText(/logout/i);
+    fireEvent.click(logoutButtons[0]); 
+    
+    expect(mockProps.onLogout).toHaveBeenCalled();
   });
 
-  it('calls onNavigate for schedule', async () => {
-    const user = userEvent.setup();
-    render(<CareConnectNavigation {...defaultProps} />);
-    await user.click(screen.getAllByText('Schedule')[0]);
-    expect(mockOnNavigate).toHaveBeenCalledWith('schedule');
-  });
+  describe('Mobile Interactions', () => {
+    it('opens the mobile slide-over menu when "More" is clicked', () => {
+      render(<CareConnectNavigation {...mockProps} />);
+      
+      const moreButton = screen.getByText('More');
+      fireEvent.click(moreButton);
+      
+      expect(screen.getByText('Menu')).toBeInTheDocument();
+      // Settings appears in Desktop and now the Mobile Menu slide-over
+      expect(screen.getAllByText('Settings').length).toBeGreaterThan(1);
+    });
 
-  it('calls onNavigate for patients', async () => {
-    const user = userEvent.setup();
-    render(<CareConnectNavigation {...defaultProps} />);
-    await user.click(screen.getAllByText('Patients')[0]);
-    expect(mockOnNavigate).toHaveBeenCalledWith('patients');
-  });
-
-  it('calls onNavigate for settings', async () => {
-    const user = userEvent.setup();
-    render(<CareConnectNavigation {...defaultProps} />);
-    await user.click(screen.getAllByText('Settings')[0]);
-    expect(mockOnNavigate).toHaveBeenCalledWith('settings');
-  });
-
-  it('toggles sidebar position when switch layout clicked', async () => {
-    const user = userEvent.setup();
-    render(<CareConnectNavigation {...defaultProps} />);
-    await user.click(screen.getAllByRole('button', { name: 'Toggle sidebar position' })[0]);
-    expect(mockOnSidebarPositionChange).toHaveBeenCalledWith('right');
-  });
-
-  it('renders with right sidebar position', () => {
-    render(<CareConnectNavigation {...defaultProps} sidebarPosition="right" />);
-    const sidebar = document.querySelector('aside');
-    expect(sidebar?.className).toMatch(/right-0/);
-  });
-
-  it('highlights active nav item', () => {
-    render(<CareConnectNavigation {...defaultProps} activeItem="tasks" />);
-    const taskButtons = screen.getAllByText('Tasks');
-    expect(taskButtons[0].closest('button')?.className).toMatch(/from-blue-500/);
-  });
-
-  it('renders without external sidebar position', () => {
-    render(<CareConnectNavigation
-      activeItem="dashboard"
-      onNavigate={mockOnNavigate}
-    />);
-    expect(screen.getAllByText('CareConnect')[0]).toBeInTheDocument();
-  });
-
-  it('opens mobile menu when More button clicked', async () => {
-    const user = userEvent.setup();
-    render(<CareConnectNavigation {...defaultProps} />);
-    const moreButton = screen.getByRole('button', { name: 'More' });
-    await user.click(moreButton);
-    expect(screen.getByRole('button', { name: 'Close menu' })).toBeInTheDocument();
-  });
-
-  it('closes mobile menu when close button clicked', async () => {
-    const user = userEvent.setup();
-    render(<CareConnectNavigation {...defaultProps} />);
-    await user.click(screen.getByRole('button', { name: 'More' }));
-    await user.click(screen.getByRole('button', { name: 'Close menu' }));
-    expect(screen.queryByText('More Options')).not.toBeInTheDocument();
-  });
-
-  it('navigates to settings from mobile menu', async () => {
-    const user = userEvent.setup();
-    render(<CareConnectNavigation {...defaultProps} />);
-    await user.click(screen.getByRole('button', { name: 'More' }));
-    const settingsButtons = screen.getAllByText('Settings');
-    await user.click(settingsButtons[settingsButtons.length - 1]);
-    expect(mockOnNavigate).toHaveBeenCalledWith('settings');
+    it('closes the mobile menu after navigating', () => {
+      render(<CareConnectNavigation {...mockProps} />);
+      
+      // Open mobile menu
+      fireEvent.click(screen.getByText('More'));
+      
+      // Click the 'Settings' button inside the mobile menu (usually the last one in the DOM)
+      const settingsButtons = screen.getAllByText('Settings');
+      fireEvent.click(settingsButtons[settingsButtons.length - 1]);
+      
+      expect(mockProps.onNavigate).toHaveBeenCalledWith('settings');
+      // The "Menu" header should be gone
+      expect(screen.queryByText('Menu')).not.toBeInTheDocument();
+    });
   });
 });

@@ -253,4 +253,4 @@ This app is part of the SWEN-661 Team 2 CareConnect project. See the root reposi
 
 SWEN-661 - User Interface Implementation — Team 2
 
----
+---# careconnect-react-web-661

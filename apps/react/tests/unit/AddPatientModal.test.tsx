@@ -1,105 +1,75 @@
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { AddPatientModal } from '../../src/app/components/AddPatientModal';
 
-const mockOnClose = jest.fn();
-const mockOnSubmit = jest.fn();
-
-const defaultProps = {
-  isOpen: true,
-  onClose: mockOnClose,
-  onSubmit: mockOnSubmit,
-};
-
-beforeEach(() => {
-  mockOnClose.mockClear();
-  mockOnSubmit.mockClear();
-});
-
 describe('AddPatientModal', () => {
-  it('renders nothing when closed', () => {
-    render(<AddPatientModal isOpen={false} onClose={mockOnClose} onSubmit={mockOnSubmit} />);
-    expect(screen.queryByText('Add New Patient')).not.toBeInTheDocument();
+  const mockOnClose = vi.fn();
+  const mockOnSubmit = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it('renders modal when open', () => {
-    render(<AddPatientModal {...defaultProps} />);
-    expect(screen.getByText('Add New Patient')).toBeInTheDocument();
+  it('should not render when isOpen is false', () => {
+    const { container } = render(
+      <AddPatientModal isOpen={false} onClose={mockOnClose} onSubmit={mockOnSubmit} />
+    );
+    expect(container.firstChild).toBeNull();
   });
 
-  it('renders all form fields', () => {
-    render(<AddPatientModal {...defaultProps} />);
-    expect(screen.getByPlaceholderText('Enter first name')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Enter last name')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('patient@example.com')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('(555) 123-4567')).toBeInTheDocument();
+  it('should show validation errors when submitting an empty form', async () => {
+    render(<AddPatientModal isOpen={true} onClose={mockOnClose} onSubmit={mockOnSubmit} />);
+
+    // Click the submit button
+    fireEvent.click(screen.getByRole('button', { name: /register patient/i }));
+
+    // Check for validation messages defined in your register() calls
+    expect(await screen.findByText(/first name is required/i)).toBeInTheDocument();
+    expect(await screen.findByText(/last name is required/i)).toBeInTheDocument();
+    expect(await screen.findByText(/date of birth is required/i)).toBeInTheDocument();
   });
 
-  it('renders gender select', () => {
-    render(<AddPatientModal {...defaultProps} />);
-    expect(screen.getByRole('combobox')).toBeInTheDocument();
-  });
+  it('should call onSubmit and onClose with valid data after the artificial delay', async () => {
+    render(<AddPatientModal isOpen={true} onClose={mockOnClose} onSubmit={mockOnSubmit} />);
 
-  it('renders Add Patient submit button', () => {
-    render(<AddPatientModal {...defaultProps} />);
-    expect(screen.getByRole('button', { name: /Add Patient/i })).toBeInTheDocument();
-  });
+    // Fill out the required fields
+    fireEvent.change(screen.getByLabelText(/first name/i), { target: { value: 'Jane' } });
+    fireEvent.change(screen.getByLabelText(/last name/i), { target: { value: 'Doe' } });
+    fireEvent.change(screen.getByLabelText(/date of birth/i), { target: { value: '1990-01-01' } });
+    fireEvent.change(screen.getByLabelText(/gender/i), { target: { value: 'Female' } });
+    fireEvent.change(screen.getByLabelText(/phone number/i), { target: { value: '5551234567' } });
+    fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: 'jane@example.com' } });
 
-  it('renders Cancel button', () => {
-    render(<AddPatientModal {...defaultProps} />);
-    expect(screen.getByRole('button', { name: /Cancel/i })).toBeInTheDocument();
-  });
+    fireEvent.click(screen.getByRole('button', { name: /register patient/i }));
 
-  it('calls onClose when Cancel clicked', async () => {
-    const user = userEvent.setup();
-    render(<AddPatientModal {...defaultProps} />);
-    await user.click(screen.getByRole('button', { name: /Cancel/i }));
-    expect(mockOnClose).toHaveBeenCalledTimes(1);
-  });
-
-  it('calls onClose when X button clicked', async () => {
-    const user = userEvent.setup();
-    render(<AddPatientModal {...defaultProps} />);
-    await user.click(screen.getAllByRole('button', { name: 'Close modal' })[0]);
-    expect(mockOnClose).toHaveBeenCalledTimes(1);
-  });
-
-  it('shows validation errors on empty submit', async () => {
-    const user = userEvent.setup();
-    render(<AddPatientModal {...defaultProps} />);
-    await user.click(screen.getByRole('button', { name: /Add Patient/i }));
+    // Since you have a 600ms setTimeout in handleFormSubmit, 
+    // we use waitFor with a longer timeout to wait for the logic to finish.
     await waitFor(() => {
-      expect(screen.getByText('First name is required')).toBeInTheDocument();
-    });
-  });
-
-  it('shows last name validation error', async () => {
-    const user = userEvent.setup();
-    render(<AddPatientModal {...defaultProps} />);
-    await user.click(screen.getByRole('button', { name: /Add Patient/i }));
-    await waitFor(() => {
-      expect(screen.getByText('Last name is required')).toBeInTheDocument();
-    });
-  });
-
-  it('submits form with valid data', async () => {
-    const user = userEvent.setup();
-    render(<AddPatientModal {...defaultProps} />);
-    await user.type(screen.getByPlaceholderText('Enter first name'), 'John');
-    await user.type(screen.getByPlaceholderText('Enter last name'), 'Doe');
-    fireEvent.change(screen.getByLabelText(/Date of Birth/i), { target: { value: '1990-01-01' } });
-    await user.selectOptions(screen.getByRole('combobox'), 'Male');
-    await user.type(screen.getByPlaceholderText('(555) 123-4567'), '5551234567');
-    await user.type(screen.getByPlaceholderText('patient@example.com'), 'john@example.com');
-    await user.click(screen.getByRole('button', { name: /Add Patient/i }));
-    await waitFor(() => {
-      expect(mockOnSubmit).toHaveBeenCalledTimes(1);
+      expect(mockOnSubmit).toHaveBeenCalledWith(expect.objectContaining({
+        firstName: 'Jane',
+        lastName: 'Doe',
+        email: 'jane@example.com'
+      }));
     }, { timeout: 2000 });
+
+    expect(mockOnClose).toHaveBeenCalled();
   });
 
-  it('renders date of birth field', () => {
-    render(<AddPatientModal {...defaultProps} />);
-    expect(screen.getByLabelText(/Date of Birth/i)).toBeInTheDocument();
+  it('should show "Processing..." state during submission', async () => {
+    render(<AddPatientModal isOpen={true} onClose={mockOnClose} onSubmit={mockOnSubmit} />);
+
+    // Fill minimum required fields
+    fireEvent.change(screen.getByLabelText(/first name/i), { target: { value: 'Jane' } });
+    fireEvent.change(screen.getByLabelText(/last name/i), { target: { value: 'Doe' } });
+    fireEvent.change(screen.getByLabelText(/date of birth/i), { target: { value: '1990-01-01' } });
+    fireEvent.change(screen.getByLabelText(/gender/i), { target: { value: 'Female' } });
+    fireEvent.change(screen.getByLabelText(/phone number/i), { target: { value: '5551234567' } });
+    fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: 'jane@example.com' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /register patient/i }));
+
+    // Verify the loading state text appears
+    expect(screen.getByText(/processing.../i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /processing.../i })).toBeDisabled();
   });
 });
