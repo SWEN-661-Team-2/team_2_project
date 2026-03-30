@@ -24,9 +24,10 @@ const months = [
 export function SchedulePage() {
   // --- UI State ---
   const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(26);
-  const [currentMonth, setCurrentMonth] = useState(1); // 0-indexed, 1 = February
-  const [currentYear, setCurrentYear] = useState(2026);
+  const today = new Date();
+  const [selectedDate, setSelectedDate] = useState(today.getDate());
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [showMonthPicker, setShowMonthPicker] = useState(false);
 
   // Ref used to detect clicks outside the month picker dropdown
@@ -46,7 +47,6 @@ export function SchedulePage() {
   // --- Date Calculations ---
 
   // Determine today's date for highlighting; returns -1 if not viewing current month
-  const today = new Date();
   const isCurrentMonth = today.getMonth() === currentMonth && today.getFullYear() === currentYear;
   const todayDate = isCurrentMonth ? today.getDate() : -1;
 
@@ -120,7 +120,7 @@ export function SchedulePage() {
 
   // Returns Tailwind classes for calendar day buttons
   const getDayStyles = (isToday: boolean, isSelected: boolean): string => {
-    if (isToday && isSelected) return 'bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg';
+    if (isToday && isSelected) return 'bg-blue-500 text-white shadow-lg ring-2 ring-blue-500';
     if (isToday) return 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 ring-2 ring-blue-500';
     if (isSelected) return 'bg-slate-900 dark:bg-blue-600 text-white shadow-md';
     return 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700';

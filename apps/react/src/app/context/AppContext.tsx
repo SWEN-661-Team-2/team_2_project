@@ -74,14 +74,15 @@ interface AppProviderProps {
 }
 
 export function AppProvider({ children }: AppProviderProps) {
-  // Auth state — persisted to localStorage so login survives page refresh
+  // Auth state — persisted to sessionStorage so login survives page refresh
+  // but is cleared automatically when the tab or browser window is closed
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    return localStorage.getItem('isLoggedIn') === 'true';
+    return sessionStorage.getItem('isLoggedIn') === 'true';
   });
 
-  // Settings state — hydrated from localStorage on first render, falls back to defaults
+  // Settings state — hydrated from sessionStorage on first render, falls back to defaults
   const [settings, setSettings] = useState<SettingsData>(() => {
-    const saved = localStorage.getItem('userSettings');
+    const saved = sessionStorage.getItem('userSettings');
     return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
   });
 
@@ -91,20 +92,20 @@ export function AppProvider({ children }: AppProviderProps) {
 
   // Persists login flag and updates auth state
   const login = useCallback(() => {
-    localStorage.setItem('isLoggedIn', 'true');
+    sessionStorage.setItem('isLoggedIn', 'true');
     setIsLoggedIn(true);
   }, []);
 
   // Clears login flag and returns to the login screen
   const logout = useCallback(() => {
-    localStorage.removeItem('isLoggedIn');
+    sessionStorage.removeItem('isLoggedIn');
     setIsLoggedIn(false);
   }, []);
 
-  // Persists all settings to localStorage and applies them to state.
+  // Persists all settings to sessionStorage and applies them to state.
   // Clears the manual sidebar override so position follows leftHandedMode again.
   const updateAllSettings = useCallback((newSettings: SettingsData) => {
-    localStorage.setItem('userSettings', JSON.stringify(newSettings));
+    sessionStorage.setItem('userSettings', JSON.stringify(newSettings));
     setSettings(newSettings);
     setManualSidebarPos(null);
   }, []);
