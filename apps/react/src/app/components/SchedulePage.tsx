@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Plus, ChevronLeft, ChevronRight,
   Calendar as CalendarIcon, Clock,
@@ -18,7 +18,11 @@ interface Appointment {
 }
 
 const daysOfWeek = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
-const februaryDays = Array.from({ length: 28 }, (_, i) => i + 1);
+
+const months = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
 
 const appointments: Appointment[] = [
   { id: 1, time: '08:00 AM', patient: 'John Davis', duration: 30, type: 'Medication Round', status: 'completed' },
@@ -29,14 +33,48 @@ const appointments: Appointment[] = [
 export function SchedulePage() {
   const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(26);
-  const today = 25;
+  const [currentMonth, setCurrentMonth] = useState(1);
+  const [currentYear, setCurrentYear] = useState(2026);
+  const [showMonthPicker, setShowMonthPicker] = useState(false);
+  const pickerRef = useRef<HTMLDivElement>(null);
 
-  const totalAppointments = appointments.filter((a) => a.status !== 'available').length;
-  const completedAppointments = appointments.filter((a) => a.status === 'completed').length;
-  const upcomingAppointments = appointments.filter((a) => a.status === 'scheduled').length;
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setShowMonthPicker(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const today = new Date();
+  const isCurrentMonth = today.getMonth() === currentMonth && today.getFullYear() === currentYear;
+  const todayDate = isCurrentMonth ? today.getDate() : -1;
+
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+  const monthDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+  const blankDays = Array.from({ length: firstDayOfMonth });
+
+  const handlePrevMonth = () => {
+    if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); }
+    else setCurrentMonth(m => m - 1);
+    setSelectedDate(1);
+  };
+
+  const handleNextMonth = () => {
+    if (currentMonth === 11) { setCurrentMonth(0); setCurrentYear(y => y + 1); }
+    else setCurrentMonth(m => m + 1);
+    setSelectedDate(1);
+  };
+
+  const monthLabel = new Date(currentYear, currentMonth).toLocaleDateString('en-US', {
+    month: 'long', year: 'numeric',
+  });
 
   const getSelectedDateString = () =>
-    new Date(2026, 1, selectedDate).toLocaleDateString('en-US', {
+    new Date(currentYear, currentMonth, selectedDate).toLocaleDateString('en-US', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
     });
 
@@ -64,6 +102,10 @@ export function SchedulePage() {
     return 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700';
   };
 
+  const totalAppointments = appointments.filter((a) => a.status !== 'available').length;
+  const completedAppointments = appointments.filter((a) => a.status === 'completed').length;
+  const upcomingAppointments = appointments.filter((a) => a.status === 'scheduled').length;
+
   return (
     <div className="min-h-screen bg-transparent pb-20 lg:pb-0">
       <div className="p-4 md:p-6 lg:p-8">
@@ -89,12 +131,73 @@ export function SchedulePage() {
             <div className="bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
               <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-slate-800 dark:to-slate-900">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-white">February 2026</h2>
+
+                  {/* Clickable month/year heading with picker */}
+                  <div className="relative" ref={pickerRef}>
+                    <button
+                      onClick={() => setShowMonthPicker(!showMonthPicker)}
+                      className="text-lg font-bold text-slate-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-1"
+                      aria-label="Select month and year"
+                      aria-expanded={showMonthPicker}
+                    >
+                      {monthLabel}
+                      <ChevronRight className={`w-4 h-4 transition-transform ${showMonthPicker ? 'rotate-90' : ''}`} />
+                    </button>
+
+                    {showMonthPicker && (
+                      <div className="absolute top-10 left-0 z-50 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl p-4 w-64">
+                        {/* Year selector */}
+                        <div className="flex items-center justify-between mb-3">
+                          <button
+                            onClick={() => setCurrentYear(y => y - 1)}
+                            className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"
+                            aria-label="Previous year"
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </button>
+                          <span className="font-bold text-slate-900 dark:text-white">{currentYear}</span>
+                          <button
+                            onClick={() => setCurrentYear(y => y + 1)}
+                            className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg"
+                            aria-label="Next year"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        {/* Month grid */}
+                        <div className="grid grid-cols-3 gap-1">
+                          {months.map((month, i) => (
+                            <button
+                              key={month}
+                              onClick={() => { setCurrentMonth(i); setSelectedDate(1); setShowMonthPicker(false); }}
+                              className={`py-1.5 px-2 text-xs font-semibold rounded-lg transition-colors ${
+                                i === currentMonth
+                                  ? 'bg-blue-600 text-white'
+                                  : 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700'
+                              }`}
+                            >
+                              {month.slice(0, 3)}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="flex items-center gap-2">
-                    <button aria-label="Previous month" className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-600 dark:text-slate-400">
+                    <button
+                      aria-label="Previous month"
+                      onClick={handlePrevMonth}
+                      className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-600 dark:text-slate-400"
+                    >
                       <ChevronLeft className="w-5 h-5" />
                     </button>
-                    <button aria-label="Next month" className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-600 dark:text-slate-400">
+                    <button
+                      aria-label="Next month"
+                      onClick={handleNextMonth}
+                      className="p-2 hover:bg-white dark:hover:bg-slate-700 rounded-lg transition-colors text-slate-600 dark:text-slate-400"
+                    >
                       <ChevronRight className="w-5 h-5" />
                     </button>
                   </div>
@@ -108,18 +211,14 @@ export function SchedulePage() {
                   ))}
                 </div>
                 <div className="grid grid-cols-7 gap-2">
-                  {februaryDays.map((day) => (
+                  {blankDays.map((_, i) => <div key={`blank-${currentYear}-${currentMonth}-${i}`} />)}
+                  {monthDays.map((day) => (
                     <button
                       key={day}
                       onClick={() => setSelectedDate(day)}
-
-                      // Provides context like "February 25, 2026"
-                      aria-label={`February ${day}, 2026`}
-                      // Tells the user which date is currently active
+                      aria-label={`${monthLabel} ${day}`}
                       aria-pressed={day === selectedDate}
-
-
-                      className={`aspect-square flex items-center justify-center rounded-lg text-sm font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${getDayStyles(day === today, day === selectedDate)}`}
+                      className={`aspect-square flex items-center justify-center rounded-lg text-sm font-semibold transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 ${getDayStyles(day === todayDate, day === selectedDate)}`}
                     >
                       {day}
                     </button>
@@ -146,7 +245,9 @@ export function SchedulePage() {
               <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-slate-800 dark:to-slate-900">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-bold text-slate-900 dark:text-white">Daily Schedule</h2>
-                  <span className="text-sm text-slate-600 dark:text-slate-400 font-medium">Feb {selectedDate}, 2026</span>
+                  <span className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+                    {new Date(currentYear, currentMonth, selectedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
                 </div>
               </div>
 
