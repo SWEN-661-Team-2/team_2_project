@@ -1,80 +1,93 @@
+/* ─── Tailwind Directives ────────────────────────────────────────────────── */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+
+  /* ─── CSS Custom Properties ──────────────────────────────────────────── */
+
+  /* Light mode tokens — applied to :root by default */
   :root {
-    /* Standard Light Mode Variables */
-    --accent: #3b82f6;
-    --accent-bg: #eff6ff;
-    --accent-border: #bfdbfe;
-    --border: #e2e8f0;
-    --text-h: #0f172a;
-    --social-bg: #f8fafc;
-    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    
-    --bg-main: #f8fafc; 
-    --bg-gradient-to: #f1f5f9; 
+    --accent:        #3b82f6;                              /* Primary blue accent */
+    --accent-bg:     #eff6ff;                              /* Soft blue background for accented elements */
+    --accent-border: #bfdbfe;                              /* Subtle blue border */
+    --border:        #e2e8f0;                              /* Default border color */
+    --text-h:        #0f172a;                              /* Primary heading/body text */
+    --social-bg:     #f8fafc;                              /* Background for social/pill buttons */
+    --shadow:        0 4px 6px -1px rgb(0 0 0 / 0.1);     /* Soft card shadow */
+    --bg-main:       #f8fafc;                              /* Page background */
+    --bg-gradient-to:#f1f5f9;                              /* Gradient end color */
   }
 
+  /* Dark mode tokens — applied when the 'dark' class is on <html> */
   .dark {
-    --accent: #60a5fa;
-    --accent-bg: #1e293b;
-    --accent-border: #334155;
-    --border: #334155;
-    --text-h: #f8fafc; /* This is the light text color for dark mode */
-    --social-bg: #0f172a;
-    --shadow: 0 10px 15px -3px rgb(0 0 0 / 0.5);
-    
-    --bg-main: #020617; 
-    --bg-gradient-to: #0f172a; 
+    --accent:        #60a5fa;                              /* Lighter blue for dark backgrounds */
+    --accent-bg:     #1e293b;                              /* Dark blue-gray background */
+    --accent-border: #334155;                              /* Muted border for dark mode */
+    --border:        #334155;                              /* Default border in dark mode */
+    --text-h:        #f8fafc;                              /* Light text for dark backgrounds */
+    --social-bg:     #0f172a;                              /* Dark pill/social button background */
+    --shadow:        0 10px 15px -3px rgb(0 0 0 / 0.5);   /* Deeper shadow for dark mode */
+    --bg-main:       #020617;                              /* Near-black page background */
+    --bg-gradient-to:#0f172a;                              /* Dark gradient end color */
   }
 
-  /* Apply base colors to the page */
+  /* ─── Base Page Styles ───────────────────────────────────────────────── */
+
+  /* Apply theme tokens to the root document — !important overrides Tailwind utilities */
   html, body {
     background-color: var(--bg-main) !important;
-    color: var(--text-h) !important; /* Force text color to use the variable */
+    color: var(--text-h) !important;
     min-height: 100vh;
     transition: background-color 0.3s, color 0.3s;
   }
 
-  /* Force the background gradient to respect our theme variables */
+  /* Override Tailwind's bg-gradient-to-br to respect theme variables */
   .bg-gradient-to-br {
-    background-image: linear-gradient(to bottom right, var(--bg-main), var(--bg-gradient-to)) !important;
+    background-image: linear-gradient(
+      to bottom right,
+      var(--bg-main),
+      var(--bg-gradient-to)
+    ) !important;
   }
 
-  /* --- DARK MODE OVERRIDES --- */
+  /* ─── Dark Mode Overrides ────────────────────────────────────────────── */
+  /* These !important rules ensure dark mode wins over Tailwind utility classes
+     that are applied directly in JSX (e.g. className="bg-white text-slate-900") */
 
-  /* FIX: Ensure all cards and white backgrounds turn dark */
+  /* Cards and white surfaces — flipped to dark slate in dark mode */
   .dark .bg-white {
     background-color: #0f172a !important;
-    border-color: #1e293b !important;
+    border-color:     #1e293b !important;
   }
 
-  /* FIX: Force specific dark text classes to become light */
-  /* This targets things like <h1 className="text-slate-900"> */
-  .dark .text-slate-900, 
-  .dark .text-slate-800, 
+  /* Primary text — dark slate classes become light off-white in dark mode */
+  /* Targets headings and body copy using text-slate-900/800/700 or equivalents */
+  .dark .text-slate-900,
+  .dark .text-slate-800,
   .dark .text-slate-700,
   .dark .text-gray-900,
   .dark .text-black {
-    color: #f1f5f9 !important; /* light off-white */
+    color: #f1f5f9 !important;
   }
 
-  /* FIX: Force secondary text to a readable light gray */
-  .dark .text-slate-600, 
+  /* Secondary/muted text — becomes readable light gray in dark mode */
+  .dark .text-slate-600,
   .dark .text-slate-500,
   .dark .text-gray-600 {
-    color: #94a3b8 !important; /* light slate gray */
+    color: #94a3b8 !important;
   }
 
-  /* FIX: Sidebar/Navigation links if they are unreadable */
+  /* Navigation link overrides — dark blue text becomes light blue in dark mode */
   .dark .text-blue-900 {
     color: #93c5fd !important;
   }
 }
 
-/* Global transition for a smoother feel when clicking the toggle */
+/* ─── Global Transition ──────────────────────────────────────────────────── */
+/* Applies a smooth 200ms transition to color-related properties on every element.
+   This creates a polished feel when the theme toggle switches between light and dark. */
 * {
   transition-property: background-color, border-color, color;
   transition-duration: 200ms;

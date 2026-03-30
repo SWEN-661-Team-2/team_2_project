@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { X, UserPlus, Calendar as CalendarIcon, Mail, Phone, AlertCircle } from 'lucide-react';
 
+// Form field shape — subset of the full Patient interface collected at registration
 interface PatientFormData {
   readonly firstName: string;
   readonly lastName: string;
@@ -10,6 +11,7 @@ interface PatientFormData {
   readonly email: string;
 }
 
+// Props passed in from PatientCare
 interface AddPatientModalProps {
   readonly isOpen: boolean;
   readonly onClose: () => void;
@@ -17,37 +19,36 @@ interface AddPatientModalProps {
 }
 
 export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalProps) {
+  // react-hook-form — handles field registration, validation, and submission state
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<PatientFormData>();
 
+  // Early return keeps the DOM clean when the modal is not needed
   if (!isOpen) return null;
 
-  // const handleFormSubmit = async (data: PatientFormData) => {
-  //   // Artificial delay for UI feedback
-  //   await new Promise((resolve) => setTimeout(resolve, 600));
-  //   onSubmit(data);
-  //   onClose();
-  // };
   const handleFormSubmit = async (data: PatientFormData) => {
-    // 1. Calculate age from dateOfBirth (Dexie needs a number)
+    // 1. Calculate age from dateOfBirth — Dexie stores age as a number
     const birthDate = new Date(data.dateOfBirth);
     const age = new Date().getFullYear() - birthDate.getFullYear();
 
-    // 2. Prepare the full object for the parent's onSubmit
-    // We spread the form data and add the "missing" fields required by the Patient interface
+    // 2. Build the full Patient object expected by the DB.
+    // Spreads the form data and fills in fields not collected in this form.
     const fullPatientData = {
       ...data,
       age,
       initials: `${data.firstName[0]}${data.lastName[0]}`.toUpperCase(),
-      status: 'stable' as const, // Default new patients to stable
-      diagnosis: [],             // Start with empty arrays
+      status: 'stable' as const,                            // New patients default to stable
+      diagnosis: [],                                         // Empty until updated by clinical staff
       medications: [],
-      admissionDate: new Date().toISOString().split('T')[0], // Today's date
+      admissionDate: new Date().toISOString().split('T')[0], // ISO date string for today
     };
 
-    // onSubmit here refers to the function passed from PatientCare
+    // Passes the assembled record up to PatientCare's handleAddPatient
     onSubmit(fullPatientData as any);
     onClose();
   };
+
+  // Returns Tailwind classes for form inputs — red tint on validation error,
+  // left padding adjusted based on whether an icon is present
   const getInputClass = (hasError: boolean, hasIcon: boolean = false) => `
     w-full h-12 md:h-14 rounded-xl border-2 transition-all outline-none font-medium
     ${hasIcon ? 'pl-11 pr-4' : 'px-4'}
@@ -58,8 +59,10 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
     placeholder:text-slate-400 dark:placeholder:text-slate-500
   `;
 
+  // Shared label style used across all form fields
   const labelClass = "block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 uppercase tracking-wide ml-1";
 
+  // Reusable inline SVG chevron for the gender select dropdown
   const chevron = (
     <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
       <svg className="w-5 h-5 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,40 +72,47 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
   );
 
   return (
+    // Full-screen overlay — centered modal on all screen sizes
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" data-testid="patient-modal">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-300"
+
+      {/* Backdrop — native button for full keyboard and assistive tech support */}
+      <button
+        type="button"
+        className="absolute inset-0 bg-slate-900/60 dark:bg-black/80 backdrop-blur-sm animate-in fade-in duration-300 w-full cursor-default"
         onClick={onClose}
+        aria-label="Close add patient modal"
       />
 
-      {/* Modal Container */}
+      {/* Modal container */}
       <div className="relative w-full max-w-3xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
 
-        {/* Header */}
+        {/* Modal header — icon, title, subtitle, close button */}
         <div className="flex-shrink-0 px-6 md:px-8 py-5 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-slate-800 dark:to-slate-900">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1 text-emerald-600 dark:text-emerald-400">
-                <UserPlus className="w-6 h-6" />
+                <UserPlus className="w-6 h-6" aria-hidden="true" />
                 <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">Add New Patient</h2>
               </div>
               <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Register a new profile in the system</p>
             </div>
+            {/* Native button — no role attribute needed */}
             <button
+              type="button"
               onClick={onClose}
+              aria-label="Close modal"
               className="flex-shrink-0 p-2 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-colors text-slate-500 dark:text-slate-400"
             >
-              <X className="w-6 h-6" />
+              <X className="w-6 h-6" aria-hidden="true" />
             </button>
           </div>
         </div>
 
-        {/* Form Body */}
+        {/* Form body — scrollable when content overflows */}
         <form onSubmit={handleSubmit(handleFormSubmit)} className="flex-1 overflow-y-auto">
           <div className="px-6 md:px-8 py-6 space-y-6">
 
-            {/* Names */}
+            {/* Row 1: First name + Last name */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="firstName" className={labelClass}>First Name</label>
@@ -115,7 +125,7 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
                 />
                 {errors.firstName && (
                   <p className="mt-2 text-xs text-red-500 font-bold uppercase flex items-center gap-1 ml-1">
-                    <AlertCircle className="w-3.5 h-3.5" /> {errors.firstName.message}
+                    <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" /> {errors.firstName.message}
                   </p>
                 )}
               </div>
@@ -130,18 +140,18 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
                 />
                 {errors.lastName && (
                   <p className="mt-2 text-xs text-red-500 font-bold uppercase flex items-center gap-1 ml-1">
-                    <AlertCircle className="w-3.5 h-3.5" /> {errors.lastName.message}
+                    <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" /> {errors.lastName.message}
                   </p>
                 )}
               </div>
             </div>
 
-            {/* DOB & Gender */}
+            {/* Row 2: Date of birth + Gender */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="dateOfBirth" className={labelClass}>Date of Birth</label>
                 <div className="relative">
-                  <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" />
+                  <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" aria-hidden="true" />
                   <input
                     id="dateOfBirth"
                     type="date"
@@ -151,7 +161,7 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
                 </div>
                 {errors.dateOfBirth && (
                   <p className="mt-2 text-xs text-red-500 font-bold uppercase flex items-center gap-1 ml-1">
-                    <AlertCircle className="w-3.5 h-3.5" /> {errors.dateOfBirth.message}
+                    <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" /> {errors.dateOfBirth.message}
                   </p>
                 )}
               </div>
@@ -164,24 +174,26 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
                     {...register('gender', { required: 'Gender is required' })}
                   >
                     <option value="">Select gender...</option>
-                    {['Male', 'Female', 'Other', 'Prefer not to say'].map((o) => <option key={o} value={o}>{o}</option>)}
+                    {['Male', 'Female', 'Other', 'Prefer not to say'].map((o) => (
+                      <option key={o} value={o}>{o}</option>
+                    ))}
                   </select>
                   {chevron}
                 </div>
                 {errors.gender && (
                   <p className="mt-2 text-xs text-red-500 font-bold uppercase flex items-center gap-1 ml-1">
-                    <AlertCircle className="w-3.5 h-3.5" /> {errors.gender.message}
+                    <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" /> {errors.gender.message}
                   </p>
                 )}
               </div>
             </div>
 
-            {/* Contact Info */}
+            {/* Row 3: Phone + Email */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="phone" className={labelClass}>Phone Number</label>
                 <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" />
+                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" aria-hidden="true" />
                   <input
                     id="phone"
                     type="tel"
@@ -195,14 +207,14 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
                 </div>
                 {errors.phone && (
                   <p className="mt-2 text-xs text-red-500 font-bold uppercase flex items-center gap-1 ml-1">
-                    <AlertCircle className="w-3.5 h-3.5" /> {errors.phone.message}
+                    <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" /> {errors.phone.message}
                   </p>
                 )}
               </div>
               <div>
                 <label htmlFor="email" className={labelClass}>Email Address</label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" aria-hidden="true" />
                   <input
                     id="email"
                     type="email"
@@ -216,15 +228,17 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
                 </div>
                 {errors.email && (
                   <p className="mt-2 text-xs text-red-500 font-bold uppercase flex items-center gap-1 ml-1">
-                    <AlertCircle className="w-3.5 h-3.5" /> {errors.email.message}
+                    <AlertCircle className="w-3.5 h-3.5" aria-hidden="true" /> {errors.email.message}
                   </p>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Footer Actions */}
+          {/* Footer — Cancel and Register Patient buttons */}
           <div className="flex-shrink-0 px-6 md:px-8 py-6 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+
+            {/* Cancel — native button, dismisses without saving */}
             <button
               type="button"
               onClick={onClose}
@@ -232,6 +246,8 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
             >
               Cancel
             </button>
+
+            {/* Submit — shows spinner while isSubmitting */}
             <button
               type="submit"
               disabled={isSubmitting}
@@ -239,12 +255,12 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
             >
               {isSubmitting ? (
                 <>
-                  <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" aria-hidden="true" />
                   <span>Processing...</span>
                 </>
               ) : (
                 <>
-                  <UserPlus className="w-5 h-5" />
+                  <UserPlus className="w-5 h-5" aria-hidden="true" />
                   <span>Register Patient</span>
                 </>
               )}

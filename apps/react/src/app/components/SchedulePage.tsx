@@ -6,17 +6,14 @@ import {
 } from 'lucide-react';
 import { NewAppointmentModal } from './NewAppointmentModal';
 
+// Live query hook and database instance for IndexedDB-backed appointments
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '../../db';
+
+// AppointmentStatus mirrors the union type defined in db.ts
 type AppointmentStatus = 'completed' | 'scheduled' | 'available';
 
-interface Appointment {
-  readonly id: number;
-  readonly time: string;
-  readonly patient: string | null;
-  readonly duration: number | null;
-  readonly type: string | null;
-  readonly status: AppointmentStatus;
-}
-
+// Static calendar constants
 const daysOfWeek = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
 const months = [
@@ -24,20 +21,19 @@ const months = [
   'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
-const appointments: Appointment[] = [
-  { id: 1, time: '08:00 AM', patient: 'John Davis', duration: 30, type: 'Medication Round', status: 'completed' },
-  { id: 2, time: '09:00 AM', patient: null, duration: null, type: null, status: 'available' },
-  { id: 3, time: '02:00 PM', patient: 'John Davis', duration: 15, type: 'Medication Administration', status: 'scheduled' },
-];
-
 export function SchedulePage() {
+  // --- UI State ---
   const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState(26);
-  const [currentMonth, setCurrentMonth] = useState(1);
-  const [currentYear, setCurrentYear] = useState(2026);
+  const today = new Date();
+  const [selectedDate, setSelectedDate] = useState(today.getDate());
+  const [currentMonth, setCurrentMonth] = useState(today.getMonth());
+  const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [showMonthPicker, setShowMonthPicker] = useState(false);
+
+  // Ref used to detect clicks outside the month picker dropdown
   const pickerRef = useRef<HTMLDivElement>(null);
 
+  // Close month picker when user clicks outside of it
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
@@ -48,14 +44,21 @@ export function SchedulePage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const today = new Date();
+  // --- Date Calculations ---
+
+  // Determine today's date for highlighting; returns -1 if not viewing current month
   const isCurrentMonth = today.getMonth() === currentMonth && today.getFullYear() === currentYear;
   const todayDate = isCurrentMonth ? today.getDate() : -1;
 
+  // Generate the calendar grid for the current month
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
   const monthDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+
+  // Blank cells to offset the first day to the correct column
   const blankDays = Array.from({ length: firstDayOfMonth });
+
+  // --- Month Navigation ---
 
   const handlePrevMonth = () => {
     if (currentMonth === 0) { setCurrentMonth(11); setCurrentYear(y => y - 1); }
@@ -69,15 +72,35 @@ export function SchedulePage() {
     setSelectedDate(1);
   };
 
+  // Human-readable label for the calendar header (e.g. "February 2026")
   const monthLabel = new Date(currentYear, currentMonth).toLocaleDateString('en-US', {
     month: 'long', year: 'numeric',
   });
 
+  // Full date string for the selected date footer (e.g. "Thursday, February 26, 2026")
   const getSelectedDateString = () =>
     new Date(currentYear, currentMonth, selectedDate).toLocaleDateString('en-US', {
       weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
     });
 
+  // --- Live Appointments from IndexedDB ---
+  // Re-fetches automatically whenever selectedDate, currentMonth, or currentYear changes.
+  // Returns an empty array while loading or if no appointments exist for the selected date.
+  const appointments = useLiveQuery(
+    () => db.appointments
+      .where({ year: currentYear, month: currentMonth, day: selectedDate })
+      .toArray(),
+    [currentYear, currentMonth, selectedDate]
+  ) ?? [];
+
+  // --- Summary Card Counts (derived from the current day's appointments) ---
+  const totalAppointments = appointments.filter((a) => a.status !== 'available').length;
+  const completedAppointments = appointments.filter((a) => a.status === 'completed').length;
+  const upcomingAppointments = appointments.filter((a) => a.status === 'scheduled').length;
+
+  // --- Style Helpers ---
+
+  // Returns Tailwind classes for each appointment status
   const getStatusStyles = (status: AppointmentStatus) => {
     switch (status) {
       case 'completed': return {
@@ -95,22 +118,19 @@ export function SchedulePage() {
     }
   };
 
+  // Returns Tailwind classes for calendar day buttons
   const getDayStyles = (isToday: boolean, isSelected: boolean): string => {
-    if (isToday && isSelected) return 'bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-lg';
+    if (isToday && isSelected) return 'bg-blue-500 text-white shadow-lg ring-2 ring-blue-500';
     if (isToday) return 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 ring-2 ring-blue-500';
     if (isSelected) return 'bg-slate-900 dark:bg-blue-600 text-white shadow-md';
     return 'text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700';
   };
 
-  const totalAppointments = appointments.filter((a) => a.status !== 'available').length;
-  const completedAppointments = appointments.filter((a) => a.status === 'completed').length;
-  const upcomingAppointments = appointments.filter((a) => a.status === 'scheduled').length;
-
   return (
     <div className="min-h-screen bg-transparent pb-20 lg:pb-0">
       <div className="p-4 md:p-6 lg:p-8">
 
-        {/* Header */}
+        {/* Page Header — title and New Appointment button */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 md:mb-8">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white">Calendar</h1>
@@ -125,14 +145,16 @@ export function SchedulePage() {
           </button>
         </div>
 
+        {/* Main grid: calendar (left) + daily schedule (right) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
+
           {/* Calendar Widget */}
           <div className="lg:col-span-5">
             <div className="bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
               <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-slate-800 dark:to-slate-900">
                 <div className="flex items-center justify-between">
 
-                  {/* Clickable month/year heading with picker */}
+                  {/* Clickable month/year label — opens the jump picker dropdown */}
                   <div className="relative" ref={pickerRef}>
                     <button
                       onClick={() => setShowMonthPicker(!showMonthPicker)}
@@ -144,9 +166,11 @@ export function SchedulePage() {
                       <ChevronRight className={`w-4 h-4 transition-transform ${showMonthPicker ? 'rotate-90' : ''}`} />
                     </button>
 
+                    {/* Month/year picker dropdown */}
                     {showMonthPicker && (
                       <div className="absolute top-10 left-0 z-50 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl p-4 w-64">
-                        {/* Year selector */}
+
+                        {/* Year increment/decrement */}
                         <div className="flex items-center justify-between mb-3">
                           <button
                             onClick={() => setCurrentYear(y => y - 1)}
@@ -165,7 +189,7 @@ export function SchedulePage() {
                           </button>
                         </div>
 
-                        {/* Month grid */}
+                        {/* Month grid — 3 columns, highlights active month */}
                         <div className="grid grid-cols-3 gap-1">
                           {months.map((month, i) => (
                             <button
@@ -185,6 +209,7 @@ export function SchedulePage() {
                     )}
                   </div>
 
+                  {/* Previous / Next month arrow buttons */}
                   <div className="flex items-center gap-2">
                     <button
                       aria-label="Previous month"
@@ -205,11 +230,14 @@ export function SchedulePage() {
               </div>
 
               <div className="p-6">
+                {/* Day-of-week header row */}
                 <div className="grid grid-cols-7 gap-2 mb-3">
                   {daysOfWeek.map((day) => (
                     <div key={day} className="text-center text-xs font-bold text-slate-600 dark:text-slate-500 py-2 uppercase tracking-wider">{day}</div>
                   ))}
                 </div>
+
+                {/* Calendar day grid — blank cells offset the first weekday */}
                 <div className="grid grid-cols-7 gap-2">
                   {blankDays.map((_, i) => <div key={`blank-${currentYear}-${currentMonth}-${i}`} />)}
                   {monthDays.map((day) => (
@@ -224,6 +252,8 @@ export function SchedulePage() {
                     </button>
                   ))}
                 </div>
+
+                {/* Selected date display */}
                 <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center flex-shrink-0 shadow-md">
@@ -239,7 +269,7 @@ export function SchedulePage() {
             </div>
           </div>
 
-          {/* Daily Timeline */}
+          {/* Daily Schedule — updates live when selectedDate changes */}
           <div className="lg:col-span-7">
             <div className="bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
               <div className="px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-slate-800 dark:to-slate-900">
@@ -252,53 +282,64 @@ export function SchedulePage() {
               </div>
 
               <div className="divide-y divide-slate-200 dark:divide-slate-700">
-                {appointments.map((appointment) => {
-                  const styles = getStatusStyles(appointment.status);
-                  return (
-                    <div key={appointment.id} className={`p-5 md:p-6 ${styles.bg} border-l-4 ${styles.border} transition-all hover:bg-slate-100/50 dark:hover:bg-slate-700/30`}>
-                      <div className="flex items-start gap-4">
-                        <div className="flex-shrink-0 mt-1">{styles.icon}</div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-3 mb-2">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-bold text-lg text-slate-900 dark:text-white">{appointment.time}</span>
-                                <span className={`px-2 py-0.5 ${styles.badge} ${styles.badgeText || 'text-white'} text-[10px] font-black rounded-full uppercase`}>
-                                  {appointment.status}
-                                </span>
+                {appointments.length === 0 ? (
+                  // Empty state for days with no appointments (e.g. weekends)
+                  <div className="p-12 text-center">
+                    <CalendarIcon className="w-8 h-8 text-slate-400 mx-auto mb-4" />
+                    <p className="text-slate-600 dark:text-slate-400 font-medium">No appointments scheduled</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-500 mt-1">Select a weekday in March or April to see appointments</p>
+                  </div>
+                ) : (
+                  appointments.map((appointment) => {
+                    const styles = getStatusStyles(appointment.status as AppointmentStatus);
+                    return (
+                      <div key={appointment.id} className={`p-5 md:p-6 ${styles.bg} border-l-4 ${styles.border} transition-all hover:bg-slate-100/50 dark:hover:bg-slate-700/30`}>
+                        <div className="flex items-start gap-4">
+                          <div className="flex-shrink-0 mt-1">{styles.icon}</div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-3 mb-2">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-bold text-lg text-slate-900 dark:text-white">{appointment.time}</span>
+                                  <span className={`px-2 py-0.5 ${styles.badge} ${'badgeText' in styles ? styles.badgeText : 'text-white'} text-[10px] font-black rounded-full uppercase`}>
+                                    {appointment.status}
+                                  </span>
+                                </div>
+                                {appointment.status === 'available' ? (
+                                  <p className={`text-sm ${styles.text} italic`}>Available Time Slot</p>
+                                ) : (
+                                  <>
+                                    <p className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">{appointment.patient}</p>
+                                    <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+                                      <span className="flex items-center gap-1">
+                                        <Clock className="w-4 h-4" />{appointment.duration} min
+                                      </span>
+                                      <span className="w-1 h-1 bg-slate-400 dark:bg-slate-600 rounded-full" />
+                                      <span>{appointment.type}</span>
+                                    </div>
+                                  </>
+                                )}
                               </div>
+                              {/* Action button — Book for available slots, Details for scheduled */}
                               {appointment.status === 'available' ? (
-                                <p className={`text-sm ${styles.text} italic`}>Available Time Slot</p>
+                                <button onClick={() => setAppointmentModalOpen(true)} className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-bold rounded-lg transition-colors shadow-md">
+                                  Book
+                                </button>
                               ) : (
-                                <>
-                                  <p className="text-base font-semibold text-slate-900 dark:text-slate-100 mb-1">{appointment.patient}</p>
-                                  <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
-                                    <span className="flex items-center gap-1">
-                                      <Clock className="w-4 h-4" />{appointment.duration} min
-                                    </span>
-                                    <span className="w-1 h-1 bg-slate-400 dark:bg-slate-600 rounded-full" />
-                                    <span>{appointment.type}</span>
-                                  </div>
-                                </>
+                                <button className="px-4 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-lg transition-colors shadow-sm">
+                                  Details
+                                </button>
                               )}
                             </div>
-                            {appointment.status === 'available' ? (
-                              <button onClick={() => setAppointmentModalOpen(true)} className="px-4 py-2 bg-blue-700 hover:bg-blue-800 text-white text-sm font-bold rounded-lg transition-colors shadow-md">
-                                Book
-                              </button>
-                            ) : (
-                              <button className="px-4 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-200 text-sm font-medium rounded-lg transition-colors shadow-sm">
-                                Details
-                              </button>
-                            )}
                           </div>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                )}
               </div>
 
+              {/* Footer — quick add appointment link */}
               <div className="px-6 py-4 bg-slate-50 dark:bg-slate-800/80 border-t border-slate-200 dark:border-slate-700">
                 <button onClick={() => setAppointmentModalOpen(true)} className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-bold">
                   + Add appointment to this time slot
@@ -308,12 +349,12 @@ export function SchedulePage() {
           </div>
         </div>
 
-        {/* Summary Cards */}
+        {/* Summary Cards — counts derived from the selected day's appointments */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
           {[
-            { label: 'Total Appointments', value: totalAppointments, sub: 'Scheduled today', icon: CalendarIcon, bg: 'bg-blue-50 dark:bg-blue-900/20', color: 'text-blue-600 dark:text-blue-400' },
-            { label: 'Completed', value: completedAppointments, sub: 'Finished appointments', icon: CheckCircle, bg: 'bg-green-50 dark:bg-green-900/20', color: 'text-green-600 dark:text-green-400' },
-            { label: 'Upcoming', value: upcomingAppointments, sub: 'Scheduled ahead', icon: TrendingUp, bg: 'bg-purple-50 dark:bg-purple-900/20', color: 'text-purple-600 dark:text-purple-400' },
+            { label: 'Total Appointments', value: totalAppointments, sub: 'Scheduled today',      icon: CalendarIcon, bg: 'bg-blue-50 dark:bg-blue-900/20',   color: 'text-blue-600 dark:text-blue-400'   },
+            { label: 'Completed',          value: completedAppointments, sub: 'Finished appointments', icon: CheckCircle,  bg: 'bg-green-50 dark:bg-green-900/20',  color: 'text-green-600 dark:text-green-400'  },
+            { label: 'Upcoming',           value: upcomingAppointments,  sub: 'Scheduled ahead',      icon: TrendingUp,   bg: 'bg-purple-50 dark:bg-purple-900/20', color: 'text-purple-600 dark:text-purple-400' },
           ].map((card) => {
             const Icon = card.icon;
             return (
@@ -334,6 +375,7 @@ export function SchedulePage() {
         </div>
       </div>
 
+      {/* New Appointment Modal */}
       <NewAppointmentModal
         isOpen={appointmentModalOpen}
         onClose={() => setAppointmentModalOpen(false)}

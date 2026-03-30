@@ -14,16 +14,25 @@ export default defineConfig({
   server: {
     port: 5173,
   },
-  /* ADD THIS SECTION BELOW */
   test: {
-    globals: true,           // Allows using 'describe', 'it', 'expect' without imports
-    environment: 'jsdom',    // Fixes the "document is not defined" error
-    setupFiles: './src/setupTests.ts', // Connects the custom matchers
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/setupTests.ts',
+    // Only scan our test files — prevents Vitest from picking up
+    // test files inside node_modules (zod, reduxjs/toolkit, etc.)
+    include: ['tests/unit/**/*.test.{ts,tsx}'],
+    exclude: [
+      'tests/e2e/**',
+      'node_modules/**',
+    ],
+    typecheck: {
+      tsconfig: './tsconfig.test.json',
+    },
     coverage: {
-      provider: 'v8',        // Required for the 5% Coverage grade
+      provider: 'v8',
       reporter: ['text', 'json', 'html'],
-      include: ['src/**/*.ts', 'src/**/*.tsx'], // Tracks everything in src
-      exclude: ['src/main.tsx', 'src/vite-env.d.ts'], // Exclude entry points
+      include: ['src/**/*.ts', 'src/**/*.tsx'],
+      exclude: ['src/main.tsx', 'src/vite-env.d.ts'],
     },
   },
 })
