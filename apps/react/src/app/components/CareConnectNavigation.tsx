@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   LayoutDashboard, CheckSquare, Users, Calendar,
-  Settings, Menu, X, LogOut, Heart, MoveHorizontal,
+  Settings, Menu, X, LogOut, MoveHorizontal,
 } from 'lucide-react';
 
 interface NavItem {
@@ -55,7 +55,7 @@ export function CareConnectNavigation({
       >
         <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-slate-800 dark:to-slate-900">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-            <Heart className="w-6 h-6 text-white" fill="white" strokeWidth={1.5} />
+            <img src="/careconnect_logo.png" alt="CareConnect" className="w-8 h-8 rounded-xl" />
           </div>
           <div>
             <h1 className="font-bold text-lg text-slate-900 dark:text-white">CareConnect</h1>
@@ -120,7 +120,7 @@ export function CareConnectNavigation({
       >
         <div className="flex items-center justify-center py-6 border-b border-slate-200 dark:border-slate-800">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-            <Heart className="w-6 h-6 text-white" fill="white" />
+            <img src="/careconnect_logo.png" alt="CareConnect" className="w-8 h-8 rounded-xl" />
           </div>
         </div>
         <nav className="flex-1 px-2 py-6 space-y-4">
@@ -178,7 +178,11 @@ export function CareConnectNavigation({
       {/* Mobile Menu Slide-over */}
       {isMobileMenuOpen && (
         <div className="md:hidden fixed inset-0 z-[60]">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
+          <button
+            className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm w-full cursor-default"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-label="Close menu"
+          />
           <div className="absolute right-0 top-0 bottom-0 w-72 bg-white dark:bg-slate-900 shadow-2xl animate-in slide-in-from-right duration-300">
             <div className="p-6 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
               <h2 className="font-bold text-slate-900 dark:text-white">Menu</h2>
