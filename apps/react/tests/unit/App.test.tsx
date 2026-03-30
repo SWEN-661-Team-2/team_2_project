@@ -4,24 +4,28 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import App from '../../src/App';
 import { useAppContext } from '../../src/app/context/AppContext';
 
-// 1. Mock the Context
+// Mock the AppContext module so tests can control auth and settings state
+// without relying on localStorage or a real AppProvider
 vi.mock('../../src/app/context/AppContext', () => ({
   useAppContext: vi.fn(),
 }));
 
-// 2. Fix the Mock paths to match your project structure
-// We mock these to keep the App test focused only on Routing logic
-vi.mock('../../src/app/components/Login', () => ({ 
-  Login: () => <div>Mock Login Page</div> 
+// Mock heavy page components to keep App.test.tsx focused on routing logic only.
+// Each mock returns a minimal identifiable element so assertions remain simple.
+vi.mock('../../src/app/components/Login', () => ({
+  Login: () => <div>Mock Login Page</div>,
 }));
-vi.mock('../../src/app/components/CareConnectDashboard', () => ({ 
-  CareConnectDashboard: () => <div>Mock Dashboard Content</div> 
+vi.mock('../../src/app/components/CareConnectDashboard', () => ({
+  CareConnectDashboard: () => <div>Mock Dashboard Content</div>,
 }));
-vi.mock('../../src/app/components/CareConnectNavigation', () => ({ 
-  CareConnectNavigation: () => <nav>Mock Navigation</nav> 
+vi.mock('../../src/app/components/CareConnectNavigation', () => ({
+  CareConnectNavigation: () => <nav>Mock Navigation</nav>,
 }));
 
 describe('App Routing', () => {
+
+  // Base context shape used across all tests — unauthenticated by default.
+  // Individual tests spread this and override only the fields they need.
   const mockContextBase = {
     state: {
       isLoggedIn: false,
@@ -37,10 +41,12 @@ describe('App Routing', () => {
     setSidebarPosition: vi.fn(),
   };
 
+  // Reset all mock call counts and return values before each test
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
+  // Unauthenticated users navigating to any route should be redirected to login
   it('redirects to login when not authenticated', () => {
     (useAppContext as any).mockReturnValue(mockContextBase);
 
@@ -50,10 +56,11 @@ describe('App Routing', () => {
       </MemoryRouter>
     );
 
-    // Now looking for the text from our Mock above
+    // The Login mock renders this text — its presence confirms the redirect worked
     expect(screen.getByText(/Mock Login Page/i)).toBeInTheDocument();
   });
 
+  // Authenticated users at the root path should see the dashboard
   it('renders dashboard when authenticated', () => {
     (useAppContext as any).mockReturnValue({
       ...mockContextBase,
@@ -69,13 +76,14 @@ describe('App Routing', () => {
     expect(screen.getByText(/Mock Dashboard Content/i)).toBeInTheDocument();
   });
 
+  // When theme is 'dark', AppLayout's useEffect should add 'dark' to <html>
   it('applies dark theme class to document root', () => {
     (useAppContext as any).mockReturnValue({
       ...mockContextBase,
-      state: { 
-        ...mockContextBase.state, 
+      state: {
+        ...mockContextBase.state,
         isLoggedIn: true,
-        settings: { ...mockContextBase.state.settings, theme: 'dark' } 
+        settings: { ...mockContextBase.state.settings, theme: 'dark' },
       },
     });
 

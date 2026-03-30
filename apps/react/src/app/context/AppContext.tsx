@@ -1,87 +1,6 @@
-// import { createContext, useContext, useState, useCallback, useMemo } from 'react';
-
-// // Interfaces to satisfy "Code Quality" and "Clean Structure"
-// interface Task {
-//   id: number;
-//   title: string;
-//   priority: string;
-//   status: string;
-// }
-
-// interface AppState {
-//   isLoggedIn: boolean;
-//   sidebarPosition: 'left' | 'right';
-//   tasks: Task[];
-//   patients: any[]; // Kept as dummy array
-// }
-
-// interface AppContextType {
-//   state: AppState;
-//   login: () => void;
-//   logout: () => void;
-//   setSidebarPosition: (position: 'left' | 'right') => void;
-// }
-
-// const defaultTasks: Task[] = [
-//   { id: 1, title: 'Medication Administration', priority: 'high', status: 'pending' },
-//   { id: 2, title: 'Vital Signs Check', priority: 'medium', status: 'in-progress' }
-// ];
-
-// export const AppContext = createContext<AppContextType | null>(null);
-
-// export function AppProvider({ children }: { children: React.ReactNode }) {
-//   // 1. Initialize Auth from localStorage (The "Refresh" Fix)
-//   const [isLoggedIn, setIsLoggedIn] = useState(() => {
-//     return localStorage.getItem('isLoggedIn') === 'true';
-//   });
-
-//   // 2. Sidebar persistence (The "Responsive/UX" win)
-//   const [sidebarPosition, setSidebarPositionState] = useState<'left' | 'right'>(() => {
-//     return (localStorage.getItem('sidebarPosition') as 'left' | 'right') || 'left';
-//   });
-
-//   const login = useCallback(() => {
-//     localStorage.setItem('isLoggedIn', 'true');
-//     setIsLoggedIn(true);
-//   }, []);
-
-//   const logout = useCallback(() => {
-//     localStorage.removeItem('isLoggedIn');
-//     setIsLoggedIn(false);
-//   }, []);
-
-//   const setSidebarPosition = useCallback((position: 'left' | 'right') => {
-//     localStorage.setItem('sidebarPosition', position);
-//     setSidebarPositionState(position);
-//   }, []);
-
-//   const contextValue = useMemo(() => ({
-//     state: { 
-//       isLoggedIn, 
-//       sidebarPosition,
-//       tasks: defaultTasks, 
-//       patients: [] 
-//     },
-//     login,
-//     logout,
-//     setSidebarPosition
-//   }), [isLoggedIn, sidebarPosition, login, logout, setSidebarPosition]);
-
-//   return (
-//     <AppContext.Provider value={contextValue}>
-//       {children}
-//     </AppContext.Provider>
-//   );
-// }
-
-// export const useAppContext = () => {
-//   const context = useContext(AppContext);
-//   if (!context) throw new Error('useAppContext must be used within AppProvider');
-//   return context;
-// };
 import { createContext, useContext, useState, useCallback, useMemo } from 'react';
 
-// 1. Define the Settings structure to match your SettingsPage
+// Full settings shape — mirrors the fields managed by SettingsPage
 export interface SettingsData {
   readonly theme: 'light' | 'dark';
   readonly leftHandedMode: boolean;
@@ -97,31 +16,34 @@ export interface SettingsData {
   readonly reminderLeadTime: string;
 }
 
+// Minimal task shape used in global state
+// Full task CRUD is handled via IndexedDB in TaskManagement
 interface Task {
-  id: number;
-  title: string;
-  priority: string;
-  status: string;
+  readonly id: number;
+  readonly title: string;
+  readonly priority: string;
+  readonly status: string;
 }
 
-// 2. Add settings to the Global State interface
+// Global application state shape
 interface AppState {
-  isLoggedIn: boolean;
-  sidebarPosition: 'left' | 'right';
-  tasks: Task[];
-  patients: any[];
-  settings: SettingsData;
+  readonly isLoggedIn: boolean;
+  readonly sidebarPosition: 'left' | 'right';
+  readonly tasks: Task[];
+  readonly patients: any[];
+  readonly settings: SettingsData;
 }
 
-// 3. Add updateAllSettings to the Context Type
+// Functions and state exposed through the context
 interface AppContextType {
-  state: AppState;
-  login: () => void;
-  logout: () => void;
-  setSidebarPosition: (position: 'left' | 'right') => void;
-  updateAllSettings: (newSettings: SettingsData) => void;
+  readonly state: AppState;
+  readonly login: () => void;
+  readonly logout: () => void;
+  readonly setSidebarPosition: (position: 'left' | 'right') => void;
+  readonly updateAllSettings: (newSettings: SettingsData) => void;
 }
 
+// Default settings applied on first load before any user changes
 const DEFAULT_SETTINGS: SettingsData = {
   theme: 'light',
   leftHandedMode: false,
@@ -137,64 +59,79 @@ const DEFAULT_SETTINGS: SettingsData = {
   reminderLeadTime: '15 minutes',
 };
 
+// Seed tasks for the global state — full task management is handled in IndexedDB
 const defaultTasks: Task[] = [
-  { id: 1, title: 'Medication Administration', priority: 'high', status: 'pending' },
-  { id: 2, title: 'Vital Signs Check', priority: 'medium', status: 'in-progress' }
+  { id: 1, title: 'Medication Administration', priority: 'high',   status: 'pending'     },
+  { id: 2, title: 'Vital Signs Check',          priority: 'medium', status: 'in-progress' },
 ];
 
+// Context instance — null by default, validated in useAppContext
 export const AppContext = createContext<AppContextType | null>(null);
 
-export function AppProvider({ children }: { children: React.ReactNode }) {
-  // Auth Persistence
+// Props for AppProvider — children is read-only per SonarQube requirement
+interface AppProviderProps {
+  readonly children: React.ReactNode;
+}
+
+export function AppProvider({ children }: AppProviderProps) {
+  // Auth state — persisted to localStorage so login survives page refresh
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return localStorage.getItem('isLoggedIn') === 'true';
   });
 
-  // Settings Persistence
+  // Settings state — hydrated from localStorage on first render, falls back to defaults
   const [settings, setSettings] = useState<SettingsData>(() => {
     const saved = localStorage.getItem('userSettings');
     return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
   });
 
-  // Manual Sidebar Override (if needed outside of settings)
+  // Allows the sidebar toggle in the nav to temporarily override the leftHandedMode setting.
+  // Reset to null whenever settings are saved so the toggle re-derives from leftHandedMode.
   const [manualSidebarPos, setManualSidebarPos] = useState<'left' | 'right' | null>(null);
 
+  // Persists login flag and updates auth state
   const login = useCallback(() => {
     localStorage.setItem('isLoggedIn', 'true');
     setIsLoggedIn(true);
   }, []);
 
+  // Clears login flag and returns to the login screen
   const logout = useCallback(() => {
     localStorage.removeItem('isLoggedIn');
     setIsLoggedIn(false);
   }, []);
 
-  // Update all settings at once (called from SettingsPage)
+  // Persists all settings to localStorage and applies them to state.
+  // Clears the manual sidebar override so position follows leftHandedMode again.
   const updateAllSettings = useCallback((newSettings: SettingsData) => {
     localStorage.setItem('userSettings', JSON.stringify(newSettings));
     setSettings(newSettings);
-    setManualSidebarPos(null); // Reset manual override to follow settings
+    setManualSidebarPos(null);
   }, []);
 
+  // Allows the navigation toggle to override sidebar position independently of settings
   const setSidebarPosition = useCallback((position: 'left' | 'right') => {
     setManualSidebarPos(position);
   }, []);
 
-  // Determine sidebar position: Manual override first, then based on leftHandedMode
-  const sidebarPosition = manualSidebarPos || (settings.leftHandedMode ? 'right' : 'left');
+  // Sidebar position resolution order:
+  // 1. Manual override (nav toggle) if set
+  // 2. Derived from leftHandedMode setting (right if left-handed, left otherwise)
+  const sidebarPosition = manualSidebarPos ?? (settings.leftHandedMode ? 'right' : 'left');
 
+  // Memoized context value — only re-creates when one of its dependencies changes
   const contextValue = useMemo(() => ({
-    state: { 
-      isLoggedIn, 
+    state: {
+      isLoggedIn,
       sidebarPosition,
-      tasks: defaultTasks, 
+      tasks: defaultTasks,
       patients: [],
-      settings
+      settings,
     },
     login,
     logout,
     setSidebarPosition,
-    updateAllSettings
+    updateAllSettings,
   }), [isLoggedIn, sidebarPosition, settings, login, logout, setSidebarPosition, updateAllSettings]);
 
   return (
@@ -204,6 +141,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Custom hook — throws a descriptive error if used outside of AppProvider
 export const useAppContext = () => {
   const context = useContext(AppContext);
   if (!context) throw new Error('useAppContext must be used within AppProvider');
