@@ -5,7 +5,6 @@ import {
   MapPin, Activity, Pill, ChevronLeft
 } from 'lucide-react';
 
-// Import your database instance and the Patient type we defined in db.ts
 import { db, type Patient } from '../../db';
 import { AddPatientModal } from './AddPatientModal';
 
@@ -15,11 +14,8 @@ export function PatientCare() {
   const [selectedPatientId, setSelectedPatientId] = useState<number | null>(null);
   const [showMobileDetail, setShowMobileDetail] = useState(false);
 
-  // 1. Pull real data from IndexedDB. 
-  // useLiveQuery automatically re-renders when the database changes.
   const patientsFromDb = useLiveQuery(() => db.patients.toArray()) || [];
 
-  // 2. Filter logic using the DB data
   const filteredPatients = patientsFromDb.filter((patient) => {
     const fullName = `${patient.firstName} ${patient.lastName}`.toLowerCase();
     const query = searchQuery.toLowerCase();
@@ -30,26 +26,22 @@ export function PatientCare() {
     );
   });
 
-  // 3. Find selected patient from the DB results
   const selectedPatient = selectedPatientId
     ? patientsFromDb.find((p) => p.id === selectedPatientId)
     : null;
 
-  // 4. Handle adding a new patient to Dexie
   const handleAddPatient = async (data: any) => {
     try {
-      // Create initials if the form doesn't provide them
       const initials = `${data.firstName[0]}${data.lastName[0]}`.toUpperCase();
-
       await db.patients.add({
         ...data,
         initials,
-        // Ensure arrays exist so the UI doesn't crash
         diagnosis: data.diagnosis || [],
         medications: data.medications || [],
+        allergies: data.allergies || [],
+        bloodType: data.bloodType || '',
         admissionDate: data.admissionDate || new Date().toISOString().split('T')[0],
       });
-
       setPatientModalOpen(false);
     } catch (error) {
       console.error("Failed to save patient to Dexie:", error);
@@ -97,12 +89,9 @@ export function PatientCare() {
             <div className="bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
               <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-slate-800 dark:to-slate-900">
                 <div className="relative">
-
                   <label htmlFor="patient-search" className="sr-only">
                     Search patients by name, room, or initials
                   </label>
-
-
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 pointer-events-none" />
                   <input
                     id="patient-search"
@@ -164,6 +153,7 @@ export function PatientCare() {
                     </button>
                   </div>
 
+                  {/* Patient Header */}
                   <div className="p-6 md:p-8 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-slate-800 dark:to-slate-900">
                     <div className="flex flex-col md:flex-row items-center md:items-start gap-6 text-center md:text-left">
                       <div className="relative flex-shrink-0">
@@ -193,6 +183,8 @@ export function PatientCare() {
                   </div>
 
                   <div className="p-6 md:p-8 space-y-8">
+
+                    {/* Row 1: Phone + Email */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700">
                         <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400 mb-2">
@@ -210,6 +202,29 @@ export function PatientCare() {
                       </div>
                     </div>
 
+                    {/* Row 2: Allergies + Blood Type */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="p-4 bg-amber-50 dark:bg-amber-950/20 rounded-xl border border-amber-200 dark:border-amber-900/50">
+                        <div className="flex items-center gap-3 text-amber-600 dark:text-amber-400 mb-2">
+                          <span className="text-xs font-bold uppercase tracking-wider">⚠️ Allergies</span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedPatient.allergies.map((a) => (
+                            <span key={a} className="px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 rounded-lg text-sm font-semibold">
+                              {a}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400 mb-2">
+                          <span className="text-xs font-bold uppercase tracking-wider">🩸 Blood Type</span>
+                        </div>
+                        <p className="text-slate-900 dark:text-white font-bold text-2xl">{selectedPatient.bloodType}</p>
+                      </div>
+                    </div>
+
+                    {/* Diagnosis */}
                     <section>
                       <div className="flex items-center gap-2 mb-4">
                         <Activity className="w-5 h-5 text-red-500" />
@@ -224,6 +239,7 @@ export function PatientCare() {
                       </div>
                     </section>
 
+                    {/* Medications */}
                     <section>
                       <div className="flex items-center gap-2 mb-4">
                         <Pill className="w-5 h-5 text-blue-500" />
@@ -238,6 +254,7 @@ export function PatientCare() {
                         ))}
                       </div>
                     </section>
+
                   </div>
                 </div>
               ) : (

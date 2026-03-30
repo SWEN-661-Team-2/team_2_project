@@ -21,6 +21,8 @@ export interface Patient {
   diagnosis: string[];
   medications: string[];
   admissionDate: string;
+  allergies: string[];
+  bloodType: string;
 }
 export interface Task {
   id?: number;
@@ -57,11 +59,11 @@ db.on('populate', () => {
 
   // 2. Seed the initial dummy patients into IndexedDB
   db.patients.bulkAdd([
-    { firstName: 'John', lastName: 'Davis', initials: 'JD', room: '204A', age: 68, gender: 'Male', status: 'stable', phone: '(555) 123-4567', email: 'john.davis@email.com', diagnosis: ['Hypertension', 'Type 2 Diabetes'], medications: ['Metformin 500mg'], admissionDate: '2026-02-20' },
-    { firstName: 'Mary', lastName: 'Wilson', initials: 'MW', room: '301B', age: 54, gender: 'Female', status: 'improving', phone: '(555) 234-5678', email: 'mary.wilson@email.com', diagnosis: ['Post-operative recovery'], medications: ['Iron supplement'], admissionDate: '2026-02-22' },
-    { firstName: 'Robert', lastName: 'Brown', initials: 'RB', room: '156C', age: 72, gender: 'Male', status: 'critical', phone: '(555) 345-6789', email: 'robert.brown@email.com', diagnosis: ['Pneumonia'], medications: ['Amoxicillin'], admissionDate: '2026-02-24' },
-    { firstName: 'Lisa', lastName: 'Anderson', initials: 'LA', room: '412A', age: 45, gender: 'Female', status: 'stable', phone: '(555) 456-7890', email: 'lisa.anderson@email.com', diagnosis: ['Migraines'], medications: ['Sertraline'], admissionDate: '2026-02-21' },
-    { firstName: 'James', lastName: 'Miller', initials: 'JM', room: '218B', age: 61, gender: 'Male', status: 'improving', phone: '(555) 567-8901', email: 'james.miller@email.com', diagnosis: ['CAD'], medications: ['Atorvastatin'], admissionDate: '2026-01-19' }
+    { firstName: 'John', lastName: 'Davis', initials: 'JD', room: '204A', age: 68, gender: 'Male', status: 'stable', phone: '(555) 123-4567', email: 'john.davis@email.com', diagnosis: ['Hypertension', 'Type 2 Diabetes'], medications: ['Metformin 500mg'], admissionDate: '2026-02-20', allergies: ['Penicillin', 'Sulfa'], bloodType: 'A+' },
+    { firstName: 'Mary', lastName: 'Wilson', initials: 'MW', room: '301B', age: 54, gender: 'Female', status: 'improving', phone: '(555) 234-5678', email: 'mary.wilson@email.com', diagnosis: ['Post-operative recovery'], medications: ['Iron supplement'], admissionDate: '2026-02-22', allergies: ['Latex'], bloodType: 'O-' },
+    { firstName: 'Robert', lastName: 'Brown', initials: 'RB', room: '156C', age: 72, gender: 'Male', status: 'critical', phone: '(555) 345-6789', email: 'robert.brown@email.com', diagnosis: ['Pneumonia'], medications: ['Amoxicillin'], admissionDate: '2026-02-24', allergies: ['Aspirin', 'Codeine'], bloodType: 'B+' },
+    { firstName: 'Lisa', lastName: 'Anderson', initials: 'LA', room: '412A', age: 45, gender: 'Female', status: 'stable', phone: '(555) 456-7890', email: 'lisa.anderson@email.com', diagnosis: ['Migraines'], medications: ['Sertraline'], admissionDate: '2026-02-21', allergies: ['None known'], bloodType: 'AB+' },
+    { firstName: 'James', lastName: 'Miller', initials: 'JM', room: '218B', age: 61, gender: 'Male', status: 'improving', phone: '(555) 567-8901', email: 'james.miller@email.com', diagnosis: ['CAD'], medications: ['Atorvastatin'], admissionDate: '2026-01-19', allergies: ['Ibuprofen'], bloodType: 'O+' },
   ]);
 
   db.tasks.bulkAdd([
