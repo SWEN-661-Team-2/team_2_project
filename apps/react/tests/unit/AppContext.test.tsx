@@ -13,12 +13,12 @@ import React from 'react';
 describe('AppContext', () => {
 
   beforeEach(() => {
-  // Manually stub localStorage because jsdom's implementation is not correctly
+  // Manually stub sessionStorage because jsdom's implementation is not correctly
   // initialized in this Vitest environment (--localstorage-file warning).
   // This gives AppContext a fully functional storage API to read and write against.
   // A fresh store object per test prevents bleed-through between test cases.
   const store: Record<string, string> = {};
-    vi.stubGlobal('localStorage', {
+    vi.stubGlobal('sessionStorage', {
       getItem:    (key: string) => store[key] ?? null,
       setItem:    (key: string, value: string) => { store[key] = value; },
       removeItem: (key: string) => { delete store[key]; },
@@ -32,7 +32,7 @@ describe('AppContext', () => {
     <AppProvider>{children}</AppProvider>
   );
 
-  // Fresh provider with no localStorage data should use DEFAULT_SETTINGS values
+  // Fresh provider with no sessionStorage data should use DEFAULT_SETTINGS values
   it('initializes with default values', () => {
     const { result } = renderHook(() => useAppContext(), { wrapper });
 
@@ -41,8 +41,8 @@ describe('AppContext', () => {
     expect(result.current.state.settings.userName).toBe('Sarah Johnson, RN');
   });
 
-  // login() should set isLoggedIn to true and write 'true' to localStorage
-  it('updates login state and persists to localStorage', () => {
+  // login() should set isLoggedIn to true and write 'true' to sessionStorage
+  it('updates login state and persists to sessionStorage', () => {
     const { result } = renderHook(() => useAppContext(), { wrapper });
 
     act(() => {
@@ -50,10 +50,10 @@ describe('AppContext', () => {
     });
 
     expect(result.current.state.isLoggedIn).toBe(true);
-    expect(localStorage.getItem('isLoggedIn')).toBe('true');
+    expect(sessionStorage.getItem('isLoggedIn')).toBe('true');
   });
 
-  // updateAllSettings() should apply new values, persist them to localStorage,
+  // updateAllSettings() should apply new values, persist them to sessionStorage,
   // and derive sidebarPosition from leftHandedMode (true → 'right')
   it('updates all settings and persists them', () => {
     const { result } = renderHook(() => useAppContext(), { wrapper });
@@ -71,7 +71,7 @@ describe('AppContext', () => {
     expect(result.current.state.settings.theme).toBe('dark');
     // leftHandedMode: true → sidebar moves to right
     expect(result.current.state.sidebarPosition).toBe('right');
-    expect(localStorage.getItem('userSettings')).toContain('"theme":"dark"');
+    expect(sessionStorage.getItem('userSettings')).toContain('"theme":"dark"');
   });
 
   // setSidebarPosition() should override the derived position regardless of settings

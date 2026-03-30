@@ -5,11 +5,28 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { SchedulePage } from '../../src/app/components/SchedulePage';
 
-// Mock useLiveQuery to return a seeded available appointment for day 26.
+// Derive current date values so tests remain valid regardless of when they run
+const today = new Date();
+const monthLabel = today.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+const todayDay = today.getDate();
+
+// Pick a day that is never today — day 14 is safe for any month past day 14.
+// If today is the 14th, fall back to day 7.
+const clickDay = todayDay === 14 ? 7 : 14;
+const clickDayName = new Date(today.getFullYear(), today.getMonth(), clickDay)
+  .toLocaleDateString('en-US', { weekday: 'long' });
+const clickDayLabel = new Date(today.getFullYear(), today.getMonth(), clickDay)
+  .toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+// Mock useLiveQuery to return a seeded available appointment for today's date.
 // Without this the Daily Schedule panel renders empty and the Book button never appears.
 vi.mock('dexie-react-hooks', () => ({
   useLiveQuery: () => [
-    { id: 1, time: '09:00 AM', patient: null, duration: null, type: null, status: 'available', year: 2026, month: 1, day: 26 },
+    {
+      id: 1, time: '09:00 AM', patient: null, duration: null, type: null,
+      status: 'available',
+      year: today.getFullYear(), month: today.getMonth(), day: today.getDate(),
+    },
   ],
 }));
 
@@ -40,16 +57,15 @@ vi.mock('../../src/app/components/NewAppointmentModal', () => ({
 describe('SchedulePage Component', () => {
 
   // Clicking a calendar day button should update the Selected Date footer.
-  // The component uses toLocaleDateString so we assert on the formatted string parts.
+  // Uses dynamic date values so the test passes on any run date.
   it('updates the selected date when a calendar day is clicked', () => {
     render(<SchedulePage />);
 
-    // February 14 is a Saturday in 2026
-    const day14 = screen.getByRole('button', { name: 'February 2026 14' });
-    fireEvent.click(day14);
+    const dayBtn = screen.getByRole('button', { name: `${monthLabel} ${clickDay}` });
+    fireEvent.click(dayBtn);
 
-    expect(screen.getByText(/Saturday/i)).toBeInTheDocument();
-    expect(screen.getByText(/February 14, 2026/i)).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(clickDayName, 'i'))).toBeInTheDocument();
+    expect(screen.getByText(new RegExp(clickDayLabel, 'i'))).toBeInTheDocument();
   });
 
   // Clicking the "New Appointment" header button should open the modal
@@ -63,7 +79,7 @@ describe('SchedulePage Component', () => {
   });
 
   // Clicking a "Book" button on an available appointment slot should open the modal.
-  // Requires the dexie-react-hooks mock to return an available appointment for the selected date.
+  // Requires the dexie-react-hooks mock to return an available appointment for today.
   it('opens the modal when clicking a "Book" button in an available slot', async () => {
     render(<SchedulePage />);
 
@@ -74,18 +90,16 @@ describe('SchedulePage Component', () => {
     expect(modal).toBeInTheDocument();
   });
 
-  // Today (day 25) should have the blue ring class from getDayStyles.
-  // The default selected day (26) should have the white text class indicating selection.
+  // Today should have the blue ring/bg class from getDayStyles.
+  // Since today is also the default selected date, both checks apply to the same button.
   it('highlights "today" and the "selected date" correctly', () => {
     render(<SchedulePage />);
 
-    const todayBtn    = screen.getByRole('button', { name: 'February 2026 25' });
-    const selectedBtn = screen.getByRole('button', { name: 'February 2026 26' });
+    // Today is both today and selected on initial render
+    const todayBtn = screen.getByRole('button', { name: `${monthLabel} ${todayDay}` });
 
-    // Today gets a blue focus ring per getDayStyles
-    expect(todayBtn.className).toContain('ring-blue-500');
-
-    // Selected day gets a dark/blue background with white text
-    expect(selectedBtn.className).toContain('text-white');
+    // Today+selected gets bg-blue-500 per getDayStyles
+    expect(todayBtn.className).toContain('bg-blue-500');
+    expect(todayBtn.className).toContain('text-white');
   });
 });
