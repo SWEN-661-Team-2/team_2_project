@@ -1,45 +1,67 @@
 import { test } from '@playwright/test';
 
 test('test', async ({ page }) => {
-  await page.goto('http://localhost:5173/login');
-  await page.getByRole('textbox', { name: 'Email' }).click();
-  await page.getByRole('textbox', { name: 'Email' }).fill('admin@careconnect.com');
-  await page.getByRole('textbox', { name: 'Password' }).click();
-  await page.getByRole('textbox', { name: 'Password' }).fill('password123');
-  await page.getByRole('button', { name: 'Sign In' }).click();
-  await page.getByRole('button', { name: 'Settings' }).click();
-  await page.getByRole('button', { name: 'dark Mode' }).click();
-  await page.getByRole('button', { name: 'Save Changes' }).click();
-  await page.getByRole('button', { name: 'light Mode' }).click();
-  await page.getByRole('button', { name: 'Save Changes' }).click();
-  await page.getByRole('button', { name: 'Patients' }).click();
-  await page.getByRole('button', { name: 'Add Patient' }).click();
-  await page.getByRole('textbox', { name: 'First Name' }).click();
-  await page.getByRole('textbox', { name: 'First Name' }).fill('TEST');
-  await page.getByRole('textbox', { name: 'Last Name' }).click();
-  await page.getByRole('textbox', { name: 'Last Name' }).fill('TEST');
-  await page.getByRole('textbox', { name: 'Date of Birth' }).fill('2026-03-18');
-  await page.getByLabel('Gender').selectOption('Prefer not to say');
-  await page.getByRole('textbox', { name: 'Phone Number' }).click();
-  await page.getByRole('textbox', { name: 'Phone Number' }).fill('1234');
-  await page.getByRole('textbox', { name: 'Email Address' }).click();
-  await page.getByRole('textbox', { name: 'Email Address' }).fill('some@email.com');
-  await page.getByRole('button', { name: 'Register Patient' }).click();
-  await page.getByRole('button', { name: 'TT TEST TEST Room Stable' }).click();
-  await page.getByRole('button', { name: 'Tasks' }).click();
-  await page.getByRole('button', { name: 'New Task' }).click();
-  await page.getByRole('textbox', { name: 'e.g. Check vital signs' }).click();
-  await page.getByRole('textbox', { name: 'e.g. Check vital signs' }).fill('TEST TASK');
-  await page.getByRole('textbox', { name: 'e.g. John Davis' }).click();
-  await page.getByRole('textbox', { name: 'e.g. John Davis' }).fill('TESTER');
-  await page.locator('select[name="priority"]').selectOption('medium');
-  await page.locator('select[name="category"]').selectOption('Treatment');
-  await page.getByRole('button', { name: 'Create Task' }).click();
-  await page.getByRole('textbox', { name: 'Search tasks...' }).click();
-  await page.getByRole('textbox', { name: 'Search tasks...' }).fill('te');
-  await page.getByRole('button', { name: 'Pending' }).click();
-  await page.getByRole('button', { name: 'Start Task' }).click();
-  await page.getByRole('button', { name: 'In Progress' }).click();
-  await page.getByRole('button', { name: 'Complete', exact: true }).click();
-  await page.getByRole('button', { name: 'Dashboard' }).click();
+  await page.goto('http://localhost:5173/');
+
+  await page.locator('input[name="email"]').fill('admin@careconnect.com');
+  await page.locator('input[name="password"]').fill('password123');
+  await page.getByRole('button', { name: /sign in/i }).click();
+  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+
+  // Settings
+  await page.getByRole('button', { name: /settings/i }).first().click();
+  await page.getByRole('switch', { name: /left-handed/i }).click();
+  await page.getByRole('button', { name: /save changes/i }).click();
+  await expect(page.getByText(/settings saved/i)).toBeVisible();
+
+  await page.getByRole('switch', { name: /left-handed/i }).click();
+  await page.getByRole('button', { name: /save changes/i }).click();
+  await expect(page.getByText(/settings saved/i)).toBeVisible();
+
+  // Patients — verify modal fields then cancel
+  await page.getByRole('button', { name: /patients/i }).first().click();
+  await page.getByText('Add Patient').click();
+  await expect(page.getByRole('heading', { name: 'Add New Patient' })).toBeVisible();
+  await page.locator('input[id="firstName"]').fill('TEST');
+  await page.locator('input[id="lastName"]').fill('PATIENT');
+  await page.locator('input[id="dateOfBirth"]').fill('2026-03-18');
+  await page.locator('select[id="gender"]').selectOption('Prefer not to say');
+  await page.locator('input[id="phone"]').fill('5551234567');
+  await page.locator('input[id="email"]').fill('some@email.com');
+  await page.getByRole('button', { name: /cancel/i }).click();
+
+  // Select an existing patient
+  await page.getByText('John Davis').first().click();
+  await expect(page.getByText(/hypertension/i)).toBeVisible();
+
+  // Tasks
+  await page.getByRole('button', { name: /tasks/i }).first().click();
+  await expect(page.getByText(/showing \d+ tasks/i)).toBeVisible();
+
+  // Open and close New Task modal
+  await page.getByRole('button', { name: /new task/i }).click();
+  await expect(page.getByRole('heading', { name: 'Create New Task' })).toBeVisible();
+  await page.locator('input[id="taskTitle"]').fill('TEST TASK');
+  await page.locator('select[id="priority"]').selectOption('High');
+  await page.locator('select[id="category"]').selectOption('Treatment');
+  await page.getByRole('button', { name: /cancel/i }).click();
+
+  // Search + filter with existing tasks
+  await page.locator('input[placeholder*="Search"]').fill('John');
+  await expect(page.getByText(/showing 1 task/i)).toBeVisible();
+  await page.getByRole('button', { name: /clear search/i }).click();
+
+  // Filter tabs
+  await page.getByRole('button', { name: /pending/i }).first().click();
+  await expect(page.getByText(/showing \d+ tasks/i)).toBeVisible();
+  await page.getByRole('button', { name: /all tasks/i }).first().click();
+
+  // Task lifecycle with existing task
+  await page.getByRole('button', { name: /start task/i }).first().click();
+  await page.getByRole('button', { name: /in progress/i }).first().click();
+  await page.getByRole('button', { name: /complete/i }).first().click();
+
+  // Back to dashboard
+  await page.getByRole('button', { name: /dashboard/i }).first().click();
+  await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
 });

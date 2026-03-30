@@ -148,7 +148,7 @@
 // }
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Heart, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { db } from '../../db'; // 1. Ensure this path points to your db.ts
 
 interface LoginFormData {
@@ -196,7 +196,8 @@ export function Login({ onLogin }: LoginProps) {
         setLoginError('Invalid email or password. Try admin@careconnect.com / password123');
       }
     } catch (err) {
-      setLoginError('Database connection error. Please try again.');
+      const message = err instanceof Error ? err.message : 'Database connection error. Please try again.';
+      setLoginError(message);
     }
   };
 
@@ -213,7 +214,7 @@ export function Login({ onLogin }: LoginProps) {
           <div className="px-6 md:px-8 pt-8 md:pt-10 pb-6 text-center border-b border-slate-100">
             <div className="flex justify-center mb-6">
               <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-                <Heart className="w-9 h-9 text-white" strokeWidth={2.5} />
+                <img src="/careconnect_logo.png" alt="CareConnect" className="w-12 h-12 rounded-xl" />
               </div>
             </div>
             <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-2">CareConnect</h1>

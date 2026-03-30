@@ -10,3 +10,4 @@ apps/flutter/coverage/
 lcov.info
 coverage-final.json
 clover.xml
+.vercel
