@@ -70,7 +70,7 @@ export function TaskManagement() {
   // Returns Tailwind color classes for the task priority badge
   const getPriorityStyles = (priority: Task['priority']) => {
     switch (priority) {
-      case 'high':   return { bg: 'bg-red-700',    text: 'text-red-600 dark:text-red-400',       bgLight: 'bg-red-50 dark:bg-red-900/20',       border: 'border-red-200 dark:border-red-800'     };
+      case 'high':   return { bg: 'bg-red-700',    text: 'text-red-600 dark:text-red-400',       bgLight: 'bg-red-50 dark:bg-red-900/20',       border: 'border-red-200 dark:border-red-800'       };
       case 'medium': return { bg: 'bg-yellow-700', text: 'text-yellow-700 dark:text-yellow-400', bgLight: 'bg-yellow-50 dark:bg-yellow-900/20', border: 'border-yellow-200 dark:border-yellow-800' };
       case 'low':    return { bg: 'bg-green-700',  text: 'text-green-700 dark:text-green-400',   bgLight: 'bg-green-50 dark:bg-green-900/20',   border: 'border-green-200 dark:border-green-800'   };
       default:       return { bg: 'bg-slate-700',  text: 'text-slate-600',                       bgLight: 'bg-slate-50',                        border: 'border-slate-200'                         };
@@ -80,10 +80,10 @@ export function TaskManagement() {
   // Human-readable status label
   const getStatusLabel = (status: Task['status']) => {
     switch (status) {
-      case 'completed':  return 'Completed';
+      case 'completed':   return 'Completed';
       case 'in-progress': return 'In Progress';
-      case 'pending':    return 'Pending';
-      default:           return status;
+      case 'pending':     return 'Pending';
+      default:            return status;
     }
   };
 
@@ -121,7 +121,7 @@ export function TaskManagement() {
               onClick={() => setTaskModalOpen(true)}
               className="flex items-center justify-center gap-2 px-6 h-12 md:h-14 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-semibold rounded-lg shadow-lg transition-all"
             >
-              <Plus className="w-5 h-5" strokeWidth={2.5} />
+              <Plus className="w-5 h-5" strokeWidth={2.5} aria-hidden="true" />
               <span>New Task</span>
             </button>
           </div>
@@ -132,7 +132,7 @@ export function TaskManagement() {
               <label htmlFor="task-search-input" className="sr-only">
                 Search tasks by title or patient name
               </label>
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" aria-hidden="true" />
               <input
                 id="task-search-input"
                 type="text"
@@ -150,6 +150,7 @@ export function TaskManagement() {
               <button
                 key={tab.id}
                 onClick={() => setActiveFilter(tab.id)}
+                aria-pressed={activeFilter === tab.id}
                 className={`px-6 py-3 font-semibold text-sm transition-all relative rounded-t-lg ${
                   activeFilter === tab.id
                     ? 'text-blue-600 dark:text-blue-400'
@@ -172,6 +173,7 @@ export function TaskManagement() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveFilter(tab.id)}
+                  aria-pressed={activeFilter === tab.id}
                   className={`px-5 py-3 font-semibold text-sm transition-all rounded-lg whitespace-nowrap ${
                     activeFilter === tab.id
                       ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md'
@@ -195,11 +197,12 @@ export function TaskManagement() {
           </div>
 
           {filteredTasks.length > 0 ? (
-            <div className="space-y-4">
+            // Semantic list — allows screen readers to announce task count
+            <ul className="space-y-4" aria-label="Task list">
               {filteredTasks.map((task) => {
                 const priorityStyles = getPriorityStyles(task.priority);
                 return (
-                  <div
+                  <li
                     key={task.id}
                     className="bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-blue-300 dark:hover:border-blue-500 transition-all group overflow-hidden"
                   >
@@ -208,18 +211,18 @@ export function TaskManagement() {
                       {/* Task header — status icon, title, patient, time, category, priority badge */}
                       <div className="flex items-start justify-between gap-4 mb-4">
                         <div className="flex items-start gap-3 flex-1 min-w-0">
-                          <div className="flex-shrink-0 mt-1">{getStatusIcon(task.status)}</div>
+                          <div className="flex-shrink-0 mt-1" aria-hidden="true">{getStatusIcon(task.status)}</div>
                           <div className="flex-1 min-w-0">
                             <h3 className="font-bold text-lg text-slate-900 dark:text-white mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                               {task.title}
                             </h3>
                             <div className="flex flex-wrap items-center gap-3 text-sm">
                               <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                                <User className="w-4 h-4" />
+                                <User className="w-4 h-4" aria-hidden="true" />
                                 <span className="font-medium">{task.patient}</span>
                               </div>
                               <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400">
-                                <Clock className="w-4 h-4" />
+                                <Clock className="w-4 h-4" aria-hidden="true" />
                                 <span>{task.time}</span>
                               </div>
                               {task.category && (
@@ -231,11 +234,14 @@ export function TaskManagement() {
                           </div>
                         </div>
 
-                        {/* Priority badge */}
+                        {/* Priority badge — native <output> communicates value to screen readers */}
                         <div className="flex-shrink-0">
-                          <span className={`inline-flex items-center px-3 py-1.5 ${priorityStyles.bg} text-white text-xs font-bold rounded-full uppercase shadow-sm`}>
+                          <output
+                            aria-label={`Priority: ${task.priority}`}
+                            className={`inline-flex items-center px-3 py-1.5 ${priorityStyles.bg} text-white text-xs font-bold rounded-full uppercase shadow-sm`}
+                          >
                             {task.priority}
-                          </span>
+                          </output>
                         </div>
                       </div>
 
@@ -244,7 +250,7 @@ export function TaskManagement() {
 
                         {/* Current status chip */}
                         <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border ${getStatusStyles(task.status)}`}>
-                          {getStatusIcon(task.status)}
+                          <span aria-hidden="true">{getStatusIcon(task.status)}</span>
                           <span>{getStatusLabel(task.status)}</span>
                         </span>
 
@@ -275,15 +281,15 @@ export function TaskManagement() {
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           ) : (
             // Empty state — shown when no tasks match the current filter/search
             <div className="bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 p-12 text-center">
               <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Filter className="w-8 h-8 text-slate-400 dark:text-slate-500" />
+                <Filter className="w-8 h-8 text-slate-400 dark:text-slate-500" aria-hidden="true" />
               </div>
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">No tasks found</h3>
               <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">

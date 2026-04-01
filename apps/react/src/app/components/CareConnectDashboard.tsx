@@ -17,10 +17,10 @@ export function CareConnectDashboard() {
   // --- Static display data ---
   // Summary cards shown at the top of the dashboard
   const summaryCards = [
-    { title: 'Active Tasks',  value: '12',  change: '+3 today',     icon: CheckSquare, color: 'from-blue-500 to-cyan-500',    bgColor: 'bg-blue-50 dark:bg-blue-900/20',    textColor: 'text-blue-600 dark:text-blue-400'    },
-    { title: 'Urgent Tasks',  value: '3',   change: 'Needs attention', icon: AlertCircle, color: 'from-red-500 to-orange-500',  bgColor: 'bg-red-50 dark:bg-red-900/20',      textColor: 'text-red-600 dark:text-red-400'      },
-    { title: 'Appointments',  value: '8',   change: '4 today',      icon: CalendarDays, color: 'from-green-500 to-emerald-500', bgColor: 'bg-green-50 dark:bg-green-900/20',  textColor: 'text-green-600 dark:text-green-400'  },
-    { title: 'Patients',      value: '156', change: '+2 this week', icon: Users,        color: 'from-purple-500 to-pink-500',  bgColor: 'bg-purple-50 dark:bg-purple-900/20', textColor: 'text-purple-600 dark:text-purple-400' },
+    { title: 'Active Tasks',  value: '12',  change: '+3 today',        icon: CheckSquare,  color: 'from-blue-500 to-cyan-500',    bgColor: 'bg-blue-50 dark:bg-blue-900/20',     textColor: 'text-blue-600 dark:text-blue-400'    },
+    { title: 'Urgent Tasks',  value: '3',   change: 'Needs attention',  icon: AlertCircle,  color: 'from-red-500 to-orange-500',   bgColor: 'bg-red-50 dark:bg-red-900/20',       textColor: 'text-red-600 dark:text-red-400'      },
+    { title: 'Appointments',  value: '8',   change: '4 today',          icon: CalendarDays, color: 'from-green-500 to-emerald-500',bgColor: 'bg-green-50 dark:bg-green-900/20',   textColor: 'text-green-600 dark:text-green-400'  },
+    { title: 'Patients',      value: '156', change: '+2 this week',     icon: Users,        color: 'from-purple-500 to-pink-500',  bgColor: 'bg-purple-50 dark:bg-purple-900/20', textColor: 'text-purple-600 dark:text-purple-400' },
   ];
 
   // High-priority tasks requiring immediate attention
@@ -32,22 +32,22 @@ export function CareConnectDashboard() {
 
   // Scheduled appointments for today
   const todaysSchedule = [
-    { id: 1, time: '09:00 AM', title: 'Morning Rounds',   type: 'Assessment',   patient: 'All Patients',  duration: '60 min' },
-    { id: 2, time: '10:30 AM', title: 'Consultation',     type: 'Consultation', patient: 'John Smith',    duration: '30 min' },
-    { id: 3, time: '02:00 PM', title: 'Therapy Session',  type: 'Therapy',      patient: 'Lisa Anderson', duration: '45 min' },
-    { id: 4, time: '03:30 PM', title: 'Check-up',         type: 'Check-up',     patient: 'David Wilson',  duration: '15 min' },
+    { id: 1, time: '09:00 AM', title: 'Morning Rounds',  type: 'Assessment',   patient: 'All Patients',  duration: '60 min' },
+    { id: 2, time: '10:30 AM', title: 'Consultation',    type: 'Consultation', patient: 'John Smith',    duration: '30 min' },
+    { id: 3, time: '02:00 PM', title: 'Therapy Session', type: 'Therapy',      patient: 'Lisa Anderson', duration: '45 min' },
+    { id: 4, time: '03:30 PM', title: 'Check-up',        type: 'Check-up',     patient: 'David Wilson',  duration: '15 min' },
   ];
 
   // Recent staff activity feed
   const recentActivity = [
-    { id: 1, action: 'New patient registered',   user: 'Dr. Sarah Williams', time: '5 min ago',  icon: UserPlus    },
-    { id: 2, action: 'Task completed',            user: 'Nurse Mike Johnson', time: '12 min ago', icon: CheckSquare },
-    { id: 3, action: 'Appointment scheduled',     user: 'Dr. Emily Brown',   time: '23 min ago', icon: Calendar    },
-    { id: 4, action: 'Care note updated',         user: 'Nurse Lisa Chen',   time: '45 min ago', icon: FileText    },
+    { id: 1, action: 'New patient registered',  user: 'Dr. Sarah Williams', time: '5 min ago',  icon: UserPlus    },
+    { id: 2, action: 'Task completed',           user: 'Nurse Mike Johnson', time: '12 min ago', icon: CheckSquare },
+    { id: 3, action: 'Appointment scheduled',    user: 'Dr. Emily Brown',   time: '23 min ago', icon: Calendar    },
+    { id: 4, action: 'Care note updated',        user: 'Nurse Lisa Chen',   time: '45 min ago', icon: FileText    },
   ];
 
   return (
-    <div className="min-h-screen bg-transparent pb-20 lg:pb-0">
+    <div id="main-content" className="min-h-screen bg-transparent pb-20 lg:pb-0">
       <div className="p-4 md:p-6 lg:p-8">
 
         {/* Page Header — title, quick-action buttons, and global search */}
@@ -137,17 +137,21 @@ export function CareConnectDashboard() {
                 <h2 className="font-bold text-lg text-slate-900 dark:text-white">Urgent Tasks</h2>
               </div>
             </div>
-            <div className="divide-y divide-slate-200 dark:divide-slate-700">
+            {/* Semantic list — allows screen readers to announce item count */}
+            <ul className="divide-y divide-slate-200 dark:divide-slate-700" aria-label="Urgent tasks list">
               {urgentTasks.map((task) => (
-                <div key={task.id} className="px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                <li key={task.id} className="px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <h3 className="font-semibold text-slate-900 dark:text-slate-100 text-sm">{task.title}</h3>
-                    {/* Priority badge — red for urgent, orange for high */}
-                    <span className={`px-2 py-1 text-xs font-bold rounded-full ${
-                      task.priority === 'urgent' ? 'bg-red-700 text-white' : 'bg-orange-700 text-white'
-                    }`}>
+                    {/* Priority badge — role="status" and aria-label communicate urgency to screen readers */}
+                    <output
+                      aria-label={`Priority: ${task.priority}`}
+                      className={`px-2 py-1 text-xs font-bold rounded-full ${
+                        task.priority === 'urgent' ? 'bg-red-700 text-white' : 'bg-orange-700 text-white'
+                      }`}
+                    >
                       {task.priority.toUpperCase()}
-                    </span>
+                    </output>
                   </div>
                   <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-400">
                     <span className="flex items-center gap-1">
@@ -157,9 +161,9 @@ export function CareConnectDashboard() {
                       <Clock className="w-3 h-3" aria-hidden="true" />{task.time}
                     </span>
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
           {/* Today's Schedule panel */}
@@ -170,10 +174,10 @@ export function CareConnectDashboard() {
                 <h2 className="font-bold text-lg text-slate-900 dark:text-white">Today's Schedule</h2>
               </div>
             </div>
-            {/* Scrollable appointment list */}
-            <div className="max-h-96 overflow-y-auto divide-y divide-slate-200 dark:divide-slate-700">
+            {/* Semantic list — allows screen readers to announce appointment count */}
+            <ul className="max-h-96 overflow-y-auto divide-y divide-slate-200 dark:divide-slate-700" aria-label="Today's appointments">
               {todaysSchedule.map((appointment) => (
-                <div key={appointment.id} className="px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                <li key={appointment.id} className="px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                   <div className="flex gap-4">
                     {/* Time column — hour and AM/PM stacked */}
                     <div className="flex-shrink-0 text-center">
@@ -185,9 +189,9 @@ export function CareConnectDashboard() {
                       <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">{appointment.patient}</p>
                     </div>
                   </div>
-                </div>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
 
           {/* Recent Activity panel */}
@@ -198,11 +202,12 @@ export function CareConnectDashboard() {
                 <h2 className="font-bold text-lg text-slate-900 dark:text-white">Recent Activity</h2>
               </div>
             </div>
-            <div className="divide-y divide-slate-200 dark:divide-slate-700">
+            {/* Semantic list — allows screen readers to announce activity count */}
+            <ul className="divide-y divide-slate-200 dark:divide-slate-700" aria-label="Recent activity list">
               {recentActivity.map((activity) => {
                 const Icon = activity.icon;
                 return (
-                  <div key={activity.id} className="px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                  <li key={activity.id} className="px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
                     <div className="flex items-start gap-3">
                       {/* Activity type icon */}
                       <div className="w-8 h-8 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center">
@@ -213,10 +218,10 @@ export function CareConnectDashboard() {
                         <p className="text-xs text-slate-600 dark:text-slate-400">{activity.user} · {activity.time}</p>
                       </div>
                     </div>
-                  </div>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           </div>
         </div>
       </div>
