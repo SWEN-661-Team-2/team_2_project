@@ -48,7 +48,7 @@ describe('App Routing', () => {
 
   // Unauthenticated users navigating to any route should be redirected to login
   it('redirects to login when not authenticated', () => {
-    (useAppContext as any).mockReturnValue(mockContextBase);
+    vi.mocked(useAppContext).mockReturnValue(mockContextBase);
 
     render(
       <MemoryRouter initialEntries={['/tasks']}>
@@ -62,7 +62,7 @@ describe('App Routing', () => {
 
   // Authenticated users at the root path should see the dashboard
   it('renders dashboard when authenticated', () => {
-    (useAppContext as any).mockReturnValue({
+    vi.mocked(useAppContext).mockReturnValue({
       ...mockContextBase,
       state: { ...mockContextBase.state, isLoggedIn: true },
     });
@@ -78,7 +78,7 @@ describe('App Routing', () => {
 
   // When theme is 'dark', AppLayout's useEffect should add 'dark' to <html>
   it('applies dark theme class to document root', () => {
-    (useAppContext as any).mockReturnValue({
+    vi.mocked(useAppContext).mockReturnValue({
       ...mockContextBase,
       state: {
         ...mockContextBase.state,

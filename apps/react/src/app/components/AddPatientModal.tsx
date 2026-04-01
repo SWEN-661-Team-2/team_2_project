@@ -1,16 +1,8 @@
 import { useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { type PatientFormData } from '../../db';
 import { X, UserPlus, Calendar as CalendarIcon, Mail, Phone, AlertCircle } from 'lucide-react';
 
-// Form field shape — subset of the full Patient interface collected at registration
-interface PatientFormData {
-  readonly firstName: string;
-  readonly lastName: string;
-  readonly dateOfBirth: string;
-  readonly gender: string;
-  readonly phone: string;
-  readonly email: string;
-}
 
 // Props passed in from PatientCare
 interface AddPatientModalProps {
@@ -91,7 +83,7 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
     };
 
     // Passes the assembled record up to PatientCare's handleAddPatient
-    onSubmit(fullPatientData as any);
+    onSubmit(fullPatientData as PatientFormData);
     onClose();
   };
 

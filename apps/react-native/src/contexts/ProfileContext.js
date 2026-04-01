@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as FileSystem from 'expo-file-system';
+import { Directory, File } from 'expo-file-system/next';
+import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import CaregiverProfile from '../models/CaregiverProfile';
 
 const PROFILE_KEY = 'careconnect:caregiver_profile_v1';
@@ -38,16 +38,16 @@ export const ProfileProvider = ({ children }) => {
     }
   };
 
-  // Save a photo URI by copying the picked file into app's document directory
   const savePhoto = async (localUri) => {
     try {
       if (!localUri) return null;
-      const destDir = FileSystem.documentDirectory + 'profile_photos/';
-      await FileSystem.makeDirectoryAsync(destDir, { intermediates: true }).catch(() => {});
+      const destDir = new Directory('profile_photos/');
+      if (!destDir.exists) destDir.create();
       const ext = localUri.split('.').pop().split('?')[0];
-      const dest = destDir + `caregiver_${Date.now()}.${ext}`;
-      await FileSystem.copyAsync({ from: localUri, to: dest });
-      return dest;
+      const dest = new File(destDir, `caregiver_${Date.now()}.${ext}`);
+      const src = new File(localUri);
+      src.copy(dest);
+      return dest.uri;
     } catch (e) {
       console.warn('Failed to save photo', e);
       return localUri;
@@ -59,8 +59,13 @@ export const ProfileProvider = ({ children }) => {
     await save(new CaregiverProfile(updated));
   };
 
+  const contextValue = useMemo(
+    () => ({ profile, loaded, load, save, updateField, savePhoto }),
+    [profile, loaded]
+  );
+
   return (
-    <ProfileContext.Provider value={{ profile, loaded, load, save, updateField, savePhoto }}>
+    <ProfileContext.Provider value={contextValue}>
       {children}
     </ProfileContext.Provider>
   );

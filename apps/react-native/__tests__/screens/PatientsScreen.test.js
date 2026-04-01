@@ -1,8 +1,7 @@
-import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
-import PatientsScreen from '../../src/screens/PatientsScreen';
-import * as PatientsContext from '../../src/contexts/PatientsContext';
+import { fireEvent, render } from '@testing-library/react-native';
 import * as AppProviders from '../../src/contexts/AppProviders';
+import * as PatientsContext from '../../src/contexts/PatientsContext';
+import PatientsScreen from '../../src/screens/PatientsScreen';
 
 // Mock the contexts
 jest.mock('../../src/contexts/PatientsContext', () => ({
@@ -36,17 +35,18 @@ jest.mock('../../src/screens/components/PatientCardComponents', () => {
   };
 })
 
-jest.mock('../../src/screens/components/PatientFilterMenu', () => (props) => {
-  const { View, TouchableOpacity } = require('react-native');
-  return props.visible ? (
-    <View testID="MockFilterMenu">
-      <TouchableOpacity 
-        testID="ChangeModeBtn" 
-        onPress={() => props.onViewModeChange('priority')} 
-      />
-      <TouchableOpacity testID="CloseMenuBtn" onPress={props.onClose} />
-    </View>
-  ) : null;
+jest.mock('../../src/screens/components/PatientFilterMenu', () => {
+  const MockPatientFilterMenu = (props) => {
+    const { View, TouchableOpacity } = require('react-native');
+    return props.visible ? (
+      <View testID="MockFilterMenu">
+        <TouchableOpacity testID="ChangeModeBtn" onPress={() => props.onViewModeChange('priority')} />
+        <TouchableOpacity testID="CloseMenuBtn" onPress={props.onClose} />
+      </View>
+    ) : null;
+  };
+  MockPatientFilterMenu.displayName = 'MockPatientFilterMenu';
+  return MockPatientFilterMenu;
 });
 
 describe('PatientsScreen Hardening & Accessibility', () => {
