@@ -30,15 +30,27 @@ describe('App Routing', () => {
     state: {
       isLoggedIn: false,
       sidebarPosition: 'left' as const,
+      tasks: [],
+      patients: [],
       settings: {
-        theme: 'light',
+        theme: 'light' as const,
         highContrastMode: false,
         defaultZoom: '100%',
+        leftHandedMode: false,
+        userName: '',
+        userRole: '',
+        enhancedKeyboardNav: false,
+        alwaysFocusIndicators: false,
+        reduceMotion: false,
+        taskReminders: false,
+        urgentTaskAlerts: false,
+        reminderLeadTime: '15 minutes',
       },
     },
     login: vi.fn(),
     logout: vi.fn(),
     setSidebarPosition: vi.fn(),
+    updateAllSettings: vi.fn(),
   };
 
   // Reset all mock call counts and return values before each test
