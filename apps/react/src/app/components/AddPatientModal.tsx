@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { X, UserPlus, Calendar as CalendarIcon, Mail, Phone, AlertCircle } from 'lucide-react';
 
@@ -21,6 +22,53 @@ interface AddPatientModalProps {
 export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalProps) {
   // react-hook-form — handles field registration, validation, and submission state
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<PatientFormData>();
+
+  const modalRef = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Query all focusable elements inside the modal
+    const focusableSelectors = [
+      'button:not([disabled])',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(', ');
+
+    const modal = modalRef.current;
+    if (!modal) return;
+
+    const focusableElements = Array.from(
+      modal.querySelectorAll<HTMLElement>(focusableSelectors)
+    );
+
+    if (focusableElements.length === 0) return;
+
+    // Move focus into the modal on open
+    focusableElements[0].focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      const first = focusableElements[0];
+      const last = focusableElements.at(-1)!;
+
+      if (e.shiftKey && document.activeElement === first) {
+        // Shift+Tab — if on first element, wrap to last
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        // Tab — if on last element, wrap to first
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
 
   // Early return keeps the DOM clean when the modal is not needed
   if (!isOpen) return null;
@@ -84,7 +132,13 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
       />
 
       {/* Modal container */}
-      <div className="relative w-full max-w-3xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+      <dialog
+        ref={modalRef}
+        aria-labelledby="add-patient-title"
+        open
+        className="relative w-full max-w-3xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200 m-0 p-0 border-0 bg-transparent"
+      >
+
 
         {/* Modal header — icon, title, subtitle, close button */}
         <div className="flex-shrink-0 px-6 md:px-8 py-5 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-slate-800 dark:to-slate-900">
@@ -92,7 +146,12 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1 text-emerald-600 dark:text-emerald-400">
                 <UserPlus className="w-6 h-6" aria-hidden="true" />
-                <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">Add New Patient</h2>
+                <h2
+                  id="add-patient-title"
+                  className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white"
+                >
+                  Add New Patient
+                </h2>
               </div>
               <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Register a new profile in the system</p>
             </div>
@@ -267,7 +326,7 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
             </button>
           </div>
         </form>
-      </div>
+      </dialog>
     </div>
   );
 }

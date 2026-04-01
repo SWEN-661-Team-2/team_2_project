@@ -1,3 +1,4 @@
+import { useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { X, Clock, User, FileText, AlertCircle, Calendar } from 'lucide-react';
 
@@ -20,6 +21,56 @@ interface NewAppointmentModalProps {
 export function NewAppointmentModal({ isOpen, onClose, onSubmit }: NewAppointmentModalProps) {
   // react-hook-form — handles validation, submission state, and error messages
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<AppointmentFormData>();
+
+  // Ref used to implement focus trap and move focus into the modal on open
+  const modalRef = useRef<HTMLDialogElement>(null);
+
+  // Focus trap — constrains Tab and Shift+Tab within the modal boundary
+  // Also moves focus into the modal on open
+  useEffect(() => {
+    if (!isOpen) return;
+
+    // Query all focusable elements inside the modal
+    const focusableSelectors = [
+      'button:not([disabled])',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(', ');
+
+    const modal = modalRef.current;
+    if (!modal) return;
+
+    const focusableElements = Array.from(
+      modal.querySelectorAll<HTMLElement>(focusableSelectors)
+    );
+
+    if (focusableElements.length === 0) return;
+
+    // Move focus into the modal on open
+    focusableElements[0].focus();
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      const first = focusableElements[0];
+      const last = focusableElements.at(-1)!;
+
+      if (e.shiftKey && document.activeElement === first) {
+        // Shift+Tab — if on first element, wrap to last
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        // Tab — if on last element, wrap to first
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]);
 
   // Early return keeps the DOM clean when the modal is not needed
   if (!isOpen) return null;
@@ -71,16 +122,27 @@ export function NewAppointmentModal({ isOpen, onClose, onSubmit }: NewAppointmen
         onClick={onClose}
         aria-label="Close appointment modal"
       />
-      {/* Modal Container */}
-      <div className="relative w-full h-full md:h-auto md:max-w-2xl md:rounded-3xl bg-white dark:bg-slate-900 shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200">
+
+      {/* Modal container */}
+      <dialog
+        ref={modalRef}
+        aria-labelledby="new-appointment-title"
+        open
+        className="relative w-full h-full md:h-auto md:max-w-2xl md:rounded-3xl bg-white dark:bg-slate-900 shadow-2xl overflow-hidden flex flex-col animate-in zoom-in-95 duration-200 m-0 p-0 border-0"
+      >
 
         {/* Modal Header — title, subtitle, and close button */}
         <div className="flex-shrink-0 px-6 py-5 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-slate-800 dark:to-slate-900">
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">New Appointment</h2>
+                <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
+                <h2
+                  id="new-appointment-title"
+                  className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white"
+                >
+                  New Appointment
+                </h2>
               </div>
               <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Schedule a new care session for a patient</p>
             </div>
@@ -91,7 +153,7 @@ export function NewAppointmentModal({ isOpen, onClose, onSubmit }: NewAppointmen
               aria-label="Close modal"
               className="flex-shrink-0 p-2 hover:bg-white dark:hover:bg-slate-700 rounded-xl transition-colors text-slate-500 dark:text-slate-400"
             >
-              <X className="w-6 h-6" />
+              <X className="w-6 h-6" aria-hidden="true" />
             </button>
           </div>
         </div>
@@ -112,7 +174,7 @@ export function NewAppointmentModal({ isOpen, onClose, onSubmit }: NewAppointmen
                   Time Selection
                 </label>
                 <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" />
+                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" aria-hidden="true" />
                   <select
                     id="appointment-time"
                     className={`${inputClasses(!!errors.time)} appearance-none cursor-pointer`}
@@ -127,7 +189,7 @@ export function NewAppointmentModal({ isOpen, onClose, onSubmit }: NewAppointmen
                 </div>
                 {errors.time && (
                   <div className="flex items-center gap-1.5 mt-2 text-red-500 font-bold text-xs ml-1 uppercase">
-                    <AlertCircle className="w-4 h-4" />
+                    <AlertCircle className="w-4 h-4" aria-hidden="true" />
                     {errors.time.message}
                   </div>
                 )}
@@ -142,7 +204,7 @@ export function NewAppointmentModal({ isOpen, onClose, onSubmit }: NewAppointmen
                   Duration
                 </label>
                 <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" />
+                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" aria-hidden="true" />
                   <select
                     id="appointment-duration"
                     className={`${inputClasses(!!errors.duration)} appearance-none cursor-pointer`}
@@ -167,7 +229,7 @@ export function NewAppointmentModal({ isOpen, onClose, onSubmit }: NewAppointmen
                 Patient Name
               </label>
               <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" />
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" aria-hidden="true" />
                 <input
                   id="appointment-patient"
                   type="text"
@@ -178,7 +240,7 @@ export function NewAppointmentModal({ isOpen, onClose, onSubmit }: NewAppointmen
               </div>
               {errors.patientName && (
                 <div className="flex items-center gap-1.5 mt-2 text-red-500 font-bold text-xs ml-1 uppercase">
-                  <AlertCircle className="w-4 h-4" />
+                  <AlertCircle className="w-4 h-4" aria-hidden="true" />
                   {errors.patientName.message}
                 </div>
               )}
@@ -196,7 +258,7 @@ export function NewAppointmentModal({ isOpen, onClose, onSubmit }: NewAppointmen
                   Session Type
                 </label>
                 <div className="relative">
-                  <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" />
+                  <FileText className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" aria-hidden="true" />
                   <select
                     id="appointment-type"
                     className={`${inputClasses(!!errors.appointmentType)} appearance-none cursor-pointer`}
@@ -220,7 +282,7 @@ export function NewAppointmentModal({ isOpen, onClose, onSubmit }: NewAppointmen
                   Priority Status
                 </label>
                 <div className="relative">
-                  <AlertCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" />
+                  <AlertCircle className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 dark:text-slate-500 z-10" aria-hidden="true" />
                   <select
                     id="appointment-status"
                     className={`${inputClasses(!!errors.status)} appearance-none cursor-pointer`}
@@ -258,12 +320,12 @@ export function NewAppointmentModal({ isOpen, onClose, onSubmit }: NewAppointmen
               >
                 {isSubmitting ? (
                   <>
-                    <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" />
+                    <div className="w-5 h-5 border-3 border-white/30 border-t-white rounded-full animate-spin" aria-hidden="true" />
                     <span>Processing...</span>
                   </>
                 ) : (
                   <>
-                    <Calendar className="w-5 h-5" />
+                    <Calendar className="w-5 h-5" aria-hidden="true" />
                     <span>Schedule Appointment</span>
                   </>
                 )}
@@ -271,7 +333,7 @@ export function NewAppointmentModal({ isOpen, onClose, onSubmit }: NewAppointmen
             </div>
           </div>
         </form>
-      </div>
+      </dialog>
     </div>
   );
 }
