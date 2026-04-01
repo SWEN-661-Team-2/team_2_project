@@ -22,16 +22,60 @@ export function CreateTaskModal({ isOpen, onClose, onSubmit }: CreateTaskModalPr
   // react-hook-form — handles field registration, validation, submission state, and reset
   const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<TaskFormData>();
 
+  // Ref used to implement focus trap and auto-focus the modal on open
+  const modalRef = useRef<HTMLDialogElement>(null);
+
   // Ref used to auto-focus the task title field when the modal opens
   const taskTitleRef = useRef<HTMLInputElement | null>(null);
 
-  // Focus the title input shortly after the modal mounts
-  // Delay allows the enter animation to complete before focus is applied
+  // Focus trap — constrains Tab and Shift+Tab within the modal boundary
+  // Also moves focus into the modal on open
   useEffect(() => {
-    if (isOpen) {
-      const timer = setTimeout(() => taskTitleRef.current?.focus(), 150);
-      return () => clearTimeout(timer);
-    }
+    if (!isOpen) return;
+
+    // Query all focusable elements inside the modal
+    const focusableSelectors = [
+      'button:not([disabled])',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(', ');
+
+    const modal = modalRef.current;
+    if (!modal) return;
+
+    const focusableElements = Array.from(
+      modal.querySelectorAll<HTMLElement>(focusableSelectors)
+    );
+
+    if (focusableElements.length === 0) return;
+
+    // Delay allows the enter animation to complete before focus is applied
+    const timer = setTimeout(() => taskTitleRef.current?.focus(), 150);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      const first = focusableElements[0];
+      const last = focusableElements.at(-1)!;
+
+      if (e.shiftKey && document.activeElement === first) {
+        // Shift+Tab — if on first element, wrap to last
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        // Tab — if on last element, wrap to first
+        e.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, [isOpen]);
 
   // Early return keeps the DOM clean when the modal is not needed
@@ -86,7 +130,12 @@ export function CreateTaskModal({ isOpen, onClose, onSubmit }: CreateTaskModalPr
       />
 
       {/* Modal container */}
-      <div className="relative w-full md:max-w-lg bg-white dark:bg-slate-900 rounded-t-3xl md:rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 md:zoom-in-95 duration-200">
+      <dialog
+        ref={modalRef}
+        aria-labelledby="create-task-title"
+        open
+        className="relative w-full md:max-w-lg bg-white dark:bg-slate-900 rounded-t-3xl md:rounded-3xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom-10 md:zoom-in-95 duration-200 m-0 p-0 border-0 bg-transparent"
+      >
 
         {/* Modal header — icon, title, subtitle, close button */}
         <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-slate-800 dark:to-slate-900">
@@ -94,7 +143,12 @@ export function CreateTaskModal({ isOpen, onClose, onSubmit }: CreateTaskModalPr
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1 text-purple-600 dark:text-purple-400">
                 <CheckSquare className="w-6 h-6" aria-hidden="true" />
-                <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">Create Task</h2>
+                <h2
+                  id="create-task-title"
+                  className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white"
+                >
+                  Create Task
+                </h2>
               </div>
               <p className="text-sm text-slate-600 dark:text-slate-400 font-medium">Add a new item to your daily workflow</p>
             </div>
@@ -218,7 +272,7 @@ export function CreateTaskModal({ isOpen, onClose, onSubmit }: CreateTaskModalPr
             </button>
           </div>
         </form>
-      </div>
+      </dialog>
     </div>
   );
 }

@@ -52,12 +52,6 @@ function Schedule() {
 
   const availableSlots = appointments.filter(a => a.status === 'available');
 
-  const allCells = [...blanks, ...dayNums];
-  const rows = [];
-  for (let i = 0; i < allCells.length; i += 7) {
-    rows.push({ key: `row-${i}`, cells: allCells.slice(i, i + 7) });
-  }
-
   return (
     <div className="page-content">
       <div className="toolbar" role="toolbar" aria-label="Schedule actions">
@@ -83,11 +77,11 @@ function Schedule() {
             {blanks.map((_, i) => <div key={'b' + i} className="cal-cell"></div>)}
             {dayNums.map(d => (
               <button
-                key={d}
-                className={`cal-cell cal-day ${d === 25 ? 'cal-today' : ''}`}
-                aria-label={`February ${d}, 2026`}
+                key={d.key}
+                className={`cal-cell cal-day ${d.day === 25 ? 'cal-today' : ''}`}
+                aria-label={`February ${d.day}, 2026`}
               >
-                {d}
+                {d.day}
               </button>
             ))}
           </div>
