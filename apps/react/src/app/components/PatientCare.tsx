@@ -37,7 +37,7 @@ export function PatientCare() {
     : null;
 
   // 4. Handle adding a new patient to Dexie
-  const handleAddPatient = async (data: any) => {
+  const handleAddPatient = async (data: Omit<Patient, 'id'>) => {
     try {
       // Create initials if the form doesn't provide them
       const initials = `${data.firstName[0]}${data.lastName[0]}`.toUpperCase();

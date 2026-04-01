@@ -7,7 +7,7 @@ import 'package:flutter_app/core/accessibility/app_settings_controller.dart';
 import 'package:flutter_app/features/tasks/tasks_screen.dart';
 
 void main() {
-  Widget _wrap(Widget child) {
+  Widget wrap(Widget child) {
     return MaterialApp(
       home: ChangeNotifierProvider<AppSettingsController>(
         create: (_) => AppSettingsController(),
@@ -23,7 +23,7 @@ void main() {
       await tester.binding.setSurfaceSize(null);
     });
 
-    await tester.pumpWidget(_wrap(const TasksScreen()));
+    await tester.pumpWidget(wrap(const TasksScreen()));
     await tester.pumpAndSettle();
 
     // Open filter menu

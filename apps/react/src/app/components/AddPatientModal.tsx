@@ -91,7 +91,7 @@ export function AddPatientModal({ isOpen, onClose, onSubmit }: AddPatientModalPr
     };
 
     // Passes the assembled record up to PatientCare's handleAddPatient
-    onSubmit(fullPatientData as any);
+    onSubmit(fullPatientData as PatientFormData);
     onClose();
   };
 

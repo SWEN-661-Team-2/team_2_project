@@ -30,7 +30,7 @@ interface AppState {
   readonly isLoggedIn: boolean;
   readonly sidebarPosition: 'left' | 'right';
   readonly tasks: Task[];
-  readonly patients: any[];
+  readonly patients: unknown[];
   readonly settings: SettingsData;
 }
 
@@ -66,6 +66,7 @@ const defaultTasks: Task[] = [
 ];
 
 // Context instance — null by default, validated in useAppContext
+// eslint-disable-next-line react-refresh/only-export-components
 export const AppContext = createContext<AppContextType | null>(null);
 
 // Props for AppProvider — children is read-only per SonarQube requirement
@@ -143,6 +144,7 @@ export function AppProvider({ children }: AppProviderProps) {
 }
 
 // Custom hook — throws a descriptive error if used outside of AppProvider
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAppContext = () => {
   const context = useContext(AppContext);
   if (!context) throw new Error('useAppContext must be used within AppProvider');

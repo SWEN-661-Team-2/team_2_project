@@ -1,8 +1,7 @@
-import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
-import MessagesListScreen from '../../src/screens/MessagesListScreen';
-import * as MessagesContext from '../../src/contexts/MessagesContext';
+import { fireEvent, render } from '@testing-library/react-native';
 import * as AppProviders from '../../src/contexts/AppProviders';
+import * as MessagesContext from '../../src/contexts/MessagesContext';
+import MessagesListScreen from '../../src/screens/MessagesListScreen';
 
 // Mock contexts
 jest.mock('../../src/contexts/MessagesContext', () => ({
@@ -14,11 +13,14 @@ jest.mock('../../src/contexts/AppProviders', () => ({
 }));
 
 // Mock components
-jest.mock('../../src/screens/components/FilterMenu', () => (props) => {
-  const { View } = require('react-native');
-  return <View testID="MockFilterMenu" onModeChange={props.onModeChange} />;
+jest.mock('../../src/screens/components/FilterMenu', () => {
+  const MockFilterMenu = (props) => {
+    const { View } = require('react-native');
+    return <View testID="MockFilterMenu" onModeChange={props.onModeChange} />;
+  };
+  MockFilterMenu.displayName = 'MockFilterMenu';
+  return MockFilterMenu;
 });
-
 
 jest.mock('../../src/screens/components/MessageCard', () => 'MessageCard');
 jest.mock('../../src/components/HandednessToggleOverlay', () => 'HandednessToggleOverlay');

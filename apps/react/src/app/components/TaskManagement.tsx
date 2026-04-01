@@ -51,7 +51,7 @@ export function TaskManagement() {
   };
 
   // Adds a new task to IndexedDB and closes the modal
-  const handleCreateTask = async (data: any) => {
+  const handleCreateTask = async (data: Omit<Task, 'id' | 'status'>) => {
     try {
       await db.tasks.add({
         ...data,

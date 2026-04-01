@@ -8,7 +8,7 @@ import 'package:flutter_app/features/about/about_careconnect_screen.dart';
 import 'package:flutter_app/features/help/help_support_screen.dart';
 
 void main() {
-  Widget _wrap(Widget child) {
+  Widget wrap(Widget child) {
     return MaterialApp(
       home: ChangeNotifierProvider<AppSettingsController>(
         create: (_) => AppSettingsController(),
@@ -18,7 +18,7 @@ void main() {
   }
 
   testWidgets('AboutCareConnectScreen renders static content', (tester) async {
-    await tester.pumpWidget(_wrap(const AboutCareConnectScreen()));
+    await tester.pumpWidget(wrap(const AboutCareConnectScreen()));
     await tester.pumpAndSettle();
 
     expect(find.text('About CareConnect'), findsOneWidget);
@@ -29,7 +29,7 @@ void main() {
   });
 
   testWidgets('HelpSupportScreen renders static content', (tester) async {
-    await tester.pumpWidget(_wrap(const HelpSupportScreen()));
+    await tester.pumpWidget(wrap(const HelpSupportScreen()));
     await tester.pumpAndSettle();
 
     expect(find.text('Help / Support'), findsOneWidget);

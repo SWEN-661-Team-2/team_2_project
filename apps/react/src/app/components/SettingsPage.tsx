@@ -1,5 +1,5 @@
 import { Check, AlertCircle } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 
 // Tab identifiers for the three settings sections
@@ -73,11 +73,6 @@ export function SettingsPage() {
 
   // Local form state — decoupled from context so changes aren't applied until Save
   const [settings, setSettings] = useState<SettingsData>(state.settings);
-
-  // Keep local form in sync if context is updated externally
-  useEffect(() => {
-    setSettings(state.settings);
-  }, [state.settings]);
 
   // Generic updater for any single setting field
   const updateSetting = <K extends keyof SettingsData>(key: K, value: SettingsData[K]) => {

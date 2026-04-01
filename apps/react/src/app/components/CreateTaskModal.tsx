@@ -15,7 +15,7 @@ interface TaskFormData {
 interface CreateTaskModalProps {
   readonly isOpen: boolean;
   readonly onClose: () => void;
-  readonly onSubmit: (data: any) => void;
+  readonly onSubmit: (data: TaskFormData) => void;
 }
 
 export function CreateTaskModal({ isOpen, onClose, onSubmit }: CreateTaskModalProps) {

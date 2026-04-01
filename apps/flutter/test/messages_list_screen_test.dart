@@ -8,7 +8,7 @@ import 'package:flutter_app/core/accessibility/app_settings_controller.dart';
 import 'package:flutter_app/features/messages/messages_list_screen.dart';
 
 void main() {
-  Widget _wrap(Widget child) {
+  Widget wrap(Widget child) {
     return MaterialApp(
       home: ChangeNotifierProvider<AppSettingsController>(
         create: (_) => AppSettingsController(),
@@ -20,7 +20,7 @@ void main() {
   testWidgets('MessagesListScreen shows list and can filter to unread only', (tester) async {
     SharedPreferences.setMockInitialValues({});
 
-    await tester.pumpWidget(_wrap(const MessagesListScreen()));
+    await tester.pumpWidget(wrap(const MessagesListScreen()));
     await tester.pumpAndSettle();
 
     expect(find.text('Messages'), findsOneWidget);

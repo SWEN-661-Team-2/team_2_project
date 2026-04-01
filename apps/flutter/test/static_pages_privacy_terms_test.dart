@@ -10,7 +10,7 @@ import 'package:flutter_app/features/privacy/privacy_policy_screen.dart';
 import 'package:flutter_app/features/privacy/terms_of_service_screen.dart';
 
 void main() {
-  Widget _wrap(Widget child) {
+  Widget wrap(Widget child) {
     return MaterialApp(
       home: ChangeNotifierProvider<AppSettingsController>(
         create: (_) => AppSettingsController(),
@@ -20,7 +20,7 @@ void main() {
   }
 
   testWidgets('PrivacyPolicyScreen renders static content', (tester) async {
-    await tester.pumpWidget(_wrap(const PrivacyPolicyScreen()));
+    await tester.pumpWidget(wrap(const PrivacyPolicyScreen()));
     await tester.pumpAndSettle();
 
     expect(find.text('Privacy Policy'), findsOneWidget);
@@ -32,7 +32,7 @@ void main() {
   });
 
   testWidgets('TermsOfServiceScreen renders static content', (tester) async {
-    await tester.pumpWidget(_wrap(const TermsOfServiceScreen()));
+    await tester.pumpWidget(wrap(const TermsOfServiceScreen()));
     await tester.pumpAndSettle();
 
     expect(find.text('Terms of Service'), findsOneWidget);

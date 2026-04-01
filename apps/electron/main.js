@@ -84,7 +84,6 @@ app.whenReady().then(async () => {
 
 
 // 1. Grant permissions to the extension ID manually in the session
-const extensionId = 'lhdoppojpmngadmnindnejefpokejbdd';
 
 // 2. Bypass CSP and Security for the extension only
 session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
