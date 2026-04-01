@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, type Task } from '../../db';
+import { db, type Task, type TaskFormData } from '../../db';
+
 import {
   Plus, Search, Clock, User, Filter,
   CheckCircle2, Circle, AlertCircle,
@@ -51,12 +52,11 @@ export function TaskManagement() {
   };
 
   // Adds a new task to IndexedDB and closes the modal
-  const handleCreateTask = async (data: Omit<Task, 'id' | 'status'>) => {
+  const handleCreateTask = async (data: TaskFormData) => {
     try {
       await db.tasks.add({
         ...data,
         status: 'pending',
-        // Default time to now if the form doesn't supply one
         time: data.time || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       });
       setTaskModalOpen(false);

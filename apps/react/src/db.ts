@@ -33,6 +33,25 @@ export interface Patient {
   admissionDate: string;
 }
 
+// Form data collected when registering a new patient
+export interface PatientFormData {
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  gender: string;
+  phone: string;
+  email: string;
+}
+
+// Form data collected when creating a new task
+export interface TaskFormData {
+  title: string;
+  priority: 'high' | 'medium' | 'low';
+  patient: string;
+  time: string;
+  category?: string;
+}
+
 // Appointment record — keyed by year, month (0-indexed), and day
 export interface Appointment {
   id?: number;

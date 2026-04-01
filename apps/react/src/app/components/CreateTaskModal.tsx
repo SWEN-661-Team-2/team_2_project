@@ -1,26 +1,19 @@
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { X, CheckSquare } from 'lucide-react';
+import { type TaskFormData } from '../../db';
 
-// Form field shape — mirrors the Task interface in db.ts
-// Field names match DB column names so the parent can pass data directly to db.tasks.add()
-interface TaskFormData {
-  readonly title: string;
-  readonly priority: 'high' | 'medium' | 'low';
-  readonly category: string;
-  readonly patient: string;
-}
 
 // Props passed in from TaskManagement
 interface CreateTaskModalProps {
   readonly isOpen: boolean;
   readonly onClose: () => void;
-  readonly onSubmit: (data: TaskFormData) => void;
+  readonly onSubmit: (data: TaskFormData) => void | Promise<void>;
 }
 
 export function CreateTaskModal({ isOpen, onClose, onSubmit }: CreateTaskModalProps) {
   // react-hook-form — handles field registration, validation, submission state, and reset
-  const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<TaskFormData>();
+  const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<Omit<TaskFormData, 'time'>>();
 
   // Ref used to implement focus trap and auto-focus the modal on open
   const modalRef = useRef<HTMLDialogElement>(null);
@@ -82,9 +75,13 @@ export function CreateTaskModal({ isOpen, onClose, onSubmit }: CreateTaskModalPr
   if (!isOpen) return null;
 
   // Short artificial delay so the loading state is visible before closing
-  const handleFormSubmit = async (data: TaskFormData) => {
+  const handleFormSubmit = async (data: Omit<TaskFormData, 'time'>) => {
     await new Promise((resolve) => setTimeout(resolve, 400));
-    onSubmit(data);
+    const fullData: TaskFormData = {
+      ...data,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+    onSubmit(fullData);
     reset();
     onClose();
   };

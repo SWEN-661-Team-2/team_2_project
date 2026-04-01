@@ -8,6 +8,7 @@ import {
 // Import your database instance and the Patient type we defined in db.ts
 import { db, type Patient } from '../../db';
 import { AddPatientModal } from './AddPatientModal';
+import { type PatientFormData } from '../../db';
 
 export function PatientCare() {
   // --- UI State ---
@@ -37,20 +38,22 @@ export function PatientCare() {
     : null;
 
   // 4. Handle adding a new patient to Dexie
-  const handleAddPatient = async (data: Omit<Patient, 'id'>) => {
+  const handleAddPatient = async (data: PatientFormData) => {
     try {
-      // Create initials if the form doesn't provide them
-      const initials = `${data.firstName[0]}${data.lastName[0]}`.toUpperCase();
+      const birthDate = new Date(data.dateOfBirth);
+      const age = new Date().getFullYear() - birthDate.getFullYear();
 
       await db.patients.add({
         ...data,
-        initials,
-        // Ensure arrays and required fields exist so the UI doesn't crash
-        diagnosis: data.diagnosis || [],
-        medications: data.medications || [],
-        allergies: data.allergies || [],
-        bloodType: data.bloodType || '',
-        admissionDate: data.admissionDate || new Date().toISOString().split('T')[0],
+        age,
+        initials: `${data.firstName[0]}${data.lastName[0]}`.toUpperCase(),
+        status: 'stable' as const,
+        room: '',
+        diagnosis: [],
+        medications: [],
+        allergies: [],
+        bloodType: '',
+        admissionDate: new Date().toISOString().split('T')[0],
       });
 
       setPatientModalOpen(false);
